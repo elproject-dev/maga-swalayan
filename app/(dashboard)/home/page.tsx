@@ -52,14 +52,14 @@ export function CarouselDemo({ banners }: { banners: any[] }) {
       <CarouselContent>
         {displayBanners.map((banner, index) => (
           <CarouselItem key={`${banner.id}-${index}`}>
-            <div className="relative flex h-52 sm:h-60 md:h-64 lg:h-72 xl:h-80 w-full items-center justify-center rounded-2xl overflow-hidden shadow-sm border border-border/40 bg-card group isolate transform-gpu [webkit-mask-image:-webkit-radial-gradient(white,black)] [mask-image:radial-gradient(white,black)]">
+            <div className="relative flex h-52 sm:h-60 md:h-64 lg:h-72 xl:h-80 w-full items-center justify-center rounded-none overflow-hidden shadow-sm border border-border/40 bg-card group isolate transform-gpu [webkit-mask-image:-webkit-radial-gradient(white,black)] [mask-image:radial-gradient(white,black)]">
               <img
                 src={banner.src}
                 alt={banner.title || "Banner"}
-                className="absolute inset-0 w-full h-full object-cover object-center rounded-2xl transition-transform duration-500 group-hover:scale-102 transform-gpu"
+                className="absolute inset-0 w-full h-full object-cover object-center rounded-none transition-transform duration-500 group-hover:scale-102 transform-gpu"
               />
               {banner.title && (
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4 md:p-6 rounded-2xl">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4 md:p-6 rounded-none">
                   <h2 className="text-white text-lg sm:text-xl md:text-2xl font-bold tracking-tight drop-shadow-md">
                     {banner.title}
                   </h2>
@@ -83,12 +83,12 @@ export function PromoGallery({ promos }: { promos: any[] }) {
     <>
       <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
         <DialogContent className="w-[90vw] max-w-lg p-0 border-none bg-transparent shadow-none [&>button]:text-white [&>button]:bg-black/50 [&>button]:rounded-full [&>button]:p-2 [&>button]:right-2 [&>button]:top-2 [&>button]:hover:bg-black/70">
-          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-xl object-contain shadow-2xl" />}
+          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-none object-contain shadow-2xl" />}
         </DialogContent>
       </Dialog>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-4">
         {promos.map((item) => (
-          <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-xl p-0 group cursor-pointer relative aspect-[4/5]">
+          <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5]">
             <img
               src={item.src}
               alt={item.title}
@@ -125,12 +125,12 @@ export function PilihanHariIniGallery({ items }: { items: any[] }) {
     <>
       <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
         <DialogContent className="w-[90vw] max-w-lg p-0 border-none bg-transparent shadow-none [&>button]:text-white [&>button]:bg-black/50 [&>button]:rounded-full [&>button]:p-2 [&>button]:right-2 [&>button]:top-2 [&>button]:hover:bg-black/70">
-          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-xl object-contain shadow-2xl" />}
+          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-none object-contain shadow-2xl" />}
         </DialogContent>
       </Dialog>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {items.map((item) => (
-          <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-xl p-0 group cursor-pointer relative aspect-[4/5]">
+          <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5]">
             <img
               src={item.src}
               alt={item.title}
@@ -197,21 +197,21 @@ export default function Page() {
   if (isLoading) {
     return (
       <div className="@container/main flex flex-1 flex-col gap-2">
-        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+        <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6">
           <div className="px-4 lg:px-6">
-            <Skeleton className="h-52 sm:h-60 md:h-64 lg:h-72 xl:h-80 w-full rounded-2xl" />
+            <Skeleton className="h-52 sm:h-60 md:h-64 lg:h-72 xl:h-80 w-full rounded-none" />
           </div>
           <div className="px-4 lg:px-6">
             <div className="mb-4 flex items-center justify-between">
-              <Skeleton className="h-7 w-40 rounded-lg" />
-              <Skeleton className="h-5 w-20 rounded-lg" />
+              <Skeleton className="h-7 w-40 rounded-none" />
+              <Skeleton className="h-5 w-20 rounded-none" />
             </div>
             <SkeletonGrid count={5} />
           </div>
           <div className="px-4 lg:px-6 pt-2 pb-6">
             <div className="mb-4 flex items-center justify-between">
-              <Skeleton className="h-7 w-40 rounded-lg" />
-              <Skeleton className="h-5 w-20 rounded-lg" />
+              <Skeleton className="h-7 w-40 rounded-none" />
+              <Skeleton className="h-5 w-20 rounded-none" />
             </div>
             <SkeletonGrid count={5} />
           </div>
@@ -222,7 +222,7 @@ export default function Page() {
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
-      <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6">
         <div className="px-4 lg:px-6">
           <CarouselDemo banners={banners} />
         </div>

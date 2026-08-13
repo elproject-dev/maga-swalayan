@@ -121,7 +121,7 @@ export default function PoinPage() {
   }
 
   return (
-    <div className="@container/main flex flex-1 flex-col gap-6 py-4 md:py-8 px-4 lg:px-8">
+    <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
 
@@ -131,12 +131,12 @@ export default function PoinPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative w-full sm:max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Cari nama atau no. telp..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-9"
+            className="pr-9"
           />
         </div>
         <div className="flex gap-2 self-end sm:self-auto">
@@ -177,7 +177,7 @@ export default function PoinPage() {
               <Skeleton className="h-4 w-24" />
               <div className="flex justify-between pt-3 border-t">
                 <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-6 w-12 rounded-full" />
+                <Skeleton className="h-6 w-12 rounded-none" />
               </div>
             </div>
           ))
@@ -228,11 +228,11 @@ export default function PoinPage() {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden md:block rounded-xl border bg-card overflow-hidden shadow-sm">
+      <div className="hidden md:block rounded-none border bg-card overflow-hidden shadow-sm">
         <Table>
-          <TableHeader className="bg-muted/50">
+          <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px] text-center border-r">
+              <TableHead className="w-[50px] text-center">
                 {isActionMode ? (
                   <div className="flex justify-center">
                     <Checkbox
@@ -244,10 +244,10 @@ export default function PoinPage() {
                   "No"
                 )}
               </TableHead>
-              <TableHead className="border-r">Nama Pelanggan</TableHead>
-              <TableHead className="border-r">No. Telp</TableHead>
-              <TableHead className="border-r text-center w-[150px]">Jumlah Poin</TableHead>
-              <TableHead className="border-r text-center w-[180px]">Terakhir Diperbarui</TableHead>
+              <TableHead>Nama Pelanggan</TableHead>
+              <TableHead>No. Telp</TableHead>
+              <TableHead className="text-center w-[150px]">Jumlah Poin</TableHead>
+              <TableHead className="text-center w-[180px]">Terakhir Diperbarui</TableHead>
               <TableHead className="text-center w-[120px]">Status</TableHead>
             </TableRow>
           </TableHeader>
@@ -255,18 +255,18 @@ export default function PoinPage() {
             {isLoading ? (
               Array.from({ length: filteredPoin.length > 0 ? Math.min(filteredPoin.length, 10) : 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-32" /></TableCell>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-28" /></TableCell>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-16 mx-auto" /></TableCell>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-24 mx-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-full" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-28" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-16 mx-auto" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-24 mx-auto" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-none" /></TableCell>
                 </TableRow>
               ))
             ) : (
               filteredPoin.slice((currentPage - 1) * 10, currentPage * 10).map((poin, index) => (
                 <TableRow key={poin.id} className="hover:bg-accent/50 transition-colors">
-                  <TableCell className="text-center border-r font-medium text-muted-foreground">
+                  <TableCell className="text-center font-medium text-muted-foreground">
                     {isActionMode ? (
                       <div className="flex justify-center">
                         <Checkbox
@@ -278,16 +278,16 @@ export default function PoinPage() {
                       (currentPage - 1) * 10 + index + 1
                     )}
                   </TableCell>
-                  <TableCell className="font-semibold border-r">
+                  <TableCell className="font-semibold">
                     {poin.name}
                   </TableCell>
-                  <TableCell className="border-r">
+                  <TableCell>
                     {poin.phone}
                   </TableCell>
-                  <TableCell className="border-r text-center font-bold text-primary">
+                  <TableCell className="text-center font-bold text-primary">
                     {(poin.points || 0).toLocaleString('id-ID')}
                   </TableCell>
-                  <TableCell className="border-r text-center text-muted-foreground text-sm">
+                  <TableCell className="text-center text-muted-foreground text-sm">
                     {poin.lastUpdated}
                   </TableCell>
                   <TableCell className="text-center">
@@ -313,7 +313,7 @@ export default function PoinPage() {
         </Table>
       </div>
       
-      <div className="rounded-xl border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0 md:rounded-t-none">
+      <div className="rounded-none border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0">
         <TablePagination
           currentPage={currentPage}
           totalPages={Math.ceil(filteredPoin.length / 10)}

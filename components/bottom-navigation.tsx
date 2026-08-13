@@ -12,22 +12,32 @@ import {
   Settings2,
   User2,
   Menu,
+  Settings,
+  HdIcon,
+  LayoutGrid,
+  CirclePercent,
+  Building,
+  HandCoins,
+  CircleUser,
+  Shield,
+  ShieldUser,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 
 const mainLinks = [
-  { href: "/home", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/promo", label: "Promo", icon: Disc2 },
+  { href: "/home", label: "Dashboard", icon: LayoutGrid },
+  { href: "/promo", label: "Promo", icon: CirclePercent },
   { href: "/produk", label: "Produk", icon: Box },
-  { href: "/pilihan", label: "Pilihan", icon: ChartBar },
+  { href: "/pilihan", label: "Pilihan", icon: Building },
 ]
 
 const moreLinks = [
-  { href: "/poin", label: "Poin", icon: Pointer },
+  { href: "/account", label: "Akun", icon: User2 },
+  { href: "/poin", label: "Poin", icon: HandCoins },
   { href: "/pelanggan", label: "Pelanggan", icon: Users },
-  { href: "/staf", label: "Staf", icon: User2 },
-  { href: "/settings", label: "Pengaturan", icon: Settings2 },
+  { href: "/staf", label: "Staf", icon: ShieldUser },
+  { href: "/settings", label: "Settings", icon: Settings },
 ]
 
 export function BottomNavigation() {

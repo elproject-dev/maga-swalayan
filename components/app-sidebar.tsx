@@ -149,14 +149,6 @@ const data = {
         />
       ),
     },
-    {
-      title: "Search",
-      url: "#",
-      icon: (
-        <SearchIcon
-        />
-      ),
-    },
   ],
   documents: [
     {
@@ -200,7 +192,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       }
     }
     fetchUser()
-    
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUserData({
@@ -210,7 +202,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         })
       }
     })
-    
+
     return () => subscription.unsubscribe()
   }, [])
 

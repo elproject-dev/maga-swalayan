@@ -47,8 +47,8 @@ export default function PromoPage() {
   if (!isMounted) {
     return (
       <div className="@container/main flex flex-1 flex-col gap-2">
-        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6 px-4 lg:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Semua Promo</h1>
           </div>
           <SkeletonGrid count={10} />
@@ -69,56 +69,56 @@ export default function PromoPage() {
     <>
       <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
         <DialogContent className="w-[90vw] max-w-lg p-0 border-none bg-transparent shadow-none [&>button]:text-white [&>button]:bg-black/50 [&>button]:rounded-full [&>button]:p-2 [&>button]:right-2 [&>button]:top-2 [&>button]:hover:bg-black/70">
-          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-xl object-contain shadow-2xl" />}
+          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-none object-contain shadow-2xl" />}
         </DialogContent>
       </Dialog>
       <div className="@container/main flex flex-1 flex-col gap-2">
-      <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+        <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6 px-4 lg:px-6">
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Semua Promo</h1>
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Cari promo..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-          {filteredImages.map((item) => (
-            <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-xl p-0 group cursor-pointer relative aspect-[4/5]">
-              <img
-                src={item.src}
-                alt={item.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Semua Promo</h1>
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Cari promo..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pr-9"
               />
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
-
-              <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 flex flex-col pointer-events-none">
-                <div className="w-full border-t border-white/30 pt-3 flex flex-col gap-1">
-                  <h3 className="text-white text-sm md:text-base font-semibold line-clamp-1 drop-shadow-md">
-                    {item.title}
-                  </h3>
-                  <p className="text-yellow-400 text-xs md:text-sm font-bold drop-shadow-md">
-                    {item.promo}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ))}
-          {filteredImages.length === 0 && (
-            <div className="col-span-full py-12 text-center text-muted-foreground">
-              Tidak ada promo yang cocok dengan pencarian Anda.
             </div>
-          )}
-        </div>
+          </div>
 
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-4">
+            {filteredImages.map((item) => (
+              <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5]">
+                <img
+                  src={item.src}
+                  alt={item.title}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
+
+                <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 flex flex-col pointer-events-none">
+                  <div className="w-full border-t border-white/30 pt-3 flex flex-col gap-1">
+                    <h3 className="text-white text-sm md:text-base font-semibold line-clamp-1 drop-shadow-md">
+                      {item.title}
+                    </h3>
+                    <p className="text-yellow-400 text-xs md:text-sm font-bold drop-shadow-md">
+                      {item.promo}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+            {filteredImages.length === 0 && (
+              <div className="col-span-full py-12 text-center text-muted-foreground">
+                Tidak ada promo yang cocok dengan pencarian Anda.
+              </div>
+            )}
+          </div>
+
+        </div>
       </div>
-    </div>
     </>
   )
 }

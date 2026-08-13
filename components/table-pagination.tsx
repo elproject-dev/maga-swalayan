@@ -22,8 +22,8 @@ export function TablePagination({
   const safeTotalPages = Math.max(1, totalPages);
 
   return (
-    <div className="py-4 flex items-center justify-center border-t">
-      <Pagination>
+    <div className="py-4 px-6 flex items-center justify-end">
+      <Pagination className="mx-0 w-auto">
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious

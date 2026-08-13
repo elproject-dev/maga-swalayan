@@ -189,12 +189,11 @@ export default function AccountPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Profile Card */}
-        <Card className="col-span-1 lg:col-span-1 border-primary/10 shadow-md">
+        <Card className="col-span-1 lg:col-span-1 border-primary/10 shadow-md flex flex-col">
           <CardHeader>
-            <CardTitle>Foto Profil</CardTitle>
-
+            <CardTitle className="text-center">Foto Profil</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col items-center space-y-4">
+          <CardContent className="flex-1 flex flex-col items-center justify-center space-y-4">
             <div className="relative">
               <Avatar className="h-32 w-32 rounded-full border-4 border-muted">
                 <AvatarImage src={avatarUrl || "/boy.png"} alt="Avatar" />
@@ -220,11 +219,10 @@ export default function AccountPage() {
             />
             <Button
               variant="outline"
-              className="w-full"
+              className="w-auto px-8"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUpdatingAvatar}
             >
-              {isUpdatingAvatar ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
               {isUpdatingAvatar ? "Mengunggah..." : "Ubah Foto"}
             </Button>
           </CardContent>
@@ -254,8 +252,7 @@ export default function AccountPage() {
                 </div>
                 <div className="flex justify-end mt-4">
                   <Button type="submit" className="w-1/2" disabled={isUpdatingPhone}>
-                    {isUpdatingPhone ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Simpan Nomor
+                    {isUpdatingPhone ? "Menyimpan..." : "Simpan Nomor"}
                   </Button>
                 </div>
               </CardContent>
@@ -270,7 +267,7 @@ export default function AccountPage() {
                 Kata Sandi
               </CardTitle>
               <CardDescription>
-                Ubah kata sandi akun Anda. Pengguna Google Login mungkin harus membuat sandi baru jika ingin login dengan Email.
+                Pengguna Google Login mungkin harus membuat sandi baru jika ingin login dengan Email.
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleUpdatePassword}>
@@ -287,8 +284,7 @@ export default function AccountPage() {
                 </div>
                 <div className="flex justify-end mt-4">
                   <Button type="submit" className="w-1/2" disabled={isUpdatingPassword || !newPassword}>
-                    {isUpdatingPassword ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Ganti Kata Sandi
+                    {isUpdatingPassword ? "Menyimpan..." : "Ganti Kata Sandi"}
                   </Button>
                 </div>
               </CardContent>

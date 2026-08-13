@@ -131,19 +131,19 @@ export default function PelangganPage() {
   }
 
   return (
-    <div className="@container/main flex flex-1 flex-col gap-6 py-4 md:py-8 px-4 lg:px-8">
+    <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Daftar Pelanggan</h1>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative w-full sm:max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Cari nama atau no. telp..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-9"
+            className="pr-9"
           />
         </div>
         <div className="flex gap-2 items-center self-end sm:self-auto">
@@ -155,7 +155,6 @@ export default function PelangganPage() {
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Menghapus...
                 </>
               ) : (
@@ -194,7 +193,7 @@ export default function PelangganPage() {
               <Skeleton className="h-4 w-24" />
               <div className="flex justify-between pt-3 border-t">
                 <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-6 w-12 rounded-full" />
+                <Skeleton className="h-6 w-12 rounded-none" />
               </div>
             </div>
           ))
@@ -243,11 +242,11 @@ export default function PelangganPage() {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden md:block rounded-xl border bg-card overflow-hidden shadow-sm">
+      <div className="hidden md:block rounded-none border bg-card overflow-hidden shadow-sm">
         <Table>
-          <TableHeader className="bg-muted/50">
+          <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px] text-center border-r">
+              <TableHead className="w-[50px] text-center">
                 {isActionMode ? (
                   <div className="flex justify-center">
                     <Checkbox
@@ -259,10 +258,10 @@ export default function PelangganPage() {
                   "No"
                 )}
               </TableHead>
-              <TableHead className="border-r">Nama Pelanggan</TableHead>
-              <TableHead className="border-r">Email</TableHead>
-              <TableHead className="border-r">No. Telp</TableHead>
-              <TableHead className="border-r text-center w-[120px]">Poin</TableHead>
+              <TableHead>Nama Pelanggan</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>No. Telp</TableHead>
+              <TableHead className="text-center w-[120px]">Poin</TableHead>
               <TableHead className="text-center w-[120px]">Status</TableHead>
             </TableRow>
           </TableHeader>
@@ -270,18 +269,18 @@ export default function PelangganPage() {
             {isLoading ? (
               Array.from({ length: filteredCustomers.length > 0 ? Math.min(filteredCustomers.length, 10) : 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-32" /></TableCell>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-40" /></TableCell>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-28" /></TableCell>
-                  <TableCell className="border-r"><Skeleton className="h-6 w-16 mx-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-full" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-40" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-28" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-16 mx-auto" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-none" /></TableCell>
                 </TableRow>
               ))
             ) : (
               filteredCustomers.slice((currentPage - 1) * 10, currentPage * 10).map((customer, index) => (
                 <TableRow key={customer.id} className="hover:bg-accent/50 transition-colors">
-                  <TableCell className="text-center border-r font-medium text-muted-foreground">
+                  <TableCell className="text-center font-medium text-muted-foreground">
                     {isActionMode ? (
                       <div className="flex justify-center">
                         <Checkbox
@@ -293,16 +292,16 @@ export default function PelangganPage() {
                       (currentPage - 1) * 10 + index + 1
                     )}
                   </TableCell>
-                  <TableCell className="font-semibold border-r">
+                  <TableCell className="font-semibold">
                     {customer.name}
                   </TableCell>
-                  <TableCell className="border-r">
+                  <TableCell>
                     {customer.email}
                   </TableCell>
-                  <TableCell className="border-r">
+                  <TableCell>
                     {customer.phone}
                   </TableCell>
-                  <TableCell className="border-r text-center font-medium text-primary">
+                  <TableCell className="text-center font-medium text-primary">
                     {(customer.points || 0).toLocaleString('id-ID')}
                   </TableCell>
                   <TableCell className="text-center">
@@ -328,7 +327,7 @@ export default function PelangganPage() {
         </Table>
       </div>
       
-      <div className="rounded-xl border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0 md:rounded-t-none">
+      <div className="rounded-none border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0">
         <TablePagination
           currentPage={currentPage}
           totalPages={Math.ceil(filteredCustomers.length / 10)}

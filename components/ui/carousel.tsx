@@ -185,7 +185,7 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation rounded-full",
+        "absolute touch-manipulation",
         orientation === "horizontal"
           ? "inset-y-0 -left-12 my-auto"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -215,7 +215,7 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation rounded-full",
+        "absolute touch-manipulation",
         orientation === "horizontal"
           ? "inset-y-0 -right-12 my-auto"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -231,63 +231,64 @@ function CarouselNext({
   )
 }
 
-type CarouselDotsProps = React.HTMLAttributes<HTMLDivElement> & {
-  realCount?: number
-}
+function CarouselDots({
+  className,
+  realCount,
+  ...props
+}: React.ComponentProps<"div"> & { realCount?: number }) {
+  const { api } = useCarousel()
+  const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([])
 
-const CarouselDots = React.forwardRef<HTMLDivElement, CarouselDotsProps>(
-  ({ className, realCount, ...props }, ref) => {
-    const { api } = useCarousel()
-    const [selectedIndex, setSelectedIndex] = React.useState(0)
-    const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([])
+  const onInit = React.useCallback((api: CarouselApi) => {
+    if (!api) return
+    setScrollSnaps(api.scrollSnapList())
+  }, [])
 
-    const onInit = React.useCallback((api: CarouselApi) => {
-      if (!api) return
-      setScrollSnaps(api.scrollSnapList())
-    }, [])
+  const onSelect = React.useCallback((api: CarouselApi) => {
+    if (!api) return
+    setSelectedIndex(api.selectedScrollSnap())
+  }, [])
 
-    const onSelect = React.useCallback((api: CarouselApi) => {
-      if (!api) return
-      setSelectedIndex(api.selectedScrollSnap())
-    }, [])
+  React.useEffect(() => {
+    if (!api) return
 
-    React.useEffect(() => {
-      if (!api) return
-      onInit(api)
-      onSelect(api)
-      api.on("reInit", onInit).on("reInit", onSelect).on("select", onSelect)
+    onInit(api)
+    onSelect(api)
+    api.on("reInit", onInit)
+    api.on("reInit", onSelect)
+    api.on("select", onSelect)
+  }, [api, onInit, onSelect])
 
-      return () => {
-        api?.off("reInit", onInit).off("reInit", onSelect).off("select", onSelect)
-      }
-    }, [api, onInit, onSelect])
+  const dotCount = realCount ?? scrollSnaps.length
 
-    const totalDots = realCount && realCount > 0 ? realCount : scrollSnaps.length
-    const activeIndex = realCount && realCount > 0 ? selectedIndex % realCount : selectedIndex
+  if (dotCount === 0) return null
 
-    return (
-      <div
-        ref={ref}
-        className={cn("flex justify-center gap-2", className)}
-        {...props}
-      >
-        {Array.from({ length: totalDots }).map((_, index) => (
+  return (
+    <div
+      className={cn("flex items-center justify-center gap-1.5", className)}
+      {...props}
+    >
+      {Array.from({ length: dotCount }).map((_, index) => {
+        const isActive = index === (selectedIndex % dotCount)
+        return (
           <button
             key={index}
-            className={cn(
-              "h-2 w-2 rounded-full transition-all",
-              index === activeIndex
-                ? "bg-primary w-4"
-                : "bg-primary/50 hover:bg-primary/75"
-            )}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            aria-label={`Go to slide ${index + 1}`}
             onClick={() => api?.scrollTo(index)}
+            className={cn(
+              "h-2 w-2 rounded-full transition-all duration-300",
+              isActive ? "w-6 bg-primary" : "bg-primary/30"
+            )}
           />
-        ))}
-      </div>
-    )
-  }
-)
-CarouselDots.displayName = "CarouselDots"
+        )
+      })}
+    </div>
+  )
+}
 
 export {
   type CarouselApi,

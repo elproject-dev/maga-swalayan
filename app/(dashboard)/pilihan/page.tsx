@@ -45,7 +45,7 @@ export default function PilihanPage() {
   if (!isMounted) {
     return (
       <div className="@container/main flex flex-1 flex-col gap-2">
-        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+        <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6 px-4 lg:px-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
             <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Pilihan Hari Ini</h1>
           </div>
@@ -67,28 +67,28 @@ export default function PilihanPage() {
     <>
       <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
         <DialogContent className="w-[90vw] max-w-lg p-0 border-none bg-transparent shadow-none [&>button]:text-white [&>button]:bg-black/50 [&>button]:rounded-full [&>button]:p-2 [&>button]:right-2 [&>button]:top-2 [&>button]:hover:bg-black/70">
-          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-xl object-contain shadow-2xl" />}
+          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-none object-contain shadow-2xl" />}
         </DialogContent>
       </Dialog>
       <div className="@container/main flex flex-1 flex-col gap-2">
-        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+        <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6 px-4 lg:px-6">
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
             <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Pilihan Hari Ini</h1>
             <div className="relative w-full sm:max-w-xs">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Cari pilihan..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pr-9"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {filteredPilihans.map((item) => (
-              <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-xl p-0 group cursor-pointer relative aspect-[4/5]">
+              <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5]">
                 <img
                   src={item.src}
                   alt={item.title}
