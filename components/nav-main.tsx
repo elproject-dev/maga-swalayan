@@ -33,14 +33,7 @@ export function NavMain({
               <CirclePlusIcon />
               <span>Broadcase</span>
             </SidebarMenuButton>
-            <Button
-              size="icon"
-              className="size-8 group-data-[collapsible=icon]:opacity-0"
-              variant="outline"
-            >
-              <MailIcon />
-              <span className="sr-only">Inbox</span>
-            </Button>
+
             <div className="group-data-[collapsible=icon]:opacity-0">
               <ModeToggle />
             </div>
