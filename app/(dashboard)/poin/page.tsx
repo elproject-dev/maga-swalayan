@@ -61,12 +61,9 @@ export default function PoinPage() {
   }
 
   useEffect(() => {
+    setIsMounted(true)
     fetchPoin()
   }, [])
-
-  if (!isMounted) {
-    setTimeout(() => setIsMounted(true), 50)
-  }
 
   const filteredPoin = poinList.filter((p) => {
     const q = searchQuery.toLowerCase()
@@ -171,7 +168,67 @@ export default function PoinPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card overflow-hidden shadow-sm">
+      {/* Mobile Card List */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-card rounded-xl border p-4 space-y-3">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-4 w-24" />
+              <div className="flex justify-between pt-3 border-t">
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-6 w-12 rounded-full" />
+              </div>
+            </div>
+          ))
+        ) : filteredPoin.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+            Tidak ada data poin yang cocok.
+          </div>
+        ) : (
+          filteredPoin.slice((currentPage - 1) * 10, currentPage * 10).map((poin) => (
+            <div 
+              key={poin.id} 
+              className="bg-card rounded-xl border shadow-sm p-4 space-y-3 relative"
+            >
+              {isActionMode && (
+                <div className="absolute top-4 right-4 z-10">
+                  <Checkbox
+                    checked={selectedRows.includes(poin.id)}
+                    onCheckedChange={(c) => handleSelectRow(poin.id, !!c)}
+                  />
+                </div>
+              )}
+              <div className="flex flex-col pr-8">
+                <div className="font-semibold text-foreground mb-1">{poin.name}</div>
+                <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    {poin.phone || "-"}
+                  </div>
+                  <div className="text-xs">Diperbarui: {poin.lastUpdated}</div>
+                </div>
+              </div>
+              <div className="flex justify-between items-end pt-3 border-t">
+                <div>
+                  <span className="text-xs text-muted-foreground block mb-1">Poin</span>
+                  <div className="font-bold text-primary text-lg">{(poin.points || 0).toLocaleString('id-ID')}</div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-xs text-muted-foreground block mb-2">Status</span>
+                  <Switch
+                    checked={poin.status === "Aktif"}
+                    onCheckedChange={() => toggleStatus(poin.id)}
+                    aria-label={`Toggle status ${poin.name}`}
+                  />
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden md:block rounded-xl border bg-card overflow-hidden shadow-sm">
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
@@ -254,6 +311,9 @@ export default function PoinPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+      
+      <div className="rounded-xl border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0 md:rounded-t-none">
         <TablePagination
           currentPage={currentPage}
           totalPages={Math.ceil(filteredPoin.length / 10)}

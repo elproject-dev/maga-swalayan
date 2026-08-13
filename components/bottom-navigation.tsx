@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils"
 import { useState } from "react"
 
 const mainLinks = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/home", label: "Dashboard", icon: LayoutDashboard },
   { href: "/promo", label: "Promo", icon: Disc2 },
   { href: "/produk", label: "Produk", icon: Box },
   { href: "/pilihan", label: "Pilihan", icon: ChartBar },
@@ -102,7 +102,7 @@ export function BottomNavigation() {
             const Icon = link.icon
             const isActive =
               pathname === link.href ||
-              (link.href !== "/" && pathname.startsWith(link.href))
+              (link.href !== "/home" && pathname.startsWith(link.href))
             return (
               <Link
                 key={link.href}

@@ -58,13 +58,9 @@ export default function StafPage() {
   }
 
   useEffect(() => {
+    setIsMounted(true)
     fetchStaff()
   }, [])
-
-  if (!isMounted) {
-    // Run fetchStaff and set isMounted
-    setTimeout(() => setIsMounted(true), 50)
-  }
 
   const filteredStaff = staffList.filter((s) => {
     const q = searchQuery.toLowerCase()
@@ -190,7 +186,64 @@ export default function StafPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card overflow-hidden shadow-sm">
+      {/* Mobile Card List */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-card rounded-xl border p-4 space-y-3">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-4 w-24" />
+              <div className="flex justify-between pt-3 border-t">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-6 w-12 rounded-full" />
+              </div>
+            </div>
+          ))
+        ) : filteredStaff.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+            Tidak ada data staf yang cocok.
+          </div>
+        ) : (
+          filteredStaff.slice((currentPage - 1) * 10, currentPage * 10).map((staf) => (
+            <div 
+              key={staf.id} 
+              className="bg-card rounded-xl border shadow-sm p-4 space-y-3 relative"
+            >
+              {isActionMode && (
+                <div className="absolute top-4 right-4 z-10">
+                  <Checkbox
+                    checked={selectedRows.includes(staf.id)}
+                    onCheckedChange={(c) => handleSelectRow(staf.id, !!c)}
+                  />
+                </div>
+              )}
+              <div className="flex flex-col pr-8">
+                <div className="font-semibold text-foreground mb-1">{staf.name}</div>
+                <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                  <div className="font-medium text-primary">{staf.role}</div>
+                  <div>{staf.phone || "-"}</div>
+                  <div>{staf.email || "-"}</div>
+                </div>
+              </div>
+              <div className="flex justify-between items-end pt-3 border-t">
+                <div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-xs text-muted-foreground block mb-2">Status</span>
+                  <Switch
+                    checked={staf.isActive}
+                    onCheckedChange={() => toggleStatus(staf.id)}
+                    aria-label={`Toggle status ${staf.name}`}
+                  />
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden md:block rounded-xl border bg-card overflow-hidden shadow-sm">
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
@@ -273,6 +326,9 @@ export default function StafPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="rounded-xl border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0 md:rounded-t-none">
         <TablePagination
           currentPage={currentPage}
           totalPages={Math.ceil(filteredStaff.length / 10)}

@@ -686,7 +686,65 @@ export default function SettingsPage() {
                       </DialogContent>
                     </Dialog>
 
-                    <div className="rounded-md border bg-card overflow-hidden justify-center items-center">
+                    {/* Mobile Card List */}
+                    <div className="flex flex-col gap-3 md:hidden">
+                      {isLoading ? (
+                        Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="bg-card rounded-xl border p-3 flex gap-3">
+                            <Skeleton className="w-5 h-5 rounded-sm" />
+                            <Skeleton className="w-16 h-20 rounded-md shrink-0" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-4 w-3/4" />
+                              <Skeleton className="h-3 w-1/2" />
+                            </div>
+                          </div>
+                        ))
+                      ) : filteredPromos.length === 0 ? (
+                        <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+                          Tidak ada data promo.
+                        </div>
+                      ) : (
+                        filteredPromos.slice((currentPage - 1) * 10, currentPage * 10).map((promo) => (
+                          <div key={promo.id} className="bg-card rounded-xl border shadow-sm p-3 flex gap-3 relative">
+                            <div className="flex items-center">
+                              <Checkbox
+                                checked={selectedRows.includes(promo.id)}
+                                onCheckedChange={(c) => handleSelectRow(promo.id, !!c)}
+                                aria-label={`Select ${promo.title}`}
+                              />
+                            </div>
+                            <div className="w-16 h-20 shrink-0 cursor-pointer" onClick={() => handleEditClick(promo)}>
+                              <img src={promo.src} alt={promo.title} className="w-full h-full object-cover rounded-md border" />
+                            </div>
+                            <div className="flex flex-1 flex-col justify-between min-w-0">
+                              <div onClick={() => handleEditClick(promo)} className="cursor-pointer">
+                                <div className="font-semibold text-foreground truncate text-sm">{promo.title}</div>
+                                <div className="text-xs text-muted-foreground truncate">{promo.promo}</div>
+                              </div>
+                              <div className="flex items-center justify-between mt-2 border-t pt-2">
+                                <span className="text-xs text-muted-foreground">Status</span>
+                                <Switch
+                                  checked={promo.is_active}
+                                  onCheckedChange={async (checked) => {
+                                    const { error } = await supabase.from('promo').update({ is_active: checked }).eq('id', promo.id)
+                                    if (!error) {
+                                      setPromos(promos.map(p => p.id === promo.id ? { ...p, is_active: checked } : p))
+                                      toast.add({ title: `Status promo ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
+                                    } else {
+                                      toast.add({ title: "Gagal memperbarui status promo", description: error.message, type: "error" })
+                                    }
+                                  }}
+                                  aria-label={`Toggle status ${promo.title}`}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Desktop Table */}
+                    <div className="hidden md:block rounded-md border bg-card overflow-hidden justify-center items-center">
                       <Table>
                         <TableHeader className="bg-muted/50">
                           <TableRow>
@@ -760,6 +818,9 @@ export default function SettingsPage() {
                           )}
                         </TableBody>
                       </Table>
+                    </div>
+                    
+                    <div className="rounded-xl border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0 md:rounded-t-none">
                       <TablePagination
                         currentPage={currentPage}
                         totalPages={Math.ceil(filteredPromos.length / 10)}
@@ -891,7 +952,65 @@ export default function SettingsPage() {
                       </DialogContent>
                     </Dialog>
 
-                    <div className="rounded-md border bg-card overflow-hidden">
+                    {/* Mobile Card List */}
+                    <div className="flex flex-col gap-3 md:hidden">
+                      {isLoading ? (
+                        Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="bg-card rounded-xl border p-3 flex gap-3">
+                            <Skeleton className="w-5 h-5 rounded-sm" />
+                            <Skeleton className="w-16 h-20 rounded-md shrink-0" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-4 w-3/4" />
+                              <Skeleton className="h-3 w-1/2" />
+                            </div>
+                          </div>
+                        ))
+                      ) : filteredPilihans.length === 0 ? (
+                        <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+                          Tidak ada data pilihan.
+                        </div>
+                      ) : (
+                        filteredPilihans.slice((currentPage - 1) * 10, currentPage * 10).map((pilihan) => (
+                          <div key={pilihan.id} className="bg-card rounded-xl border shadow-sm p-3 flex gap-3 relative">
+                            <div className="flex items-center">
+                              <Checkbox
+                                checked={selectedPilihanRows.includes(pilihan.id)}
+                                onCheckedChange={(c) => handleSelectRowPilihan(pilihan.id, !!c)}
+                                aria-label={`Select ${pilihan.title}`}
+                              />
+                            </div>
+                            <div className="w-16 h-20 shrink-0 cursor-pointer" onClick={() => handleEditClickPilihan(pilihan)}>
+                              <img src={pilihan.src} alt={pilihan.title} className="w-full h-full object-cover rounded-md border" />
+                            </div>
+                            <div className="flex flex-1 flex-col justify-between min-w-0">
+                              <div onClick={() => handleEditClickPilihan(pilihan)} className="cursor-pointer">
+                                <div className="font-semibold text-foreground truncate text-sm">{pilihan.title}</div>
+                                <div className="text-xs text-muted-foreground truncate">{pilihan.price}</div>
+                              </div>
+                              <div className="flex items-center justify-between mt-2 border-t pt-2">
+                                <span className="text-xs text-muted-foreground">Status</span>
+                                <Switch
+                                  checked={pilihan.is_active}
+                                  onCheckedChange={async (checked) => {
+                                    const { error } = await supabase.from('pilihan').update({ is_active: checked }).eq('id', pilihan.id)
+                                    if (!error) {
+                                      setPilihans(pilihans.map(p => p.id === pilihan.id ? { ...p, is_active: checked } : p))
+                                      toast.add({ title: `Status pilihan produk ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
+                                    } else {
+                                      toast.add({ title: "Gagal memperbarui status pilihan produk", description: error.message, type: "error" })
+                                    }
+                                  }}
+                                  aria-label={`Toggle status ${pilihan.title}`}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Desktop Table */}
+                    <div className="hidden md:block rounded-md border bg-card overflow-hidden">
                       <Table>
                         <TableHeader className="bg-muted/50">
                           <TableRow>
@@ -965,6 +1084,8 @@ export default function SettingsPage() {
                           )}
                         </TableBody>
                       </Table>
+                    </div>
+                    <div className="rounded-xl border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0 md:rounded-t-none">
                       <TablePagination
                         currentPage={currentPage}
                         totalPages={Math.ceil(filteredPilihans.length / 10)}
@@ -1094,7 +1215,65 @@ export default function SettingsPage() {
                       </DialogContent>
                     </Dialog>
 
-                    <div className="rounded-md border bg-card overflow-hidden">
+                    {/* Mobile Card List */}
+                    <div className="flex flex-col gap-3 md:hidden">
+                      {isLoading ? (
+                        Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="bg-card rounded-xl border p-3 flex gap-3">
+                            <Skeleton className="w-5 h-5 rounded-sm" />
+                            <Skeleton className="w-16 h-20 rounded-md shrink-0" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-4 w-3/4" />
+                              <Skeleton className="h-3 w-1/2" />
+                            </div>
+                          </div>
+                        ))
+                      ) : filteredProduks.length === 0 ? (
+                        <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+                          Tidak ada data produk yang cocok.
+                        </div>
+                      ) : (
+                        filteredProduks.slice((currentPage - 1) * 10, currentPage * 10).map((produk) => (
+                          <div key={produk.id} className="bg-card rounded-xl border shadow-sm p-3 flex gap-3 relative">
+                            <div className="flex items-center">
+                              <Checkbox
+                                checked={selectedProdukRows.includes(produk.id)}
+                                onCheckedChange={(c) => handleSelectRowProduk(produk.id, !!c)}
+                                aria-label={`Select ${produk.title}`}
+                              />
+                            </div>
+                            <div className="w-16 h-20 shrink-0 cursor-pointer" onClick={() => handleEditClickProduk(produk)}>
+                              <img src={produk.src} alt={produk.title} className="w-full h-full object-cover rounded-md border" />
+                            </div>
+                            <div className="flex flex-1 flex-col justify-between min-w-0">
+                              <div onClick={() => handleEditClickProduk(produk)} className="cursor-pointer">
+                                <div className="font-semibold text-foreground truncate text-sm">{produk.title}</div>
+                                <div className="text-xs text-muted-foreground truncate">{produk.price}</div>
+                              </div>
+                              <div className="flex items-center justify-between mt-2 border-t pt-2">
+                                <span className="text-xs text-muted-foreground">Status</span>
+                                <Switch
+                                  checked={produk.is_active}
+                                  onCheckedChange={async (checked) => {
+                                    const { error } = await supabase.from('produk').update({ is_active: checked }).eq('id', produk.id)
+                                    if (!error) {
+                                      setProduks(produks.map(p => p.id === produk.id ? { ...p, is_active: checked } : p))
+                                      toast.add({ title: `Status produk ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
+                                    } else {
+                                      toast.add({ title: "Gagal memperbarui status produk", description: error.message, type: "error" })
+                                    }
+                                  }}
+                                  aria-label={`Toggle status ${produk.title}`}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Desktop Table */}
+                    <div className="hidden md:block rounded-md border bg-card overflow-hidden">
                       <Table>
                         <TableHeader className="bg-muted/50">
                           <TableRow>
@@ -1168,6 +1347,8 @@ export default function SettingsPage() {
                           )}
                         </TableBody>
                       </Table>
+                    </div>
+                    <div className="rounded-xl border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0 md:rounded-t-none">
                       <TablePagination
                         currentPage={currentPage}
                         totalPages={Math.ceil(filteredProduks.length / 10)}
@@ -1287,7 +1468,65 @@ export default function SettingsPage() {
                       </DialogContent>
                     </Dialog>
 
-                    <div className="rounded-md border bg-card overflow-hidden">
+                    {/* Mobile Card List */}
+                    <div className="flex flex-col gap-3 md:hidden">
+                      {isLoading ? (
+                        Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="bg-card rounded-xl border p-3 flex gap-3">
+                            <Skeleton className="w-5 h-5 rounded-sm" />
+                            <Skeleton className="w-24 h-12 rounded-md shrink-0" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-4 w-3/4" />
+                            </div>
+                          </div>
+                        ))
+                      ) : filteredBanners.length === 0 ? (
+                        <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+                          Tidak ada data banner.
+                        </div>
+                      ) : (
+                        filteredBanners.slice((currentPage - 1) * 10, currentPage * 10).map((banner) => (
+                          <div key={banner.id} className="bg-card rounded-xl border shadow-sm p-3 flex gap-3 relative flex-col">
+                            <div className="flex items-start gap-3">
+                              <div className="flex items-center mt-1">
+                                <Checkbox
+                                  checked={selectedBannerRows.includes(banner.id)}
+                                  onCheckedChange={(c) => handleSelectRowBanner(banner.id, !!c)}
+                                  aria-label={`Select ${banner.title}`}
+                                />
+                              </div>
+                              <div className="w-24 h-12 shrink-0 cursor-pointer" onClick={() => handleEditClickBanner(banner)}>
+                                <img src={banner.src} alt={banner.title} className="w-full h-full object-cover rounded-md border" />
+                              </div>
+                              <div className="flex flex-1 flex-col justify-center min-w-0">
+                                <div onClick={() => handleEditClickBanner(banner)} className="cursor-pointer">
+                                  <div className="font-semibold text-foreground truncate text-sm line-clamp-2">{banner.title}</div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between mt-1 border-t pt-2">
+                              <span className="text-xs text-muted-foreground">Status</span>
+                              <Switch
+                                checked={banner.is_active}
+                                onCheckedChange={async (checked) => {
+                                  const { error } = await supabase.from('banner').update({ is_active: checked }).eq('id', banner.id)
+                                  if (!error) {
+                                    setBanners(banners.map(b => b.id === banner.id ? { ...b, is_active: checked } : b))
+                                    toast.add({ title: `Status banner ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
+                                  } else {
+                                    toast.add({ title: "Gagal memperbarui status banner", description: error.message, type: "error" })
+                                  }
+                                }}
+                                aria-label={`Toggle status ${banner.title}`}
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Desktop Table */}
+                    <div className="hidden md:block rounded-md border bg-card overflow-hidden">
                       <Table>
                         <TableHeader className="bg-muted/50">
                           <TableRow>
@@ -1360,6 +1599,8 @@ export default function SettingsPage() {
                           )}
                         </TableBody>
                       </Table>
+                    </div>
+                    <div className="rounded-xl border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0 md:rounded-t-none">
                       <TablePagination
                         currentPage={currentPage}
                         totalPages={Math.ceil(filteredBanners.length / 10)}

@@ -17,7 +17,7 @@ export function TablePagination({
   totalPages: number
   onPageChange: (page: number) => void
 }) {
-  
+
 
   const safeTotalPages = Math.max(1, totalPages);
 
@@ -26,8 +26,8 @@ export function TablePagination({
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious 
-              href="#" 
+            <PaginationPrevious
+              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 if (currentPage > 1) onPageChange(currentPage - 1);
@@ -35,17 +35,17 @@ export function TablePagination({
               className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
             />
           </PaginationItem>
-          
+
           {Array.from({ length: safeTotalPages }).map((_, i) => {
             const page = i + 1;
             // Simple logic: show first, last, and +/- 1 from current
             if (page === 1 || page === safeTotalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
               const safeTotalPages = Math.max(1, totalPages);
 
-  return (
+              return (
                 <PaginationItem key={page}>
-                  <PaginationLink 
-                    href="#" 
+                  <PaginationLink
+                    href="#"
                     isActive={page === currentPage}
                     onClick={(e) => {
                       e.preventDefault();
@@ -60,7 +60,7 @@ export function TablePagination({
             if (page === currentPage - 2 || page === currentPage + 2) {
               const safeTotalPages = Math.max(1, totalPages);
 
-  return (
+              return (
                 <PaginationItem key={page}>
                   <PaginationEllipsis />
                 </PaginationItem>
@@ -70,8 +70,8 @@ export function TablePagination({
           })}
 
           <PaginationItem>
-            <PaginationNext 
-              href="#" 
+            <PaginationNext
+              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 if (currentPage < safeTotalPages) onPageChange(currentPage + 1);
