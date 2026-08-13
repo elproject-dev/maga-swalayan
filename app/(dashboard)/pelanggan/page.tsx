@@ -188,7 +188,7 @@ export default function PelangganPage() {
       <div className="flex flex-col gap-3 md:hidden">
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="bg-card rounded-xl border p-4 space-y-3">
+            <div key={i} className="bg-card border p-4 space-y-3">
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-4 w-24" />
               <div className="flex justify-between pt-3 border-t">
@@ -198,14 +198,14 @@ export default function PelangganPage() {
             </div>
           ))
         ) : filteredCustomers.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+          <div className="text-center py-10 text-muted-foreground bg-card border">
             Tidak ada data pelanggan yang cocok.
           </div>
         ) : (
           filteredCustomers.slice((currentPage - 1) * 10, currentPage * 10).map((customer) => (
             <div 
               key={customer.id} 
-              className="bg-card rounded-xl border shadow-sm p-4 space-y-3 relative"
+              className="bg-card border shadow-sm p-4 space-y-3 relative"
             >
               {isActionMode && (
                 <div className="absolute top-4 right-4 z-10">

@@ -581,7 +581,7 @@ export default function SettingsPage() {
                         className="pr-9 h-10"
                       />
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
                       {selectedRows.length > 0 && (
                         <Button variant="secondary" onClick={handleDelete}>Hapus ({selectedRows.length})</Button>
                       )}
@@ -690,7 +690,7 @@ export default function SettingsPage() {
                 <div className="flex flex-col gap-3 md:hidden">
                   {isLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="bg-card rounded-xl border p-3 flex gap-3">
+                      <div key={i} className="bg-card border p-3 flex gap-3">
                         <Skeleton className="w-5 h-5 rounded-none" />
                         <Skeleton className="w-16 h-20 rounded-none shrink-0" />
                         <div className="flex-1 space-y-2">
@@ -700,12 +700,12 @@ export default function SettingsPage() {
                       </div>
                     ))
                   ) : filteredPromos.length === 0 ? (
-                    <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+                    <div className="text-center py-10 text-muted-foreground bg-card border">
                       Tidak ada data promo.
                     </div>
                   ) : (
                     filteredPromos.slice((currentPage - 1) * 10, currentPage * 10).map((promo) => (
-                      <div key={promo.id} className="bg-card rounded-xl border shadow-sm p-3 flex gap-3 relative">
+                      <div key={promo.id} className="bg-card border shadow-sm p-3 flex gap-3 relative">
                         <div className="flex items-center">
                           <Checkbox
                             checked={selectedRows.includes(promo.id)}
@@ -848,7 +848,7 @@ export default function SettingsPage() {
                         className="pr-9 h-10"
                       />
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
                       {selectedPilihanRows.length > 0 && (
                         <Button variant="secondary" onClick={handleDeletePilihan}>Hapus ({selectedPilihanRows.length})</Button>
                       )}
@@ -956,7 +956,7 @@ export default function SettingsPage() {
                 <div className="flex flex-col gap-3 md:hidden">
                   {isLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="bg-card rounded-xl border p-3 flex gap-3">
+                      <div key={i} className="bg-card border p-3 flex gap-3">
                         <Skeleton className="w-5 h-5 rounded-none" />
                         <Skeleton className="w-16 h-20 rounded-none shrink-0" />
                         <div className="flex-1 space-y-2">
@@ -966,12 +966,12 @@ export default function SettingsPage() {
                       </div>
                     ))
                   ) : filteredPilihans.length === 0 ? (
-                    <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+                    <div className="text-center py-10 text-muted-foreground bg-card border">
                       Tidak ada data pilihan.
                     </div>
                   ) : (
                     filteredPilihans.slice((currentPage - 1) * 10, currentPage * 10).map((pilihan) => (
-                      <div key={pilihan.id} className="bg-card rounded-xl border shadow-sm p-3 flex gap-3 relative">
+                      <div key={pilihan.id} className="bg-card border shadow-sm p-3 flex gap-3 relative">
                         <div className="flex items-center">
                           <Checkbox
                             checked={selectedPilihanRows.includes(pilihan.id)}
@@ -1113,7 +1113,7 @@ export default function SettingsPage() {
                         className="pr-9 h-10"
                       />
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
                       {selectedProdukRows.length > 0 && (
                         <Button variant="secondary" onClick={handleDeleteProduk}>Hapus ({selectedProdukRows.length})</Button>
                       )}
@@ -1219,7 +1219,7 @@ export default function SettingsPage() {
                 <div className="flex flex-col gap-3 md:hidden">
                   {isLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="bg-card rounded-xl border p-3 flex gap-3">
+                      <div key={i} className="bg-card border p-3 flex gap-3">
                         <Skeleton className="w-5 h-5 rounded-none" />
                         <Skeleton className="w-16 h-20 rounded-none shrink-0" />
                         <div className="flex-1 space-y-2">
@@ -1229,12 +1229,12 @@ export default function SettingsPage() {
                       </div>
                     ))
                   ) : filteredProduks.length === 0 ? (
-                    <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+                    <div className="text-center py-10 text-muted-foreground bg-card border">
                       Tidak ada data produk yang cocok.
                     </div>
                   ) : (
                     filteredProduks.slice((currentPage - 1) * 10, currentPage * 10).map((produk) => (
-                      <div key={produk.id} className="bg-card rounded-xl border shadow-sm p-3 flex gap-3 relative">
+                      <div key={produk.id} className="bg-card border shadow-sm p-3 flex gap-3 relative">
                         <div className="flex items-center">
                           <Checkbox
                             checked={selectedProdukRows.includes(produk.id)}
@@ -1374,7 +1374,7 @@ export default function SettingsPage() {
                         className="pr-9 h-10"
                       />
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
                       {selectedBannerRows.length > 0 && (
                         <Button variant="secondary" onClick={handleDeleteBanner}>Hapus ({selectedBannerRows.length})</Button>
                       )}
@@ -1472,7 +1472,7 @@ export default function SettingsPage() {
                 <div className="flex flex-col gap-3 md:hidden">
                   {isLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="bg-card rounded-xl border p-3 flex gap-3">
+                      <div key={i} className="bg-card border p-3 flex gap-3">
                         <Skeleton className="w-5 h-5 rounded-none" />
                         <Skeleton className="w-24 h-12 rounded-none shrink-0" />
                         <div className="flex-1 space-y-2">
@@ -1481,12 +1481,12 @@ export default function SettingsPage() {
                       </div>
                     ))
                   ) : filteredBanners.length === 0 ? (
-                    <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border">
+                    <div className="text-center py-10 text-muted-foreground bg-card border">
                       Tidak ada data banner.
                     </div>
                   ) : (
                     filteredBanners.slice((currentPage - 1) * 10, currentPage * 10).map((banner) => (
-                      <div key={banner.id} className="bg-card rounded-xl border shadow-sm p-3 flex gap-3 relative flex-col">
+                      <div key={banner.id} className="bg-card border shadow-sm p-3 flex gap-3 relative flex-col">
                         <div className="flex items-start gap-3">
                           <div className="flex items-center mt-1">
                             <Checkbox
