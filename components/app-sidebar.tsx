@@ -59,10 +59,10 @@ const data = {
       ),
     },
     {
-      title: "Poin",
-      url: "/poin",
+      title: "Member",
+      url: "/member",
       icon: (
-        <PointerIcon
+        <UsersIcon
         />
       ),
     },
@@ -126,14 +126,6 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Account",
-      url: "/account",
-      icon: (
-        <User2Icon
-        />
-      ),
-    },
-    {
       title: "Settings",
       url: "/settings",
       icon: (
@@ -141,26 +133,10 @@ const data = {
         />
       ),
     },
-    {
-      title: "Staf",
-      url: "/staf",
-      icon: (
-        <User2Icon
-        />
-      ),
-    },
   ],
   documents: [
     {
-      name: "Data Library",
-      url: "#",
-      icon: (
-        <DatabaseIcon
-        />
-      ),
-    },
-    {
-      name: "Reports",
+      name: "Analytics",
       url: "#",
       icon: (
         <FileChartColumnIcon
@@ -175,10 +151,52 @@ const data = {
         />
       ),
     },
+
+    {
+      name: "Poin",
+      url: "/poin",
+      icon: (
+        <PointerIcon
+        />
+      ),
+    },
+    {
+      name: "Database",
+      url: "/database",
+      icon: (
+        <DatabaseIcon
+        />
+      ),
+    },
   ],
 }
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [userData, setUserData] = useState(data.user)
+  const [isAdminOrStaff, setIsAdminOrStaff] = useState(false)
+
+  const checkRole = async (email: string | undefined) => {
+    if (!email) {
+      setIsAdminOrStaff(false)
+      return
+    }
+    
+    if (email === "elproject.dev@gmail.com") {
+      setIsAdminOrStaff(true)
+      return
+    }
+    
+    const { data: staffData } = await supabase
+      .from('staf')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle()
+      
+    if (staffData) {
+      setIsAdminOrStaff(true)
+    } else {
+      setIsAdminOrStaff(false)
+    }
+  }
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -187,8 +205,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         setUserData({
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
           email: session.user.email || "",
-          avatar: session.user.user_metadata?.avatar_url || "/boy.png",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "/boy.png",
         })
+        checkRole(session.user.email)
       }
     }
     fetchUser()
@@ -198,8 +217,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         setUserData({
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
           email: session.user.email || "",
-          avatar: session.user.user_metadata?.avatar_url || "/boy.png",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "/boy.png",
         })
+        checkRole(session.user.email)
+      } else {
+        setIsAdminOrStaff(false)
       }
     })
 
@@ -215,7 +237,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
               render={<a href="#" />}
             >
-              <CommandIcon className="size-5!" />
               <span className="text-base font-semibold">Maga Swalayan</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -223,8 +244,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {isAdminOrStaff && <NavDocuments items={data.documents} />}
+        {isAdminOrStaff && <NavSecondary items={data.navSecondary} className="mt-auto" />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

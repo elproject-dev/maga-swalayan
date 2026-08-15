@@ -32,18 +32,18 @@ export function SiteHeader() {
         setUser({
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
           email: session.user.email || "",
-          avatar: session.user.user_metadata?.avatar_url || "/boy.png",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "/boy.png",
         })
       }
     }
     fetchUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       if (session?.user) {
         setUser({
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
           email: session.user.email || "",
-          avatar: session.user.user_metadata?.avatar_url || "/boy.png",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "/boy.png",
         })
       }
     })
@@ -95,13 +95,6 @@ export function SiteHeader() {
                 </DropdownMenuLabel>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => router.push("/account")} className="cursor-pointer">
-                  <CircleUserRoundIcon />
-                  Akun Saya
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600">
                 <LogOutIcon />
                 Keluar
@@ -119,7 +112,7 @@ export function SiteHeader() {
 
         <div className="flex flex-1 items-center justify-end">
           <div className="flex items-center justify-center">
-            <span className="font-bold text-lg md:text-xl text-slate-800 lowercase">maga swalayan</span>
+            <span className="font-bold text-lg md:text-xl text-slate-800 dark:text-slate-200 lowercase">Maga Swalayan</span>
           </div>
         </div>
       </div>

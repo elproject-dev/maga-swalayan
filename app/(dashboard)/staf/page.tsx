@@ -12,31 +12,37 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Trash2, Search, Users, UserCheck, Loader2 } from "lucide-react"
 
 import { TablePagination } from "@/components/table-pagination"
 import { supabase } from "@/lib/supabase"
-import { Skeleton } from "@/components/ui/skeleton"
-import { toast } from "@/components/ui/toast"
 
-const initialStaff = [
-  { id: 1, name: "Ahmad Fauzi", role: "Manajer", email: "ahmad.fauzi@example.com", phone: "081234567001", isActive: true },
-  { id: 2, name: "Siti Rahma", role: "Kasir", email: "siti.rahma@example.com", phone: "081298767002", isActive: true },
-  { id: 3, name: "Dedi Kurniawan", role: "Gudang", email: "dedi.k@example.com", phone: "081345677003", isActive: true },
-  { id: 4, name: "Fitriani", role: "Kasir", email: "fitriani@example.com", phone: "085612347004", isActive: false },
-  { id: 5, name: "Bambang Sugeng", role: "Security", email: "bambang.s@example.com", phone: "089698767005", isActive: true },
-]
+import { toast } from "@/components/ui/toast"
 
 export default function StafPage() {
   const [isMounted, setIsMounted] = useState(false)
-  const [staffList, setStaffList] = useState<any[]>(initialStaff)
+  const [staffList, setStaffList] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [isActionMode, setIsActionMode] = useState(false)
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   const [isDeleting, setIsDeleting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [newStaff, setNewStaff] = useState({ name: "", role: "", email: "", phone: "" })
+  const [isSaving, setIsSaving] = useState(false)
 
   const fetchStaff = async () => {
     setIsLoading(true)
@@ -60,6 +66,31 @@ export default function StafPage() {
   useEffect(() => {
     setIsMounted(true)
     fetchStaff()
+    
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user?.email === "elproject.dev@gmail.com") {
+        setIsAdmin(true)
+        // Auto-insert Admin Utama ke tabel staf jika belum ada
+        const { data: existingAdmins } = await supabase
+          .from('staf')
+          .select('id')
+          .eq('email', 'elproject.dev@gmail.com')
+          .limit(1)
+        
+        if (!existingAdmins || existingAdmins.length === 0) {
+          await supabase.from('staf').insert([{
+            name: 'Admin Utama',
+            role: 'Admin',
+            email: 'elproject.dev@gmail.com',
+            phone: '-',
+            is_active: true
+          }])
+          fetchStaff()
+        }
+      }
+    }
+    checkSession()
   }, [])
 
   const filteredStaff = staffList.filter((s) => {
@@ -85,6 +116,31 @@ export default function StafPage() {
     } else {
       setSelectedRows((prev) => prev.filter((rowId) => rowId !== id))
     }
+  }
+
+  const handleAddStaff = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSaving(true)
+    const { data, error } = await supabase
+      .from('staf')
+      .insert([{
+        name: newStaff.name,
+        role: newStaff.role,
+        email: newStaff.email,
+        phone: newStaff.phone,
+        is_active: true
+      }])
+      .select()
+    
+    if (!error && data) {
+      toast.add({ title: "Staf berhasil ditambahkan", type: "success" })
+      setIsAddModalOpen(false)
+      setNewStaff({ name: "", role: "", email: "", phone: "" })
+      fetchStaff()
+    } else {
+      toast.add({ title: "Gagal menambah staf", description: error?.message, type: "error" })
+    }
+    setIsSaving(false)
   }
 
   const handleDelete = async () => {
@@ -149,6 +205,11 @@ export default function StafPage() {
           />
         </div>
         <div className="flex gap-2 items-center self-end sm:self-auto">
+          {isAdmin && (
+            <Button onClick={() => setIsAddModalOpen(true)} className="rounded-none shadow-sm">
+              Tambah Staf
+            </Button>
+          )}
           {selectedRows.length > 0 && (
             <Button
               variant="destructive"
@@ -179,7 +240,7 @@ export default function StafPage() {
               Selesai
             </Button>
           ) : (
-            <Button variant="outline" onClick={() => setIsActionMode(true)}>
+            <Button onClick={() => setIsActionMode(true)}>
               Aksi
             </Button>
           )}
@@ -188,18 +249,7 @@ export default function StafPage() {
 
       {/* Mobile Card List */}
       <div className="flex flex-col gap-3 md:hidden">
-        {isLoading ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="bg-card border p-4 space-y-3">
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-4 w-24" />
-              <div className="flex justify-between pt-3 border-t">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-6 w-12 rounded-none" />
-              </div>
-            </div>
-          ))
-        ) : filteredStaff.length === 0 ? (
+        {isLoading ? null : filteredStaff.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground bg-card border">
             Tidak ada data staf yang cocok.
           </div>
@@ -267,18 +317,7 @@ export default function StafPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array.from({ length: filteredStaff.length > 0 ? Math.min(filteredStaff.length, 10) : 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-40" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-28" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-none" /></TableCell>
-                </TableRow>
-              ))
-            ) : (
+            {isLoading ? null : (
               filteredStaff.slice((currentPage - 1) * 10, currentPage * 10).map((staf, index) => (
                 <TableRow key={staf.id} className="hover:bg-accent/50 transition-colors">
                   <TableCell className="text-center font-medium text-muted-foreground">
@@ -335,6 +374,43 @@ export default function StafPage() {
           onPageChange={setCurrentPage}
         />
       </div>
+
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-none">
+          <DialogHeader>
+            <DialogTitle>Tambah Staf Baru</DialogTitle>
+            <DialogDescription>
+              Masukkan detail staf baru ke dalam sistem.
+            </DialogDescription>
+          </DialogHeader>
+          <form id="add-staff-form" onSubmit={handleAddStaff}>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nama Lengkap</Label>
+                <Input id="name" required className="rounded-none" value={newStaff.name} onChange={e => setNewStaff({...newStaff, name: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Jabatan</Label>
+                <Input id="role" required className="rounded-none" value={newStaff.role} onChange={e => setNewStaff({...newStaff, role: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" required className="rounded-none" value={newStaff.email} onChange={e => setNewStaff({...newStaff, email: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">No. Telp</Label>
+                <Input id="phone" type="tel" required className="rounded-none" value={newStaff.phone} onChange={e => setNewStaff({...newStaff, phone: e.target.value})} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" className="rounded-none" onClick={() => setIsAddModalOpen(false)}>Batal</Button>
+              <Button type="submit" disabled={isSaving} className="rounded-none">
+                {isSaving ? "Menyimpan..." : "Simpan"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

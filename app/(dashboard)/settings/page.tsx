@@ -24,8 +24,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { TablePagination } from "@/components/table-pagination"
 
-import { Skeleton } from "@/components/ui/skeleton"
-
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -167,25 +165,7 @@ export default function SettingsPage() {
   }, [])
 
   if (!isMounted) {
-    return (
-      <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
-        <div className="flex flex-col">
-          <Skeleton className="h-8 w-64 rounded-none" />
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 w-full rounded-none" />
-          ))}
-        </div>
-        <div className="w-full pt-4 border-t flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <Skeleton className="h-8 w-48 rounded-none" />
-            <Skeleton className="h-10 w-32 rounded-none" />
-          </div>
-          <Skeleton className="h-64 w-full rounded-none" />
-        </div>
-      </div>
-    )
+    return null
   }
 
   const isAllSelected = selectedRows.length === filteredPromos.length && filteredPromos.length > 0
@@ -549,21 +529,21 @@ export default function SettingsPage() {
               key={item.id}
               onClick={() => setActiveMenu(activeMenu === item.id ? null : item.id)}
               className={cn(
-                "flex flex-col items-center justify-center gap-3 p-6 rounded-none border transition-all",
+                "group flex flex-col items-center justify-center gap-3 p-6 rounded-none border transition-all",
                 activeMenu === item.id
-                  ? "border-primary bg-primary/5 text-primary shadow-sm"
-                  : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:bg-accent/50"
+                  ? "border-none bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20 scale-[1.02]"
+                  : "border-border bg-card text-muted-foreground hover:border-orange-500/50 hover:-translate-y-1 hover:shadow-md"
               )}
             >
-              <item.icon className="w-8 h-8" />
-              <span className="font-semibold text-sm md:text-base">{item.label}</span>
+              <item.icon className={cn("w-8 h-8 transition-colors", activeMenu !== item.id && "group-hover:text-orange-500")} />
+              <span className={cn("font-semibold text-sm md:text-base transition-colors", activeMenu !== item.id && "group-hover:text-orange-500")}>{item.label}</span>
             </button>
           ))}
         </div>
 
         {/* Main Content Area */}
         {activeMenu && (
-          <div className="flex-1 w-full pt-4 border-t animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex-1 w-full pt-4 border-t animate-in fade-in duration-150">
             {activeMenu === 'promo' && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -688,18 +668,7 @@ export default function SettingsPage() {
 
                 {/* Mobile Card List */}
                 <div className="flex flex-col gap-3 md:hidden">
-                  {isLoading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="bg-card border p-3 flex gap-3">
-                        <Skeleton className="w-5 h-5 rounded-none" />
-                        <Skeleton className="w-16 h-20 rounded-none shrink-0" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-3 w-1/2" />
-                        </div>
-                      </div>
-                    ))
-                  ) : filteredPromos.length === 0 ? (
+                  {isLoading ? null : filteredPromos.length === 0 ? (
                     <div className="text-center py-10 text-muted-foreground bg-card border">
                       Tidak ada data promo.
                     </div>
@@ -762,18 +731,7 @@ export default function SettingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoading ? (
-                        Array.from({ length: filteredPromos.length > 0 ? Math.min(filteredPromos.length, 10) : 5 }).map((_, i) => (
-                          <TableRow key={i}>
-                            <TableCell><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
-                            <TableCell><Skeleton className="w-12 h-[60px] rounded-none mx-auto" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-none" /></TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        filteredPromos.slice((currentPage - 1) * 10, currentPage * 10).map((promo) => (
+                      {isLoading ? null : ( filteredPromos.slice((currentPage - 1) * 10, currentPage * 10).map((promo) => (
                           <TableRow key={promo.id}>
                             <TableCell className="text-center">
                               <Checkbox
@@ -954,18 +912,7 @@ export default function SettingsPage() {
 
                 {/* Mobile Card List */}
                 <div className="flex flex-col gap-3 md:hidden">
-                  {isLoading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="bg-card border p-3 flex gap-3">
-                        <Skeleton className="w-5 h-5 rounded-none" />
-                        <Skeleton className="w-16 h-20 rounded-none shrink-0" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-3 w-1/2" />
-                        </div>
-                      </div>
-                    ))
-                  ) : filteredPilihans.length === 0 ? (
+                  {isLoading ? null : filteredPilihans.length === 0 ? (
                     <div className="text-center py-10 text-muted-foreground bg-card border">
                       Tidak ada data pilihan.
                     </div>
@@ -1028,18 +975,7 @@ export default function SettingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoading ? (
-                        Array.from({ length: filteredPilihans.length > 0 ? Math.min(filteredPilihans.length, 10) : 5 }).map((_, i) => (
-                          <TableRow key={i}>
-                            <TableCell><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
-                            <TableCell><Skeleton className="w-12 h-[60px] rounded-none mx-auto" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-none" /></TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        filteredPilihans.slice((currentPage - 1) * 10, currentPage * 10).map((pilihan) => (
+                      {isLoading ? null : ( filteredPilihans.slice((currentPage - 1) * 10, currentPage * 10).map((pilihan) => (
                           <TableRow key={pilihan.id}>
                             <TableCell className="text-center">
                               <Checkbox
@@ -1217,18 +1153,7 @@ export default function SettingsPage() {
 
                 {/* Mobile Card List */}
                 <div className="flex flex-col gap-3 md:hidden">
-                  {isLoading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="bg-card border p-3 flex gap-3">
-                        <Skeleton className="w-5 h-5 rounded-none" />
-                        <Skeleton className="w-16 h-20 rounded-none shrink-0" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-3 w-1/2" />
-                        </div>
-                      </div>
-                    ))
-                  ) : filteredProduks.length === 0 ? (
+                  {isLoading ? null : filteredProduks.length === 0 ? (
                     <div className="text-center py-10 text-muted-foreground bg-card border">
                       Tidak ada data produk yang cocok.
                     </div>
@@ -1291,18 +1216,7 @@ export default function SettingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoading ? (
-                        Array.from({ length: filteredProduks.length > 0 ? Math.min(filteredProduks.length, 10) : 5 }).map((_, i) => (
-                          <TableRow key={i}>
-                            <TableCell><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
-                            <TableCell><Skeleton className="w-12 h-[60px] rounded-none mx-auto" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-none" /></TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        filteredProduks.slice((currentPage - 1) * 10, currentPage * 10).map((produk) => (
+                      {isLoading ? null : ( filteredProduks.slice((currentPage - 1) * 10, currentPage * 10).map((produk) => (
                           <TableRow key={produk.id}>
                             <TableCell className="text-center">
                               <Checkbox
@@ -1470,17 +1384,7 @@ export default function SettingsPage() {
 
                 {/* Mobile Card List */}
                 <div className="flex flex-col gap-3 md:hidden">
-                  {isLoading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="bg-card border p-3 flex gap-3">
-                        <Skeleton className="w-5 h-5 rounded-none" />
-                        <Skeleton className="w-24 h-12 rounded-none shrink-0" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-3/4" />
-                        </div>
-                      </div>
-                    ))
-                  ) : filteredBanners.length === 0 ? (
+                  {isLoading ? null : filteredBanners.length === 0 ? (
                     <div className="text-center py-10 text-muted-foreground bg-card border">
                       Tidak ada data banner.
                     </div>
@@ -1543,17 +1447,7 @@ export default function SettingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoading ? (
-                        Array.from({ length: filteredBanners.length > 0 ? Math.min(filteredBanners.length, 10) : 5 }).map((_, i) => (
-                          <TableRow key={i}>
-                            <TableCell><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
-                            <TableCell><Skeleton className="w-28 h-14 rounded-none mx-auto" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-40" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-none" /></TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        filteredBanners.slice((currentPage - 1) * 10, currentPage * 10).map((banner) => (
+                      {isLoading ? null : ( filteredBanners.slice((currentPage - 1) * 10, currentPage * 10).map((banner) => (
                           <TableRow key={banner.id}>
                             <TableCell className="text-center">
                               <Checkbox

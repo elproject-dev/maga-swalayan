@@ -3,12 +3,11 @@
 import { Card } from "@/components/ui/card"
 import { useState, useEffect } from "react"
 import { Loader2, Search } from "lucide-react"
-import { SkeletonGrid } from "@/components/skeleton-grid"
 import { Input } from "@/components/ui/input"
 
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-
 import { supabase } from "@/lib/supabase"
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 const galleryImages = [
   { id: 1, title: "Sayur Segar", promo: "Diskon 20%", src: "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=600&h=400&fit=crop" },
@@ -45,16 +44,7 @@ export default function PromoPage() {
   }, [])
 
   if (!isMounted) {
-    return (
-      <div className="@container/main flex flex-1 flex-col gap-2">
-        <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6 px-4 lg:px-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Semua Promo</h1>
-          </div>
-          <SkeletonGrid count={10} />
-        </div>
-      </div>
-    )
+    return <LoadingSpinner text="Memuat promo..." />
   }
 
   const filteredImages = images.filter((item) => {
@@ -72,7 +62,7 @@ export default function PromoPage() {
           {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-none object-contain shadow-2xl" />}
         </DialogContent>
       </Dialog>
-      <div className="@container/main flex flex-1 flex-col gap-2">
+      <div className="@container/main flex flex-1 flex-col gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6 px-4 lg:px-6">
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -90,7 +80,7 @@ export default function PromoPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-4">
             {filteredImages.map((item) => (
-              <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5]">
+              <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5] transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 hover:shadow-xl">
                 <img
                   src={item.src}
                   alt={item.title}

@@ -13,11 +13,11 @@ import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { Trash2, Search, Loader2 } from "lucide-react"
+import { Trash2, Search } from "lucide-react"
 
 import { TablePagination } from "@/components/table-pagination"
 import { supabase } from "@/lib/supabase"
-import { Skeleton } from "@/components/ui/skeleton"
+
 import { toast } from "@/components/ui/toast"
 
 const initialCustomers = [
@@ -37,6 +37,7 @@ export default function PelangganPage() {
   const [isActionMode, setIsActionMode] = useState(false)
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isTransferring, setIsTransferring] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchCustomers = async () => {
@@ -45,13 +46,33 @@ export default function PelangganPage() {
       .from('pelanggan')
       .select('*')
       .order('id', { ascending: true })
+      
     if (data) {
+      // Fetch poin_transactions to calculate actual points
+      const { data: poinData } = await supabase
+        .from('poin_transactions')
+        .select('notelp, poin, tipe')
+        
+      const pointsByPhone: Record<string, number> = {};
+      if (poinData) {
+        poinData.forEach(trx => {
+          if (!trx.notelp) return;
+          if (!pointsByPhone[trx.notelp]) pointsByPhone[trx.notelp] = 0;
+          const p = Number(trx.poin) || 0;
+          if (trx.tipe === 'plus') {
+            pointsByPhone[trx.notelp] += p;
+          } else {
+            pointsByPhone[trx.notelp] -= p;
+          }
+        });
+      }
+
       setCustomers(data.map(item => ({
         id: item.id,
         name: item.name,
         email: item.email,
         phone: item.phone,
-        points: item.points,
+        points: pointsByPhone[item.phone] || 0, // calculated dynamically
         isActive: item.is_active
       })))
     }
@@ -104,6 +125,45 @@ export default function PelangganPage() {
     setIsDeleting(false)
   }
 
+  const handleTransferToAdmin = async () => {
+    if (selectedRows.length === 0) return
+    setIsTransferring(true)
+    
+    const selectedCustomers = customers.filter(c => selectedRows.includes(c.id))
+    const staffData = selectedCustomers.map(c => ({
+      name: c.name,
+      role: 'Admin',
+      email: c.email,
+      phone: c.phone,
+      is_active: true
+    }))
+    
+    const { error: insertError } = await supabase
+      .from('staf')
+      .insert(staffData)
+      
+    if (!insertError) {
+      // Hapus data dari tabel pelanggan setelah berhasil masuk staf
+      const { error: deleteError } = await supabase
+        .from('pelanggan')
+        .delete()
+        .in('id', selectedRows)
+
+      if (!deleteError) {
+        toast.add({ title: `${staffData.length} data berhasil dipindah menjadi Admin`, type: "success" })
+        setCustomers(prev => prev.filter(c => !selectedRows.includes(c.id)))
+        setSelectedRows([])
+        setIsActionMode(false)
+      } else {
+        toast.add({ title: "Admin dibuat, namun gagal menghapus dari pelanggan", description: deleteError.message, type: "warning" })
+      }
+    } else {
+      toast.add({ title: "Gagal mentransfer ke staf", description: insertError.message, type: "error" })
+    }
+    
+    setIsTransferring(false)
+  }
+
   const isAllSelected = selectedRows.length === filteredCustomers.length && filteredCustomers.length > 0
   const isSomeSelected = selectedRows.length > 0 && selectedRows.length < filteredCustomers.length
 
@@ -148,22 +208,30 @@ export default function PelangganPage() {
         </div>
         <div className="flex gap-2 items-center self-end sm:self-auto">
           {selectedRows.length > 0 && (
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <>
-                  Menghapus...
-                </>
-              ) : (
-                <>
-
-                  Hapus Terpilih ({selectedRows.length})
-                </>
-              )}
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={handleTransferToAdmin}
+                disabled={isDeleting || isTransferring}
+              >
+                {isTransferring ? "Mentransfer..." : "Jadikan Admin"}
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting || isTransferring}
+              >
+                {isDeleting ? (
+                  <>
+                    Menghapus...
+                  </>
+                ) : (
+                  <>
+                    Hapus Terpilih ({selectedRows.length})
+                  </>
+                )}
+              </Button>
+            </>
           )}
           {isActionMode ? (
             <Button
@@ -172,12 +240,12 @@ export default function PelangganPage() {
                 setIsActionMode(false)
                 setSelectedRows([])
               }}
-              disabled={isDeleting}
+              disabled={isDeleting || isTransferring}
             >
               Selesai
             </Button>
           ) : (
-            <Button variant="outline" onClick={() => setIsActionMode(true)}>
+            <Button onClick={() => setIsActionMode(true)}>
               Aksi
             </Button>
           )}
@@ -186,18 +254,7 @@ export default function PelangganPage() {
 
       {/* Mobile Card List */}
       <div className="flex flex-col gap-3 md:hidden">
-        {isLoading ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="bg-card border p-4 space-y-3">
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-4 w-24" />
-              <div className="flex justify-between pt-3 border-t">
-                <Skeleton className="h-8 w-16" />
-                <Skeleton className="h-6 w-12 rounded-none" />
-              </div>
-            </div>
-          ))
-        ) : filteredCustomers.length === 0 ? (
+        {isLoading ? null : filteredCustomers.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground bg-card border">
             Tidak ada data pelanggan yang cocok.
           </div>
@@ -222,11 +279,7 @@ export default function PelangganPage() {
                   <div>{customer.email || "-"}</div>
                 </div>
               </div>
-              <div className="flex justify-between items-end pt-3 border-t">
-                <div>
-                  <span className="text-xs text-muted-foreground block mb-1">Poin</span>
-                  <div className="font-bold text-primary text-lg">{(customer.points || 0).toLocaleString('id-ID')}</div>
-                </div>
+              <div className="flex justify-end pt-3 border-t">
                 <div className="flex flex-col items-end">
                   <span className="text-xs text-muted-foreground block mb-2">Status</span>
                   <Switch
@@ -261,23 +314,11 @@ export default function PelangganPage() {
               <TableHead>Nama Pelanggan</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>No. Telp</TableHead>
-              <TableHead className="text-center w-[120px]">Poin</TableHead>
               <TableHead className="text-center w-[120px]">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              Array.from({ length: filteredCustomers.length > 0 ? Math.min(filteredCustomers.length, 10) : 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-6 w-8 mx-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-40" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-28" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-16 mx-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-12 mx-auto rounded-none" /></TableCell>
-                </TableRow>
-              ))
-            ) : (
+            {isLoading ? null : (
               filteredCustomers.slice((currentPage - 1) * 10, currentPage * 10).map((customer, index) => (
                 <TableRow key={customer.id} className="hover:bg-accent/50 transition-colors">
                   <TableCell className="text-center font-medium text-muted-foreground">
@@ -301,9 +342,6 @@ export default function PelangganPage() {
                   <TableCell>
                     {customer.phone}
                   </TableCell>
-                  <TableCell className="text-center font-medium text-primary">
-                    {(customer.points || 0).toLocaleString('id-ID')}
-                  </TableCell>
                   <TableCell className="text-center">
                     <div className="flex items-center justify-center gap-2">
                       <Switch
@@ -318,7 +356,7 @@ export default function PelangganPage() {
             )}
             {!isLoading && filteredCustomers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                   Tidak ada data pelanggan yang cocok.
                 </TableCell>
               </TableRow>

@@ -8,21 +8,12 @@ import { BottomNavigation } from "@/components/bottom-navigation"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/toast"
-
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Loader2, PhoneIcon } from "lucide-react"
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [isChecking, setIsChecking] = useState(true)
 
-  // State untuk Modal Lengkapi Profil
-  const [showPhoneModal, setShowPhoneModal] = useState(false)
-  const [phoneInput, setPhoneInput] = useState("")
-  const [isSubmittingPhone, setIsSubmittingPhone] = useState(false)
 
   useEffect(() => {
     // Cek apakah ada error di URL (seperti saat user membatalkan login)
@@ -38,10 +29,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       if (!session) {
         router.replace("/")
       } else {
-        // Cek apakah nomor telepon pengguna kosong
-        if (!session.user.user_metadata?.phone) {
-          setShowPhoneModal(true)
-        }
+        // (Cek nomor telepon dihapus)
         setIsChecking(false)
       }
     }
@@ -59,34 +47,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => subscription.unsubscribe()
   }, [router])
 
-  const handleSavePhone = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!phoneInput) return
 
-    setIsSubmittingPhone(true)
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: { phone: phoneInput }
-      })
 
-      if (error) throw error
 
-      toast.add({ title: "Berhasil", description: "Nomor telepon Anda berhasil disimpan.", type: "success" })
-      setShowPhoneModal(false)
-    } catch (error: any) {
-      toast.add({ title: "Gagal", description: error.message, type: "error" })
-    } finally {
-      setIsSubmittingPhone(false)
-    }
-  }
-
-  if (isChecking) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-muted/30">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
 
   return (
     <>
@@ -102,54 +65,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SidebarInset>
           <SiteHeader />
           <div className="flex flex-1 flex-col pb-16 md:pb-0">
-            {children}
+            {isChecking ? <LoadingSpinner text="" /> : children}
           </div>
         </SidebarInset>
         <BottomNavigation />
       </SidebarProvider>
 
-      {/* Modal Lengkapi Profil (Nomor Telepon) */}
-      {showPhoneModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-          <Card className="w-full max-w-sm shadow-xl border-primary/20">
-            <CardHeader className="text-center pb-4">
-              <div>
-                <div className="h-24 w-24 p-4 rounded-full mb-4 inline-flex items-center justify-center">
-                  <img src="/phone.png" alt="Phone Icon" />
-                </div>
-              </div>
 
-
-
-              <CardTitle className="text-2xl font-bold">Lengkapi Profil Anda</CardTitle>
-              <CardDescription className="text-base mt-2">
-                Mohon isi No.Telp terdaftar untuk melanjutkan
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form id="phone-form" onSubmit={handleSavePhone} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone-modal-input">No. WhatsApp / Telepon</Label>
-                  <Input
-                    id="phone-modal-input"
-                    type="tel"
-                    placeholder="Contoh: 08123456789"
-                    value={phoneInput}
-                    onChange={(e) => setPhoneInput(e.target.value)}
-                    required
-                  />
-                </div>
-              </form>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" form="phone-form" disabled={isSubmittingPhone || !phoneInput} className="w-full text-md font-semibold">
-                {isSubmittingPhone && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Simpan Nomor Telepon
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      )}
     </>
   )
 }

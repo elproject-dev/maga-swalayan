@@ -21,6 +21,7 @@ import {
   CircleUser,
   Shield,
   ShieldUser,
+  Database,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
@@ -33,10 +34,10 @@ const mainLinks = [
 ]
 
 const moreLinks = [
-  { href: "/account", label: "Akun", icon: User2 },
+  { href: "/member", label: "Member", icon: CircleUser },
   { href: "/poin", label: "Poin", icon: HandCoins },
+  { href: "/database", label: "Database", icon: Database },
   { href: "/pelanggan", label: "Pelanggan", icon: Users },
-  { href: "/staf", label: "Staf", icon: ShieldUser },
   { href: "/settings", label: "Settings", icon: Settings },
 ]
 

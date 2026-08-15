@@ -8,10 +8,10 @@ import Autoplay from "embla-carousel-autoplay"
 import { Card, CardContent } from "@/components/ui/card"
 import { Carousel, CarouselContent, CarouselItem, CarouselDots } from "@/components/ui/carousel"
 import { Loader2 } from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
-import { SkeletonGrid } from "@/components/skeleton-grid"
+
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { supabase } from "@/lib/supabase"
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 const defaultPromoBanners = [
   {
@@ -88,7 +88,7 @@ export function PromoGallery({ promos }: { promos: any[] }) {
       </Dialog>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-4">
         {promos.map((item) => (
-          <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5]">
+          <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5] transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 hover:shadow-xl">
             <img
               src={item.src}
               alt={item.title}
@@ -130,7 +130,7 @@ export function PilihanHariIniGallery({ items }: { items: any[] }) {
       </Dialog>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {items.map((item) => (
-          <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5]">
+          <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5] transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 hover:shadow-xl">
             <img
               src={item.src}
               alt={item.title}
@@ -195,33 +195,11 @@ export default function Page() {
   }, [])
 
   if (isLoading) {
-    return (
-      <div className="@container/main flex flex-1 flex-col gap-2">
-        <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6">
-          <div className="px-4 lg:px-6">
-            <Skeleton className="h-52 sm:h-60 md:h-64 lg:h-72 xl:h-80 w-full rounded-none" />
-          </div>
-          <div className="px-4 lg:px-6">
-            <div className="mb-4 flex items-center justify-between">
-              <Skeleton className="h-7 w-40 rounded-none" />
-              <Skeleton className="h-5 w-20 rounded-none" />
-            </div>
-            <SkeletonGrid count={5} />
-          </div>
-          <div className="px-4 lg:px-6 pt-2 pb-6">
-            <div className="mb-4 flex items-center justify-between">
-              <Skeleton className="h-7 w-40 rounded-none" />
-              <Skeleton className="h-5 w-20 rounded-none" />
-            </div>
-            <SkeletonGrid count={5} />
-          </div>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner text="Memuat dashboard..." />
   }
 
   return (
-    <div className="@container/main flex flex-1 flex-col gap-2">
+    <div className="@container/main flex flex-1 flex-col gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6">
         <div className="px-4 lg:px-6">
           <CarouselDemo banners={banners} />
