@@ -16,18 +16,38 @@ import { supabase } from "@/lib/supabase"
 import { toast } from "@/components/ui/toast"
 
 export default function LoginPage() {
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   React.useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      // Eksekusi cek sesi dan timer 1.5 detik secara paralel
+      const [sessionResult] = await Promise.all([
+        supabase.auth.getSession(),
+        new Promise((resolve) => setTimeout(resolve, 1500)) // Artificial delay 1.5 detik
+      ])
+
+      const { data: { session } } = sessionResult
+
       if (session?.user) {
         router.push("/home")
+      } else {
+        setIsCheckingAuth(false)
       }
     }
     checkUser()
   }, [router])
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+        <div className="w-24 h-24 animate-pulse flex items-center justify-center">
+          <img src="/logo.png" alt="Maga Swalayan Loading" className="w-full h-full object-contain drop-shadow-lg" />
+        </div>
+      </div>
+    )
+  }
 
   const handleOAuthLogin = async (provider: 'google') => {
     try {
