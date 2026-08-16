@@ -26,7 +26,7 @@ const defaultPromoBanners = [
   },
 ]
 
-export function CarouselDemo({ banners }: { banners: any[] }) {
+function CarouselDemo({ banners }: { banners: any[] }) {
   const plugin = React.useRef(
     Autoplay({ delay: 3500, stopOnInteraction: false, stopOnMouseEnter: true })
   )
@@ -76,7 +76,7 @@ export function CarouselDemo({ banners }: { banners: any[] }) {
   )
 }
 
-export function PromoGallery({ promos }: { promos: any[] }) {
+function PromoGallery({ promos }: { promos: any[] }) {
   const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
 
   return (
@@ -118,7 +118,7 @@ export function PromoGallery({ promos }: { promos: any[] }) {
   )
 }
 
-export function PilihanHariIniGallery({ items }: { items: any[] }) {
+function PilihanHariIniGallery({ items }: { items: any[] }) {
   const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
 
   return (

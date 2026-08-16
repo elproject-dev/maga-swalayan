@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toast"
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
 
 const outfit = Outfit({subsets:['latin'],variable:'--font-sans'});
 
@@ -20,6 +21,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Maga Swalayan",
   description: "Sistem manajemen Maga Swalayan",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Maga Swalayan",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -38,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           {children}
           <Toaster />
+          <PWAInstallPrompt />
         </ThemeProvider>
       </body>
     </html>
