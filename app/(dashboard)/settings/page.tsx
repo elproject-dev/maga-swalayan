@@ -531,7 +531,7 @@ export default function SettingsPage() {
               className={cn(
                 "group flex flex-col items-center justify-center gap-3 p-6 rounded-none border transition-all",
                 activeMenu === item.id
-                  ? "border-none bg-gradient-to-br from-yellow-500 to-yellow-600 text-white shadow-lg shadow-yellow-500/20 scale-[1.02]"
+                  ? "border-none bg-yellow-500 text-white shadow-lg shadow-yellow-500/20 scale-[1.02]"
                   : "border-border bg-card text-muted-foreground hover:border-yellow-500/50 hover:-translate-y-1 hover:shadow-md"
               )}
             >

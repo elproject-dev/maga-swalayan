@@ -21,12 +21,19 @@ export function PWAInstallPrompt() {
           .catch((err) => console.log("Service Worker registration failed: ", err));
       }
 
-      if (localStorage.getItem("pwa-prompt-dismissed")) {
+      // Cek jika event sudah ditangkap sebelumnya oleh global script (opsional)
+      if ((window as any).deferredPrompt) {
+        setDeferredPrompt((window as any).deferredPrompt);
+        setIsInstallable(true);
+      }
+
+      if (localStorage.getItem("pwa-prompt-dismissed") === "true") {
         setIsDismissed(true);
       }
 
       const handleBeforeInstallPrompt = (e: Event) => {
         e.preventDefault();
+        (window as any).deferredPrompt = e;
         setDeferredPrompt(e);
         setIsInstallable(true);
       };
@@ -47,6 +54,7 @@ export function PWAInstallPrompt() {
         setIsInstallable(false);
       }
       setDeferredPrompt(null);
+      (window as any).deferredPrompt = null;
     }
   };
 
@@ -56,7 +64,7 @@ export function PWAInstallPrompt() {
     localStorage.setItem("pwa-prompt-dismissed", "true");
   };
 
-  // Jangan tampilkan di halaman login (/) atau jika sudah disembunyikan
+  // Jangan tampilkan di halaman login (/)
   const showPrompt = isInstallable && !isDismissed && pathname !== "/";
 
   return (
@@ -96,7 +104,7 @@ export function PWAInstallPrompt() {
 
           <button
             onClick={handleInstallClick}
-            className="w-full py-2.5 mt-1 text-sm font-bold bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-colors shadow-lg shadow-orange-600/20"
+            className="w-full py-2.5 mt-1 text-sm font-bold bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition-colors shadow-lg shadow-yellow-500/20"
           >
             Install Sekarang
           </button>

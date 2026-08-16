@@ -4,7 +4,7 @@ import * as React from "react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 import { Moon, Sun, MapPin, X, Plus } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 export function ThemeToggleFab() {
   const { theme, setTheme } = useTheme()
@@ -12,12 +12,13 @@ export function ThemeToggleFab() {
   const [isOpen, setIsOpen] = React.useState(false)
   const constraintsRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const pathname = usePathname()
 
   React.useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (!mounted) return null
+  if (!mounted || pathname === "/") return null
 
   return (
     <>

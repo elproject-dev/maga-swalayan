@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
-import { Search, Download } from "lucide-react"
+import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "@/components/ui/toast"
@@ -202,6 +202,9 @@ export default function DatabasePage() {
           />
         </div>
         <div className="flex w-full sm:w-auto gap-2 items-center">
+          <Button variant="outline" onClick={handleExport} className="flex-1 sm:flex-none">
+            Export
+          </Button>
           {isActionMode ? (
             <>
               <Button
@@ -229,10 +232,6 @@ export default function DatabasePage() {
               Aksi
             </Button>
           )}
-          <Button variant="outline" onClick={handleExport} className="flex-1 sm:flex-none">
-            <Download className="w-4 h-4 mr-2 hidden sm:inline-block" />
-            Export
-          </Button>
         </div>
       </div>
 

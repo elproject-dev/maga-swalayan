@@ -23,7 +23,7 @@ const data = {
   user: {
     name: "el project",
     email: "elproject.dev@gmail.com",
-    avatar: "/boy.png",
+    avatar: "",
   },
   navMain: [
     {
@@ -213,7 +213,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         setUserData({
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
           email: session.user.email || "",
-          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "/boy.png",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
         })
         checkRole(session.user.email)
       }
@@ -225,7 +225,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         setUserData({
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
           email: session.user.email || "",
-          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "/boy.png",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
         })
         checkRole(session.user.email)
       } else {

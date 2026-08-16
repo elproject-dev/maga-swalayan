@@ -32,7 +32,7 @@ export function SiteHeader() {
         setUser({
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
           email: session.user.email || "",
-          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "/boy.png",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
         })
       }
     }
@@ -43,7 +43,7 @@ export function SiteHeader() {
         setUser({
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
           email: session.user.email || "",
-          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "/boy.png",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
         })
       }
     })
@@ -95,8 +95,8 @@ export function SiteHeader() {
                 </DropdownMenuLabel>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600">
-                <LogOutIcon />
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:bg-red-500 focus:!text-white focus:**:!text-white dark:text-red-500 dark:focus:bg-red-900">
+                <LogOutIcon className="mr-2 h-4 w-4" />
                 Keluar
               </DropdownMenuItem>
             </DropdownMenuContent>
