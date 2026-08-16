@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
@@ -32,7 +33,9 @@ export default function MemberPage() {
   const [regAlamat, setRegAlamat] = useState("")
   const [regKecamatan, setRegKecamatan] = useState("")
   const [regKabupaten, setRegKabupaten] = useState("")
-  const [regTanggalLahir, setRegTanggalLahir] = useState("")
+  const [regTgl, setRegTgl] = useState("")
+  const [regBln, setRegBln] = useState("")
+  const [regThn, setRegThn] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleRegisterMember = async (e: React.FormEvent) => {
@@ -86,7 +89,7 @@ export default function MemberPage() {
         alamat: regAlamat,
         kecamatan: regKecamatan,
         kabupaten: regKabupaten,
-        tanggal_lahir: regTanggalLahir || null,
+        tanggal_lahir: (regThn && regBln && regTgl) ? `${regThn}-${regBln.padStart(2, '0')}-${regTgl.padStart(2, '0')}` : null,
         membercard: newId,
         is_active: true,
         points: 0
@@ -327,33 +330,66 @@ export default function MemberPage() {
       <Dialog open={isRegisterModalOpen} onOpenChange={setIsRegisterModalOpen}>
         <DialogContent className="sm:max-w-[425px] rounded-none border-primary/20">
           <DialogHeader>
-            <DialogTitle>Pendaftaran Member Baru</DialogTitle>
-            <DialogDescription>
-              Lengkapi data Anda untuk bergabung menjadi member setia Maga Swalayan.
+            <DialogTitle className="text-base text-yellow-500">Pendaftaran Member Baru</DialogTitle>
+            <DialogDescription className="text-sm">
+              Lengkapi data Anda untuk bergabung menjadi
+              <br />
+              member setia Maga Swalayan.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleRegisterMember} className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="regPhone">No. WhatsApp / Telp Aktif</Label>
-              <Input id="regPhone" type="tel" required placeholder="Contoh: 08123456789" value={regPhone} onChange={e => setRegPhone(e.target.value)} />
+              <Input id="regPhone" type="tel" required placeholder="Masukkan No.Telp" value={regPhone} onChange={e => setRegPhone(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="regAlamat">Alamat Lengkap</Label>
-              <Input id="regAlamat" required placeholder="Nama jalan, RT/RW, Desa" value={regAlamat} onChange={e => setRegAlamat(e.target.value)} />
+              <Input id="regAlamat" required placeholder="Masukkan Alamat" value={regAlamat} onChange={e => setRegAlamat(e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="regKecamatan">Kecamatan</Label>
-                <Input id="regKecamatan" required value={regKecamatan} onChange={e => setRegKecamatan(e.target.value)} />
+                <Input id="regKecamatan" required placeholder="Kec" value={regKecamatan} onChange={e => setRegKecamatan(e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="regKabupaten">Kabupaten</Label>
-                <Input id="regKabupaten" required value={regKabupaten} onChange={e => setRegKabupaten(e.target.value)} />
+                <Input id="regKabupaten" required placeholder="Kab" value={regKabupaten} onChange={e => setRegKabupaten(e.target.value)} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="regTanggalLahir">Kelahiran</Label>
-              <Input id="regTanggalLahir" type="date" required value={regTanggalLahir} onChange={e => setRegTanggalLahir(e.target.value)} />
+              <Label>Kelahiran</Label>
+              <div className="grid grid-cols-3 gap-2">
+                <Select value={regTgl} onValueChange={(val) => setRegTgl(val || "")} required>
+                  <SelectTrigger className="w-full [&>span]:flex-1 [&>span]:justify-center [&>span]:text-center">
+                    <SelectValue placeholder="Tanggal" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                      <SelectItem key={d} value={d.toString()}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={regBln} onValueChange={(val) => setRegBln(val || "")} required>
+                  <SelectTrigger className="w-full [&>span]:flex-1 [&>span]:justify-center [&>span]:text-center">
+                    <SelectValue placeholder="Bulan" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                      <SelectItem key={m} value={m.toString()}>{m}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={regThn} onValueChange={(val) => setRegThn(val || "")} required>
+                  <SelectTrigger className="w-full [&>span]:flex-1 [&>span]:justify-center [&>span]:text-center">
+                    <SelectValue placeholder="Tahun" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {Array.from({ length: 80 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                      <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={() => setIsRegisterModalOpen(false)} disabled={isSubmitting}>Batal</Button>
