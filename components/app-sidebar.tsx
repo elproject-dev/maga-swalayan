@@ -145,7 +145,7 @@ const data = {
   documents: [
     {
       name: "Analytics",
-      url: "#",
+      url: "/analytics",
       icon: (
         <FileChartColumnIcon
         />
