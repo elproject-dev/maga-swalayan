@@ -13,11 +13,23 @@ export const revalidate = 3600; // Cache data for 1 hour
 async function getAnalyticsData() {
   const propertyId = process.env.GA_PROPERTY_ID;
   if (!propertyId || propertyId === 'isi_dengan_property_id_google_analytics_anda') {
-    return { error: 'GA_PROPERTY_ID belum dikonfigurasi di .env' };
+    return { error: 'GA_PROPERTY_ID belum dikonfigurasi. Pastikan untuk menambahkannya di Environment Variables Vercel.' };
   }
 
   try {
-    const analyticsDataClient = new BetaAnalyticsDataClient();
+    // Check if we have direct credentials (for Vercel) or fallback to Application Default Credentials (local JSON file)
+    let clientOptions = {};
+    if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+      clientOptions = {
+        credentials: {
+          client_email: process.env.GOOGLE_CLIENT_EMAIL,
+          // Replace escaped newlines from Vercel env vars
+          private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        }
+      };
+    }
+
+    const analyticsDataClient = new BetaAnalyticsDataClient(clientOptions);
     const [response] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [
