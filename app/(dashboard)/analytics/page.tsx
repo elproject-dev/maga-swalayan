@@ -167,7 +167,8 @@ export default async function AnalyticsPage() {
   
   // Fetch DB metrics
   const { count: totalPelanggan } = await supabase.from('pelanggan').select('*', { count: 'exact', head: true });
-  const { count: totalMember } = await supabase.from('pelanggan').select('*', { count: 'exact', head: true }).not('membercard', 'is', null);
+  const { data: memberData } = await supabase.from('pelanggan').select('membercard').neq('membercard', '-').neq('membercard', '').not('membercard', 'is', null);
+  const totalMember = memberData?.length || 0;
   const { count: totalStaf } = await supabase.from('staf').select('*', { count: 'exact', head: true });
 
   return (
