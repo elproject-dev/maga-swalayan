@@ -265,25 +265,14 @@ export default function MemberPage() {
 
                 {/* Overlay Belum Member */}
                 {!memberData.isMember && (
-                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/70 backdrop-blur-xl p-6 text-center gap-5 overflow-hidden">
-                    {/* Background Accents & Floating Graphics */}
-                    <div className="absolute -top-10 -right-10 w-48 h-48 bg-orange-500/20 blur-[60px] animate-pulse" style={{ animationDuration: '4s' }} />
-                    <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-amber-500/20 blur-[60px] animate-pulse" style={{ animationDuration: '5s' }} />
-
-                    {/* Floating Illustration Graphics */}
-                    <ShoppingCart className="absolute top-8 left-8 md:top-12 md:left-16 w-20 h-20 text-orange-500/10 -rotate-12 animate-[pulse_5s_ease-in-out_infinite]" />
-                    <Star className="absolute top-10 right-10 md:top-16 md:right-20 w-16 h-16 text-orange-400/10 rotate-45 animate-[pulse_4s_ease-in-out_infinite]" />
-                    <Percent className="absolute bottom-10 left-10 md:bottom-16 md:left-20 w-20 h-20 text-orange-600/10 -rotate-12 animate-[pulse_7s_ease-in-out_infinite]" />
-                    <Gift className="absolute bottom-8 right-8 md:bottom-12 md:right-16 w-24 h-24 text-amber-500/10 rotate-12 animate-[pulse_6s_ease-in-out_infinite]" />
-                    <Sparkles className="absolute top-1/2 left-4 md:left-8 w-12 h-12 text-amber-400/10 rotate-12 animate-[pulse_3s_ease-in-out_infinite] -translate-y-1/2" />
-
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-yellow-500 p-6 text-center gap-5 overflow-hidden">
                     <div className="relative z-10 flex flex-col items-center gap-5">
                       <img src="/logo.png" alt="Maga Swalayan Logo" className="w-16 h-16 object-contain mb-2 drop-shadow-md" />
                       <div>
-                        <h3 className="text-2xl font-bold text-foreground mb-2">Gabung Member Maga</h3>
-                        <p className="text-muted-foreground text-sm max-w-sm mx-auto">Dapatkan poin setiap belanja dan nikmati berbagai promo eksklusif khusus untuk Anda.</p>
+                        <h3 className="text-2xl font-bold text-white mb-2">Gabung Member Maga</h3>
+                        <p className="text-white/90 text-sm max-w-sm mx-auto">Dapatkan poin setiap belanja dan nikmati berbagai promo eksklusif khusus untuk Anda.</p>
                       </div>
-                      <Button size="lg" className="rounded-none px-8 font-semibold shadow-lg hover:shadow-orange-500/25 transition-all hover:-translate-y-0.5" onClick={() => setIsRegisterModalOpen(true)}>
+                      <Button size="lg" className="rounded-none px-8 font-semibold shadow-lg hover:shadow-orange-700/25 transition-all hover:-translate-y-0.5 bg-white text-yellow-500 hover:bg-zinc-50" onClick={() => setIsRegisterModalOpen(true)}>
                         Daftar Sekarang
                       </Button>
                     </div>

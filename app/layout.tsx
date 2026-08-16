@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toast"
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
+import { ThemeToggleFab } from "@/components/theme-toggle-fab"
 
 const outfit = Outfit({subsets:['latin'],variable:'--font-sans'});
 
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <Toaster />
           <PWAInstallPrompt />
+          <ThemeToggleFab />
         </ThemeProvider>
       </body>
     </html>

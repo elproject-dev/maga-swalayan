@@ -531,12 +531,12 @@ export default function SettingsPage() {
               className={cn(
                 "group flex flex-col items-center justify-center gap-3 p-6 rounded-none border transition-all",
                 activeMenu === item.id
-                  ? "border-none bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20 scale-[1.02]"
-                  : "border-border bg-card text-muted-foreground hover:border-orange-500/50 hover:-translate-y-1 hover:shadow-md"
+                  ? "border-none bg-gradient-to-br from-yellow-500 to-yellow-600 text-white shadow-lg shadow-yellow-500/20 scale-[1.02]"
+                  : "border-border bg-card text-muted-foreground hover:border-yellow-500/50 hover:-translate-y-1 hover:shadow-md"
               )}
             >
-              <item.icon className={cn("w-8 h-8 transition-colors", activeMenu !== item.id && "group-hover:text-orange-500")} />
-              <span className={cn("font-semibold text-sm md:text-base transition-colors", activeMenu !== item.id && "group-hover:text-orange-500")}>{item.label}</span>
+              <item.icon className={cn("w-8 h-8 transition-colors", activeMenu !== item.id && "group-hover:text-yellow-500")} />
+              <span className={cn("font-semibold text-sm md:text-base transition-colors", activeMenu !== item.id && "group-hover:text-yellow-500")}>{item.label}</span>
             </button>
           ))}
         </div>

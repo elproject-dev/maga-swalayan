@@ -112,7 +112,7 @@ export function SiteHeader() {
 
         <div className="flex flex-1 items-center justify-end">
           <div className="flex items-center justify-center">
-            <span className="font-bold text-lg md:text-xl text-slate-800 dark:text-slate-200 lowercase">Maga Swalayan</span>
+            <span className="font-bold text-lg md:text-xl text-black dark:text-white">Maga Swalayan</span>
           </div>
         </div>
       </div>
