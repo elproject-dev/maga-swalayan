@@ -329,6 +329,7 @@ export default function MemberPage() {
 
       <Dialog open={isRegisterModalOpen} onOpenChange={setIsRegisterModalOpen}>
         <DialogContent className="sm:max-w-[425px] rounded-none border-primary/20">
+          <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
           <DialogHeader>
             <DialogTitle className="text-base text-yellow-500">Pendaftaran Member Baru</DialogTitle>
             <DialogDescription className="text-sm">

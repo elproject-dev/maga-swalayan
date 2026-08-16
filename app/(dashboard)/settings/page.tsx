@@ -570,11 +570,12 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-6 md:p-8 max-h-[90vh] overflow-y-auto rounded-2xl">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingId ? "Edit Promo" : "Tambah Promo Baru"}</DialogTitle>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-2">
@@ -584,7 +585,7 @@ export default function SettingsPage() {
                             value={newPromo.title}
                             onChange={(e) => setNewPromo({ ...newPromo, title: e.target.value })}
                             placeholder="Misal: Minyak Goreng"
-                            className="h-12"
+                            className="h-10"
                           />
                         </div>
                         <div className="grid w-full gap-2">
@@ -594,12 +595,12 @@ export default function SettingsPage() {
                             value={newPromo.promo}
                             onChange={(e) => setNewPromo({ ...newPromo, promo: e.target.value })}
                             placeholder="Misal: Diskon 20%"
-                            className="h-12"
+                            className="h-10"
                           />
                         </div>
                         <div className="grid w-full gap-2">
                           <Label htmlFor="src" className="text-base">Upload Gambar</Label>
-                          <div className="relative w-full h-12">
+                          <div className="relative w-full h-10">
                             <Input
                               id="src"
                               type="file"
@@ -625,19 +626,19 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="src"
-                              className="cursor-pointer flex h-12 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
                               <span className={`truncate mr-2 font-normal text-base ${fileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {fileName || "Tidak ada yang dipilih"}
                               </span>
-                              <span className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-sm font-medium shrink-0">
+                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
                                 Pilih File
                               </span>
                             </Label>
                           </div>
                         </div>
                         <div className="pt-4">
-                          <Button onClick={handleSavePromo} className="h-12 w-full text-base" disabled={isSaving}>
+                          <Button onClick={handleSavePromo} className="h-10 w-full text-sm" disabled={isSaving}>
                             {isSaving ? (
                               <>
                                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -731,41 +732,41 @@ export default function SettingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoading ? null : ( filteredPromos.slice((currentPage - 1) * 10, currentPage * 10).map((promo) => (
-                          <TableRow key={promo.id}>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                aria-label={`Select ${promo.title}`}
-                                checked={selectedRows.includes(promo.id)}
-                                onCheckedChange={(c) => handleSelectRow(promo.id, !!c)}
-                              />
-                            </TableCell>
-                            <TableCell className="p-2 cursor-pointer hover:bg-accent/50" onClick={() => handleEditClick(promo)}>
-                              <img
-                                src={promo.src}
-                                alt={promo.title}
-                                className="w-12 h-[60px] rounded-none object-cover border mx-auto"
-                              />
-                            </TableCell>
-                            <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClick(promo)}>{promo.title}</TableCell>
-                            <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClick(promo)}>{promo.promo}</TableCell>
-                            <TableCell className="text-center">
-                              <Switch
-                                checked={promo.is_active}
-                                onCheckedChange={async (checked) => {
-                                  const { error } = await supabase.from('promo').update({ is_active: checked }).eq('id', promo.id)
-                                  if (!error) {
-                                    setPromos(promos.map(p => p.id === promo.id ? { ...p, is_active: checked } : p))
-                                    toast.add({ title: `Status promo ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
-                                  } else {
-                                    toast.add({ title: "Gagal memperbarui status promo", description: error.message, type: "error" })
-                                  }
-                                }}
-                                aria-label={`Toggle status ${promo.title}`}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))
+                      {isLoading ? null : (filteredPromos.slice((currentPage - 1) * 10, currentPage * 10).map((promo) => (
+                        <TableRow key={promo.id}>
+                          <TableCell className="text-center">
+                            <Checkbox
+                              aria-label={`Select ${promo.title}`}
+                              checked={selectedRows.includes(promo.id)}
+                              onCheckedChange={(c) => handleSelectRow(promo.id, !!c)}
+                            />
+                          </TableCell>
+                          <TableCell className="p-2 cursor-pointer hover:bg-accent/50" onClick={() => handleEditClick(promo)}>
+                            <img
+                              src={promo.src}
+                              alt={promo.title}
+                              className="w-12 h-[60px] rounded-none object-cover border mx-auto"
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClick(promo)}>{promo.title}</TableCell>
+                          <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClick(promo)}>{promo.promo}</TableCell>
+                          <TableCell className="text-center">
+                            <Switch
+                              checked={promo.is_active}
+                              onCheckedChange={async (checked) => {
+                                const { error } = await supabase.from('promo').update({ is_active: checked }).eq('id', promo.id)
+                                if (!error) {
+                                  setPromos(promos.map(p => p.id === promo.id ? { ...p, is_active: checked } : p))
+                                  toast.add({ title: `Status promo ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
+                                } else {
+                                  toast.add({ title: "Gagal memperbarui status promo", description: error.message, type: "error" })
+                                }
+                              }}
+                              aria-label={`Toggle status ${promo.title}`}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))
                       )}
                       {!isLoading && filteredPromos.length === 0 && (
                         <TableRow>
@@ -815,11 +816,12 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isPilihanDialogOpen} onOpenChange={setIsPilihanDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-6 md:p-8 max-h-[90vh] overflow-y-auto rounded-2xl">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingPilihanId ? "Edit Pilihan" : "Tambah Pilihan Baru"}</DialogTitle>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-2">
@@ -829,7 +831,7 @@ export default function SettingsPage() {
                             value={newPilihan.title}
                             onChange={(e) => setNewPilihan({ ...newPilihan, title: e.target.value })}
                             placeholder="Misal: Minyak Goreng"
-                            className="h-12"
+                            className="h-10"
                           />
                         </div>
                         <div className="grid w-full gap-2">
@@ -839,12 +841,12 @@ export default function SettingsPage() {
                             value={newPilihan.price}
                             onChange={(e) => setNewPilihan({ ...newPilihan, price: formatRupiah(e.target.value) })}
                             placeholder="Misal: Rp 15.000"
-                            className="h-12"
+                            className="h-10"
                           />
                         </div>
                         <div className="grid w-full gap-2">
                           <Label htmlFor="src" className="text-base">Upload Gambar</Label>
-                          <div className="relative w-full h-12">
+                          <div className="relative w-full h-10">
                             <Input
                               id="src"
                               type="file"
@@ -869,19 +871,19 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="src"
-                              className="cursor-pointer flex h-12 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
                               <span className={`truncate mr-2 font-normal text-base ${pilihanFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {pilihanFileName || "Tidak ada yang dipilih"}
                               </span>
-                              <span className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-sm font-medium shrink-0">
+                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
                                 Pilih File
                               </span>
                             </Label>
                           </div>
                         </div>
                         <div className="pt-4">
-                          <Button onClick={handleSavePilihan} className="h-12 w-full text-base" disabled={isSavingPilihan}>
+                          <Button onClick={handleSavePilihan} className="h-10 w-full text-sm" disabled={isSavingPilihan}>
                             {isSavingPilihan ? (
                               <>
                                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -975,41 +977,41 @@ export default function SettingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoading ? null : ( filteredPilihans.slice((currentPage - 1) * 10, currentPage * 10).map((pilihan) => (
-                          <TableRow key={pilihan.id}>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                aria-label={`Select ${pilihan.title}`}
-                                checked={selectedPilihanRows.includes(pilihan.id)}
-                                onCheckedChange={(c) => handleSelectRowPilihan(pilihan.id, !!c)}
-                              />
-                            </TableCell>
-                            <TableCell className="p-2 cursor-pointer hover:bg-accent/50" onClick={() => handleEditClickPilihan(pilihan)}>
-                              <img
-                                src={pilihan.src}
-                                alt={pilihan.title}
-                                className="w-12 h-[60px] rounded-none object-cover border mx-auto"
-                              />
-                            </TableCell>
-                            <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickPilihan(pilihan)}>{pilihan.title}</TableCell>
-                            <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickPilihan(pilihan)}>{pilihan.price}</TableCell>
-                            <TableCell className="text-center">
-                              <Switch
-                                checked={pilihan.is_active}
-                                onCheckedChange={async (checked) => {
-                                  const { error } = await supabase.from('pilihan').update({ is_active: checked }).eq('id', pilihan.id)
-                                  if (!error) {
-                                    setPilihans(pilihans.map(p => p.id === pilihan.id ? { ...p, is_active: checked } : p))
-                                    toast.add({ title: `Status pilihan produk ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
-                                  } else {
-                                    toast.add({ title: "Gagal memperbarui status pilihan produk", description: error.message, type: "error" })
-                                  }
-                                }}
-                                aria-label={`Toggle status ${pilihan.title}`}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))
+                      {isLoading ? null : (filteredPilihans.slice((currentPage - 1) * 10, currentPage * 10).map((pilihan) => (
+                        <TableRow key={pilihan.id}>
+                          <TableCell className="text-center">
+                            <Checkbox
+                              aria-label={`Select ${pilihan.title}`}
+                              checked={selectedPilihanRows.includes(pilihan.id)}
+                              onCheckedChange={(c) => handleSelectRowPilihan(pilihan.id, !!c)}
+                            />
+                          </TableCell>
+                          <TableCell className="p-2 cursor-pointer hover:bg-accent/50" onClick={() => handleEditClickPilihan(pilihan)}>
+                            <img
+                              src={pilihan.src}
+                              alt={pilihan.title}
+                              className="w-12 h-[60px] rounded-none object-cover border mx-auto"
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickPilihan(pilihan)}>{pilihan.title}</TableCell>
+                          <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickPilihan(pilihan)}>{pilihan.price}</TableCell>
+                          <TableCell className="text-center">
+                            <Switch
+                              checked={pilihan.is_active}
+                              onCheckedChange={async (checked) => {
+                                const { error } = await supabase.from('pilihan').update({ is_active: checked }).eq('id', pilihan.id)
+                                if (!error) {
+                                  setPilihans(pilihans.map(p => p.id === pilihan.id ? { ...p, is_active: checked } : p))
+                                  toast.add({ title: `Status pilihan produk ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
+                                } else {
+                                  toast.add({ title: "Gagal memperbarui status pilihan produk", description: error.message, type: "error" })
+                                }
+                              }}
+                              aria-label={`Toggle status ${pilihan.title}`}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))
                       )}
                       {!isLoading && filteredPilihans.length === 0 && (
                         <TableRow>
@@ -1058,11 +1060,12 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isProdukDialogOpen} onOpenChange={setIsProdukDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-6 md:p-8 max-h-[90vh] overflow-y-auto rounded-2xl">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingProdukId ? "Edit Produk" : "Tambah Produk Baru"}</DialogTitle>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-2">
                           <Label htmlFor="produk-title" className="text-base">Nama Produk</Label>
@@ -1071,7 +1074,7 @@ export default function SettingsPage() {
                             value={newProduk.title}
                             onChange={(e) => setNewProduk({ ...newProduk, title: e.target.value })}
                             placeholder="Misal: Minyak Goreng"
-                            className="h-12"
+                            className="h-10"
                           />
                         </div>
                         <div className="grid w-full gap-2">
@@ -1081,12 +1084,12 @@ export default function SettingsPage() {
                             value={newProduk.price}
                             onChange={(e) => setNewProduk({ ...newProduk, price: formatRupiah(e.target.value) })}
                             placeholder="Misal: Rp 15.000"
-                            className="h-12"
+                            className="h-10"
                           />
                         </div>
                         <div className="grid w-full gap-2">
                           <Label htmlFor="produk-src" className="text-base">Upload Gambar</Label>
-                          <div className="relative w-full h-12">
+                          <div className="relative w-full h-10">
                             <Input
                               id="produk-src"
                               type="file"
@@ -1111,19 +1114,19 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="produk-src"
-                              className="cursor-pointer flex h-12 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
                               <span className={`truncate mr-2 font-normal text-base ${produkFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {produkFileName || "Tidak ada yang dipilih"}
                               </span>
-                              <span className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-sm font-medium shrink-0">
+                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
                                 Pilih File
                               </span>
                             </Label>
                           </div>
                         </div>
                         <div className="pt-4">
-                          <Button onClick={handleSaveProduk} className="h-12 w-full text-base" disabled={isSavingProduk}>
+                          <Button onClick={handleSaveProduk} className="h-10 w-full text-sm" disabled={isSavingProduk}>
                             {isSavingProduk ? (
                               <>
                                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -1216,41 +1219,41 @@ export default function SettingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoading ? null : ( filteredProduks.slice((currentPage - 1) * 10, currentPage * 10).map((produk) => (
-                          <TableRow key={produk.id}>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                aria-label={`Select ${produk.title}`}
-                                checked={selectedProdukRows.includes(produk.id)}
-                                onCheckedChange={(c) => handleSelectRowProduk(produk.id, !!c)}
-                              />
-                            </TableCell>
-                            <TableCell className="p-2 cursor-pointer hover:bg-accent/50" onClick={() => handleEditClickProduk(produk)}>
-                              <img
-                                src={produk.src}
-                                alt={produk.title}
-                                className="w-12 h-[60px] rounded-none object-cover border mx-auto"
-                              />
-                            </TableCell>
-                            <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickProduk(produk)}>{produk.title}</TableCell>
-                            <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickProduk(produk)}>{produk.price}</TableCell>
-                            <TableCell className="text-center">
-                              <Switch
-                                checked={produk.is_active}
-                                onCheckedChange={async (checked) => {
-                                  const { error } = await supabase.from('produk').update({ is_active: checked }).eq('id', produk.id)
-                                  if (!error) {
-                                    setProduks(produks.map(p => p.id === produk.id ? { ...p, is_active: checked } : p))
-                                    toast.add({ title: `Status produk ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
-                                  } else {
-                                    toast.add({ title: "Gagal memperbarui status produk", description: error.message, type: "error" })
-                                  }
-                                }}
-                                aria-label={`Toggle status ${produk.title}`}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))
+                      {isLoading ? null : (filteredProduks.slice((currentPage - 1) * 10, currentPage * 10).map((produk) => (
+                        <TableRow key={produk.id}>
+                          <TableCell className="text-center">
+                            <Checkbox
+                              aria-label={`Select ${produk.title}`}
+                              checked={selectedProdukRows.includes(produk.id)}
+                              onCheckedChange={(c) => handleSelectRowProduk(produk.id, !!c)}
+                            />
+                          </TableCell>
+                          <TableCell className="p-2 cursor-pointer hover:bg-accent/50" onClick={() => handleEditClickProduk(produk)}>
+                            <img
+                              src={produk.src}
+                              alt={produk.title}
+                              className="w-12 h-[60px] rounded-none object-cover border mx-auto"
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickProduk(produk)}>{produk.title}</TableCell>
+                          <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickProduk(produk)}>{produk.price}</TableCell>
+                          <TableCell className="text-center">
+                            <Switch
+                              checked={produk.is_active}
+                              onCheckedChange={async (checked) => {
+                                const { error } = await supabase.from('produk').update({ is_active: checked }).eq('id', produk.id)
+                                if (!error) {
+                                  setProduks(produks.map(p => p.id === produk.id ? { ...p, is_active: checked } : p))
+                                  toast.add({ title: `Status produk ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
+                                } else {
+                                  toast.add({ title: "Gagal memperbarui status produk", description: error.message, type: "error" })
+                                }
+                              }}
+                              aria-label={`Toggle status ${produk.title}`}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))
                       )}
                       {!isLoading && filteredProduks.length === 0 && (
                         <TableRow>
@@ -1297,11 +1300,12 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isBannerDialogOpen} onOpenChange={setIsBannerDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-6 md:p-8 max-h-[90vh] overflow-y-auto rounded-2xl">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingBannerId ? "Edit Banner" : "Tambah Banner Baru"}</DialogTitle>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-2">
@@ -1311,12 +1315,12 @@ export default function SettingsPage() {
                             value={newBanner.title}
                             onChange={(e) => setNewBanner({ ...newBanner, title: e.target.value })}
                             placeholder="Misal: Promo Akhir Tahun"
-                            className="h-12"
+                            className="h-10"
                           />
                         </div>
                         <div className="grid w-full gap-2">
                           <Label htmlFor="banner-src" className="text-base">Upload Gambar Banner</Label>
-                          <div className="relative w-full h-12">
+                          <div className="relative w-full h-10">
                             <Input
                               id="banner-src"
                               type="file"
@@ -1341,19 +1345,19 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="banner-src"
-                              className="cursor-pointer flex h-12 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
                               <span className={`truncate mr-2 font-normal text-base ${bannerFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {bannerFileName || "Tidak ada yang dipilih"}
                               </span>
-                              <span className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-sm font-medium shrink-0">
+                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
                                 Pilih File
                               </span>
                             </Label>
                           </div>
                         </div>
                         <div className="pt-4">
-                          <Button onClick={handleSaveBanner} className="h-12 w-full text-base" disabled={isSavingBanner}>
+                          <Button onClick={handleSaveBanner} className="h-10 w-full text-sm" disabled={isSavingBanner}>
                             {isSavingBanner ? (
                               <>
                                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -1447,42 +1451,42 @@ export default function SettingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isLoading ? null : ( filteredBanners.slice((currentPage - 1) * 10, currentPage * 10).map((banner) => (
-                          <TableRow key={banner.id}>
-                            <TableCell className="text-center">
-                              <Checkbox
-                                aria-label={`Select ${banner.title}`}
-                                checked={selectedBannerRows.includes(banner.id)}
-                                onCheckedChange={(c) => handleSelectRowBanner(banner.id, !!c)}
-                              />
-                            </TableCell>
-                            <TableCell className="p-2 cursor-pointer hover:bg-accent/50" onClick={() => handleEditClickBanner(banner)}>
-                              <img
-                                src={banner.src}
-                                alt={banner.title}
-                                className="w-28 h-14 rounded-none object-cover border mx-auto"
-                              />
-                            </TableCell>
-                            <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickBanner(banner)}>
-                              {banner.title}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Switch
-                                checked={banner.is_active}
-                                onCheckedChange={async (checked) => {
-                                  const { error } = await supabase.from('banner').update({ is_active: checked }).eq('id', banner.id)
-                                  if (!error) {
-                                    setBanners(banners.map(b => b.id === banner.id ? { ...b, is_active: checked } : b))
-                                    toast.add({ title: `Status banner ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
-                                  } else {
-                                    toast.add({ title: "Gagal memperbarui status banner", description: error.message, type: "error" })
-                                  }
-                                }}
-                                aria-label={`Toggle status ${banner.title}`}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))
+                      {isLoading ? null : (filteredBanners.slice((currentPage - 1) * 10, currentPage * 10).map((banner) => (
+                        <TableRow key={banner.id}>
+                          <TableCell className="text-center">
+                            <Checkbox
+                              aria-label={`Select ${banner.title}`}
+                              checked={selectedBannerRows.includes(banner.id)}
+                              onCheckedChange={(c) => handleSelectRowBanner(banner.id, !!c)}
+                            />
+                          </TableCell>
+                          <TableCell className="p-2 cursor-pointer hover:bg-accent/50" onClick={() => handleEditClickBanner(banner)}>
+                            <img
+                              src={banner.src}
+                              alt={banner.title}
+                              className="w-28 h-14 rounded-none object-cover border mx-auto"
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickBanner(banner)}>
+                            {banner.title}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Switch
+                              checked={banner.is_active}
+                              onCheckedChange={async (checked) => {
+                                const { error } = await supabase.from('banner').update({ is_active: checked }).eq('id', banner.id)
+                                if (!error) {
+                                  setBanners(banners.map(b => b.id === banner.id ? { ...b, is_active: checked } : b))
+                                  toast.add({ title: `Status banner ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
+                                } else {
+                                  toast.add({ title: "Gagal memperbarui status banner", description: error.message, type: "error" })
+                                }
+                              }}
+                              aria-label={`Toggle status ${banner.title}`}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))
                       )}
                       {!isLoading && filteredBanners.length === 0 && (
                         <TableRow>
