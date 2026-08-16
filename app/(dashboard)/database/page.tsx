@@ -187,7 +187,7 @@ export default function DatabasePage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Database Member</h1>
-          <p className="text-muted-foreground text-sm mt-1">Rincian seluruh data pelanggan yang terdaftar sebagai member.</p>
+          <p className="text-muted-foreground text-sm mt-1">Data pelanggan yang terdaftar sebagai member.</p>
         </div>
       </div>
 
@@ -201,15 +201,16 @@ export default function DatabasePage() {
             className="pr-9"
           />
         </div>
-        <div className="flex gap-2 items-center self-end sm:self-auto">
+        <div className="flex w-full sm:w-auto gap-2 items-center">
           {isActionMode ? (
             <>
               <Button
                 variant="destructive"
                 onClick={handleDelete}
                 disabled={selectedRows.length === 0 || isDeleting}
+                className="flex-1 sm:flex-none text-xs sm:text-sm px-2"
               >
-                {isDeleting ? "Menghapus..." : `Hapus Terpilih (${selectedRows.length})`}
+                {isDeleting ? "Hapus..." : `Hapus (${selectedRows.length})`}
               </Button>
               <Button
                 variant="outline"
@@ -218,22 +219,82 @@ export default function DatabasePage() {
                   setSelectedRows([])
                 }}
                 disabled={isDeleting}
+                className="flex-1 sm:flex-none text-xs sm:text-sm px-2"
               >
                 Batal
               </Button>
             </>
           ) : (
-            <Button onClick={() => setIsActionMode(true)}>
+            <Button onClick={() => setIsActionMode(true)} className="flex-1 sm:flex-none">
               Aksi
             </Button>
           )}
-          <Button variant="outline" onClick={handleExport}>
+          <Button variant="outline" onClick={handleExport} className="flex-1 sm:flex-none">
+            <Download className="w-4 h-4 mr-2 hidden sm:inline-block" />
             Export
           </Button>
         </div>
       </div>
 
-      <div className="rounded-none border bg-card overflow-hidden shadow-sm overflow-x-auto">
+      {/* Mobile Card List */}
+      <div className="flex flex-col gap-3 md:hidden mt-4">
+        {isLoading ? null : filteredCustomers.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground bg-card border">
+            Tidak ada data pelanggan yang cocok.
+          </div>
+        ) : (
+          filteredCustomers.slice((currentPage - 1) * 10, currentPage * 10).map((customer) => (
+            <div
+              key={customer.id}
+              className="bg-card border shadow-sm p-4 space-y-3 relative"
+            >
+              {isActionMode && (
+                <div className="absolute top-4 right-4 z-10">
+                  <Checkbox
+                    checked={selectedRows.includes(customer.id)}
+                    onCheckedChange={(c) => handleSelectRow(customer.id, !!c)}
+                  />
+                </div>
+              )}
+
+              <div className={isActionMode ? "pr-8" : ""}>
+                <p className="font-semibold text-lg">{customer.name || "-"}</p>
+                {customer.membercard ? (
+                  <p className="text-sm font-bold text-orange-500">{customer.membercard}</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">-</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-muted-foreground block text-xs">No. Telp</span>
+                  <span className="font-medium">{customer.phone || "-"}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-muted-foreground block text-xs">Poin</span>
+                  <span className={`font-medium ${customer.points && customer.points > 0 ? 'text-green-600 font-bold' : ''}`}>
+                    {customer.points?.toLocaleString('id-ID') || "0"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-sm">
+                <span className="text-muted-foreground block text-xs">Email</span>
+                <span className="truncate block max-w-full">{customer.email || "-"}</span>
+              </div>
+
+              <div className="text-sm">
+                <span className="text-muted-foreground block text-xs">Alamat</span>
+                <span className="truncate block max-w-full">{customer.alamat || "-"}</span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden md:block rounded-none border bg-card overflow-hidden shadow-sm overflow-x-auto mt-4">
         <Table className="whitespace-nowrap min-w-max">
           <TableHeader>
             <TableRow>
@@ -251,12 +312,12 @@ export default function DatabasePage() {
               </TableHead>
               <TableHead>ID Member</TableHead>
               <TableHead>Nama Pelanggan</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>No. Telp</TableHead>
-              <TableHead>Alamat</TableHead>
-              <TableHead>Kecamatan</TableHead>
-              <TableHead>Kabupaten</TableHead>
-              <TableHead className="text-center">Kelahiran</TableHead>
+              <TableHead className="hidden lg:table-cell">Email</TableHead>
+              <TableHead className="hidden sm:table-cell">No. Telp</TableHead>
+              <TableHead className="hidden lg:table-cell">Alamat</TableHead>
+              <TableHead className="hidden md:table-cell">Kecamatan</TableHead>
+              <TableHead className="hidden md:table-cell">Kabupaten</TableHead>
+              <TableHead className="hidden xl:table-cell text-center">Kelahiran</TableHead>
               <TableHead className="text-center">Poin</TableHead>
             </TableRow>
           </TableHeader>
@@ -292,22 +353,22 @@ export default function DatabasePage() {
                   <TableCell>
                     {customer.name || "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden lg:table-cell">
                     {customer.email || "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     {customer.phone || "-"}
                   </TableCell>
-                  <TableCell className="truncate max-w-[120px]" title={customer.alamat}>
+                  <TableCell className="truncate max-w-[120px] hidden lg:table-cell" title={customer.alamat}>
                     {customer.alamat || "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {customer.kecamatan || "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {customer.kabupaten || "-"}
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center hidden xl:table-cell">
                     {customer.tanggal_lahir ? new Date(customer.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : "-"}
                   </TableCell>
                   <TableCell className={`text-center font-medium ${customer.points && customer.points > 0 ? 'text-green-600 font-bold' : ''}`}>
