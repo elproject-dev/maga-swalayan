@@ -1,14 +1,15 @@
 import React from 'react';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UsersIcon, EyeIcon, ClockIcon, UserCheck, Users, UserCog } from 'lucide-react';
+import { UsersIcon, EyeIcon, ClockIcon, UserCheck, Users, UserCog, Activity } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { UsersPieChart } from '@/components/analytics/users-pie-chart';
 import { CityTable } from '@/components/analytics/city-table';
 import { SourceBarChart } from '@/components/analytics/source-bar-chart';
 import { TrafficLineChart } from '@/components/analytics/traffic-line-chart';
+import { RealtimeBarChart } from '@/components/analytics/realtime-bar-chart';
 
-export const revalidate = 3600; // Cache data for 1 hour
+export const revalidate = 60; // Cache data for 1 minute for near realtime
 
 async function getAnalyticsData() {
   const propertyId = process.env.GA_PROPERTY_ID;
@@ -132,6 +133,40 @@ async function getAnalyticsData() {
       };
     }) || [];
 
+    // Realtime Report
+    let realtimeUsers = '0';
+    let realtimeMinutesData: any[] = [];
+    try {
+      const [realtimeResponse] = await analyticsDataClient.runRealtimeReport({
+        property: `properties/${propertyId}`,
+        dimensions: [
+          { name: 'minutesAgo' }
+        ],
+        metrics: [
+          { name: 'activeUsers' },
+        ],
+      });
+      
+      let total = 0;
+      const minutesMap = new Map();
+      realtimeResponse.rows?.forEach(row => {
+        const minsAgo = parseInt(row.dimensionValues?.[0]?.value || '0', 10);
+        const users = parseInt(row.metricValues?.[0]?.value || '0', 10);
+        minutesMap.set(minsAgo, users);
+        total += users;
+      });
+      realtimeUsers = total.toString();
+      
+      for (let i = 29; i >= 0; i--) {
+        realtimeMinutesData.push({
+          minute: i === 0 ? 'Sekarang' : `${i} mnt`,
+          users: minutesMap.get(i) || 0
+        });
+      }
+    } catch (e) {
+      console.error('Error fetching realtime GA data:', e);
+    }
+
     if (response.rows && response.rows.length > 0) {
       const row = response.rows[0];
       return {
@@ -139,10 +174,12 @@ async function getAnalyticsData() {
           activeUsers: row.metricValues?.[0]?.value || '0',
           pageViews: row.metricValues?.[1]?.value || '0',
           sessions: row.metricValues?.[2]?.value || '0',
+          realtimeUsers,
         },
         cityData,
         sourceData,
-        trendData
+        trendData,
+        realtimeMinutesData
       };
     }
 
@@ -151,10 +188,12 @@ async function getAnalyticsData() {
         activeUsers: '0',
         pageViews: '0',
         sessions: '0',
+        realtimeUsers: realtimeUsers,
       },
       cityData,
       sourceData,
-      trendData
+      trendData,
+      realtimeMinutesData
     };
   } catch (error: any) {
     console.error('Error fetching GA data:', error);
@@ -232,6 +271,7 @@ export default async function AnalyticsPage() {
               </p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -291,6 +331,12 @@ export default async function AnalyticsPage() {
           </>
         )}
       </div>
+
+      {!data.error && (
+        <div className="mt-4">
+          <RealtimeBarChart data={data.realtimeMinutesData || []} />
+        </div>
+      )}
 
       {!data.error && (
         <div className="mt-4">
