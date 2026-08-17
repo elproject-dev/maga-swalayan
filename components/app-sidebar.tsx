@@ -17,7 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, ListIcon, ChartBarIcon, FolderIcon, UsersIcon, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon, Disc2Icon, BoxIcon, PointerIcon, User2Icon, MapPinIcon } from "lucide-react"
+import { LayoutDashboardIcon, ListIcon, ChartBarIcon, FolderIcon, UsersIcon, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon, Disc2Icon, BoxIcon, PointerIcon, User2Icon, MapPinIcon, UserCogIcon } from "lucide-react"
 
 const data = {
   user: {
@@ -173,6 +173,14 @@ const data = {
       url: "/database",
       icon: (
         <DatabaseIcon
+        />
+      ),
+    },
+    {
+      name: "Staf",
+      url: "/staf",
+      icon: (
+        <UserCogIcon
         />
       ),
     },

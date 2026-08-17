@@ -5,6 +5,7 @@ import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 import { Moon, Sun, MapPin, X, Plus } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
+import { supabase } from "@/lib/supabase"
 
 export function ThemeToggleFab() {
   const { theme, setTheme } = useTheme()
@@ -13,9 +14,49 @@ export function ThemeToggleFab() {
   const constraintsRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
+  const [isAdminOrStaff, setIsAdminOrStaff] = React.useState(false)
+
+  const checkRole = async (email: string | undefined) => {
+    if (!email) {
+      setIsAdminOrStaff(false)
+      return
+    }
+    if (email === "elproject.dev@gmail.com") {
+      setIsAdminOrStaff(true)
+      return
+    }
+    const { data: staffData } = await supabase
+      .from('staf')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle()
+      
+    if (staffData) {
+      setIsAdminOrStaff(true)
+    } else {
+      setIsAdminOrStaff(false)
+    }
+  }
 
   React.useEffect(() => {
     setMounted(true)
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        checkRole(session.user.email)
+      }
+    }
+    fetchUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        checkRole(session.user.email)
+      } else {
+        setIsAdminOrStaff(false)
+      }
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   if (!mounted || pathname === "/") return null

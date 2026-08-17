@@ -40,9 +40,6 @@ export default function StafPage() {
   const [isLoading, setIsLoading] = useState(true)
   
   const [isAdmin, setIsAdmin] = useState(false)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [newStaff, setNewStaff] = useState({ name: "", role: "", email: "", phone: "" })
-  const [isSaving, setIsSaving] = useState(false)
 
   const fetchStaff = async () => {
     setIsLoading(true)
@@ -118,31 +115,6 @@ export default function StafPage() {
     }
   }
 
-  const handleAddStaff = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
-    const { data, error } = await supabase
-      .from('staf')
-      .insert([{
-        name: newStaff.name,
-        role: newStaff.role,
-        email: newStaff.email,
-        phone: newStaff.phone,
-        is_active: true
-      }])
-      .select()
-    
-    if (!error && data) {
-      toast.add({ title: "Staf berhasil ditambahkan", type: "success" })
-      setIsAddModalOpen(false)
-      setNewStaff({ name: "", role: "", email: "", phone: "" })
-      fetchStaff()
-    } else {
-      toast.add({ title: "Gagal menambah staf", description: error?.message, type: "error" })
-    }
-    setIsSaving(false)
-  }
-
   const handleDelete = async () => {
     if (selectedRows.length === 0) return
     setIsDeleting(true)
@@ -205,11 +177,6 @@ export default function StafPage() {
           />
         </div>
         <div className="flex gap-2 items-center self-end sm:self-auto">
-          {isAdmin && (
-            <Button onClick={() => setIsAddModalOpen(true)} className="rounded-none shadow-sm">
-              Tambah Staf
-            </Button>
-          )}
           {selectedRows.length > 0 && (
             <Button
               variant="destructive"
@@ -375,42 +342,6 @@ export default function StafPage() {
         />
       </div>
 
-      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[425px] rounded-none">
-          <DialogHeader>
-            <DialogTitle>Tambah Staf Baru</DialogTitle>
-            <DialogDescription>
-              Masukkan detail staf baru ke dalam sistem.
-            </DialogDescription>
-          </DialogHeader>
-          <form id="add-staff-form" onSubmit={handleAddStaff}>
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nama Lengkap</Label>
-                <Input id="name" required className="rounded-none" value={newStaff.name} onChange={e => setNewStaff({...newStaff, name: e.target.value})} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="role">Jabatan</Label>
-                <Input id="role" required className="rounded-none" value={newStaff.role} onChange={e => setNewStaff({...newStaff, role: e.target.value})} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" required className="rounded-none" value={newStaff.email} onChange={e => setNewStaff({...newStaff, email: e.target.value})} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">No. Telp</Label>
-                <Input id="phone" type="tel" required className="rounded-none" value={newStaff.phone} onChange={e => setNewStaff({...newStaff, phone: e.target.value})} />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" className="rounded-none" onClick={() => setIsAddModalOpen(false)}>Batal</Button>
-              <Button type="submit" disabled={isSaving} className="rounded-none">
-                {isSaving ? "Menyimpan..." : "Simpan"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
