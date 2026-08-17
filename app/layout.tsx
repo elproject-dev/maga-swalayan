@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toast"
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
 import { ThemeToggleFab } from "@/components/theme-toggle-fab"
+import { GoogleAnalytics } from "@next/third-parties/google"
 
 const outfit = Outfit({subsets:['latin'],variable:'--font-sans'});
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ThemeToggleFab />
         </ThemeProvider>
       </body>
+      <GoogleAnalytics gaId="G-YQ06T8BHFM" />
     </html>
   );
 }

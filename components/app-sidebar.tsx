@@ -6,7 +6,6 @@ import { supabase } from "@/lib/supabase"
 
 import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -27,7 +26,7 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Beranda",
       url: "/home",
       icon: (
         <LayoutDashboardIcon
@@ -132,16 +131,7 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: (
-        <Settings2Icon
-        />
-      ),
-    },
-  ],
+
   documents: [
     {
       name: "Analytics",
@@ -181,6 +171,14 @@ const data = {
       url: "/staf",
       icon: (
         <UserCogIcon
+        />
+      ),
+    },
+    {
+      name: "Manajemen",
+      url: "/settings",
+      icon: (
+        <Settings2Icon
         />
       ),
     },
@@ -261,7 +259,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         {isAdminOrStaff && <NavDocuments items={data.documents} />}
-        {isAdminOrStaff && <NavSecondary items={data.navSecondary} className="mt-auto" />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

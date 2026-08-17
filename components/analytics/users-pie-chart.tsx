@@ -24,7 +24,7 @@ const chartConfig = {
     label: "Total",
   },
   pelanggan: {
-    label: "Pelanggan Biasa",
+    label: "Umum",
     color: "#94a3b8", // Slate 400
   },
   member: {

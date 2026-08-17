@@ -30,7 +30,7 @@ import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 
 const mainLinks = [
-  { href: "/home", label: "Dashboard", icon: LayoutGrid },
+  { href: "/home", label: "Beranda", icon: LayoutGrid },
   { href: "/promo", label: "Promo", icon: CirclePercent },
   { href: "/produk", label: "Produk", icon: Box },
   { href: "/pilihan", label: "Pilihan", icon: Building },
@@ -41,7 +41,7 @@ const moreLinks = [
   { href: "/poin", label: "Poin", icon: HandCoins },
   { href: "/database", label: "Database", icon: Database },
   { href: "/pelanggan", label: "Pelanggan", icon: Users },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/settings", label: "Manajemen", icon: Settings },
 ]
 
 export function BottomNavigation() {

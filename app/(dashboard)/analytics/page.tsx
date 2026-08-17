@@ -145,7 +145,7 @@ async function getAnalyticsData() {
         trendData
       };
     }
-    
+
     return {
       overview: {
         activeUsers: '0',
@@ -164,7 +164,7 @@ async function getAnalyticsData() {
 
 export default async function AnalyticsPage() {
   const data = await getAnalyticsData();
-  
+
   // Fetch DB metrics
   const { count: totalPelanggan } = await supabase.from('pelanggan').select('*', { count: 'exact', head: true });
   const { data: memberData } = await supabase.from('pelanggan').select('membercard').neq('membercard', '-').neq('membercard', '').not('membercard', 'is', null);
@@ -174,9 +174,9 @@ export default async function AnalyticsPage() {
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Google Analytics</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Google Analytics</h2>
       </div>
-      
+
       {data.error ? (
         <div className="rounded-md bg-destructive/15 p-4 border border-destructive/20">
           <div className="flex">
@@ -276,10 +276,10 @@ export default async function AnalyticsPage() {
           </Card>
         </div>
       )}
-      
+
       {/* Chart Section */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-4 items-stretch">
-        <UsersPieChart 
+        <UsersPieChart
           totalPelanggan={totalPelanggan || 0}
           totalMember={totalMember || 0}
           totalStaf={totalStaf || 0}

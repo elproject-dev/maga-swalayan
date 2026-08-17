@@ -1,6 +1,6 @@
 "use client"
 import { toast } from "@/components/ui/toast"
-import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search } from "lucide-react"
+import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search, Plus, MapPin, X } from "lucide-react"
 import { uploadMedia } from "@/lib/storage"
 import { cn } from "@/lib/utils"
 import {
@@ -120,6 +120,107 @@ export default function SettingsPage() {
   const [newBanner, setNewBanner] = useState({ title: "", src: "" })
   const [bannerFileName, setBannerFileName] = useState("")
   const [bannerFile, setBannerFile] = useState<File | null>(null)
+
+  const [lokasis, setLokasis] = useState<any[]>([])
+  const [searchLokasiQuery, setSearchLokasiQuery] = useState('')
+  const [isLokasiDialogOpen, setIsLokasiDialogOpen] = useState(false)
+  const [editingLokasiId, setEditingLokasiId] = useState<string | null>(null)
+  const [lokasiFile, setLokasiFile] = useState<File | null>(null)
+  const [lokasiFileName, setLokasiFileName] = useState('')
+  const [isSavingLokasi, setIsSavingLokasi] = useState(false)
+  const [selectedLokasiRows, setSelectedLokasiRows] = useState<string[]>([])
+  const [newLokasi, setNewLokasi] = useState({ name: '', address: '', hours: '', phone: '', maps_url: '', image: '' })
+
+  const filteredLokasis = lokasis.filter(l => l.name?.toLowerCase().includes(searchLokasiQuery.toLowerCase()))
+  const isAllLokasiSelected = selectedLokasiRows.length === filteredLokasis.length && filteredLokasis.length > 0
+
+  const handleSelectRowLokasi = (id: string, checked: boolean) => {
+    if (checked) setSelectedLokasiRows([...selectedLokasiRows, id])
+    else setSelectedLokasiRows(selectedLokasiRows.filter(r => r !== id))
+  }
+
+  const handleSelectAllLokasi = (checked: boolean) => {
+    if (checked) setSelectedLokasiRows(filteredLokasis.map(l => l.id))
+    else setSelectedLokasiRows([])
+  }
+
+  const handleEditClickLokasi = (lokasi: any) => {
+    setEditingLokasiId(lokasi.id)
+    setNewLokasi({ name: lokasi.name, address: lokasi.address, hours: lokasi.hours, phone: lokasi.phone, maps_url: lokasi.maps_url, image: lokasi.image })
+    setLokasiFileName('')
+    setLokasiFile(null)
+    setIsLokasiDialogOpen(true)
+  }
+
+  const handleDeleteLokasi = async () => {
+    if (selectedLokasiRows.length === 0) return
+    const { error } = await supabase.from('lokasi').delete().in('id', selectedLokasiRows)
+    if (!error) {
+      setLokasis(lokasis.filter(l => !selectedLokasiRows.includes(l.id)))
+      setSelectedLokasiRows([])
+      toast.add({ title: 'Lokasi berhasil dihapus', type: 'success' })
+    } else {
+      toast.add({ title: 'Gagal menghapus lokasi', description: error.message, type: 'error' })
+    }
+  }
+
+  const handleAddClickLokasi = () => {
+    setEditingLokasiId(null)
+    setNewLokasi({ name: '', address: '', hours: '', phone: '', maps_url: '', image: '' })
+    setLokasiFileName('')
+    setLokasiFile(null)
+    setIsLokasiDialogOpen(true)
+  }
+
+  const handleSaveLokasi = async () => {
+    setIsSavingLokasi(true)
+    try {
+      let imageUrl = newLokasi.image
+      if (lokasiFile) {
+        const url = await uploadMedia(lokasiFile, 'lokasi')
+        if (url) imageUrl = url
+      }
+
+      const payload = {
+        name: newLokasi.name,
+        address: newLokasi.address,
+        hours: newLokasi.hours,
+        phone: newLokasi.phone,
+        maps_url: newLokasi.maps_url,
+        image: imageUrl
+      }
+
+      if (editingLokasiId) {
+        const { error } = await supabase.from('lokasi').update(payload).eq('id', editingLokasiId)
+        if (error) throw error
+        setLokasis(lokasis.map(l => l.id === editingLokasiId ? { ...l, ...payload } : l))
+        toast.add({ title: 'Lokasi berhasil diperbarui', type: 'success' })
+      } else {
+        const { data, error } = await supabase.from('lokasi').insert([payload]).select()
+        if (error) throw error
+        if (data) setLokasis([...data, ...lokasis])
+        toast.add({ title: 'Lokasi berhasil ditambahkan', type: 'success' })
+      }
+      setIsLokasiDialogOpen(false)
+      setNewLokasi({ name: '', address: '', hours: '', phone: '', maps_url: '', image: '' })
+      setLokasiFile(null)
+      setLokasiFileName('')
+      setEditingLokasiId(null)
+    } catch (error: any) {
+      toast.add({ title: 'Terjadi kesalahan', description: error.message, type: 'error' })
+    } finally {
+      setIsSavingLokasi(false)
+    }
+  }
+
+  // fetch data effect
+  useEffect(() => {
+    const fetchLokasi = async () => {
+      const { data } = await supabase.from('lokasi').select('*').order('created_at', { ascending: false })
+      if (data) setLokasis(data)
+    }
+    fetchLokasi()
+  }, [])
 
   const filteredPromos = promos.filter((p) => {
     const q = searchPromoQuery.toLowerCase()
@@ -515,10 +616,26 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
-      <div className="flex flex-col">
-        <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Pengaturan & Manajemen</h1>
-
+    <div className="@container/main flex flex-1 flex-col gap-2 md:gap-4 py-2 md:py-4 px-4 lg:px-6">
+      <div className="flex flex-row justify-between items-center gap-2">
+        <h1 className="text-xl md:text-2xl font-bold tracking-tight">Pengaturan & Manajemen</h1>
+        <Button
+          onClick={() => setActiveMenu(activeMenu === 'lokasi' ? null : 'lokasi')}
+          variant={activeMenu === 'lokasi' ? 'outline' : 'default'}
+          className="px-3 sm:px-4"
+        >
+          {activeMenu === 'lokasi' ? (
+            <>
+              <X className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Tutup</span>
+            </>
+          ) : (
+            <>
+              <MapPin className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Kelola Lokasi</span>
+            </>
+          )}
+        </Button>
       </div>
 
       <div className="flex flex-col gap-4 md:gap-4">
@@ -578,7 +695,7 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
-                        <div className="grid w-full gap-2">
+                        <div className="grid w-full gap-1">
                           <Label htmlFor="title" className="text-base">Nama Promo</Label>
                           <Input
                             id="title"
@@ -588,7 +705,7 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
-                        <div className="grid w-full gap-2">
+                        <div className="grid w-full gap-1">
                           <Label htmlFor="promo" className="text-base">Keterangan</Label>
                           <Input
                             id="promo"
@@ -598,45 +715,7 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
-                        <div className="grid w-full gap-2">
-                          <Label htmlFor="src" className="text-base">Upload Gambar</Label>
-                          <div className="relative w-full h-10">
-                            <Input
-                              id="src"
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) {
-                                  setFileName(file.name)
-                                  setPromoFile(file)
-                                  // Show local preview
-                                  const reader = new FileReader()
-                                  reader.onloadend = () => {
-                                    setNewPromo({ ...newPromo, src: reader.result as string })
-                                  }
-                                  reader.readAsDataURL(file)
-                                } else {
-                                  setFileName("")
-                                  setPromoFile(null)
-                                  setNewPromo({ ...newPromo, src: "" })
-                                }
-                              }}
-                              className="sr-only"
-                            />
-                            <Label
-                              htmlFor="src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                            >
-                              <span className={`truncate mr-2 font-normal text-base ${fileName ? "text-foreground" : "text-muted-foreground"}`}>
-                                {fileName || "Tidak ada yang dipilih"}
-                              </span>
-                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
-                                Pilih File
-                              </span>
-                            </Label>
-                          </div>
-                        </div>
+
                         <div className="pt-4">
                           <Button onClick={handleSavePromo} className="h-10 w-full text-sm" disabled={isSaving}>
                             {isSaving ? (
@@ -652,7 +731,7 @@ export default function SettingsPage() {
                       </div>
 
                       {/* Kolom Kanan: Preview */}
-                      <div className="flex flex-col items-center md:items-end justify-center w-full order-1 md:order-2 mb-2 md:mb-0">
+                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
                         <div className="w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[4/5] shadow-sm">
                           {newPromo.src ? (
                             <img src={newPromo.src} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
@@ -661,6 +740,49 @@ export default function SettingsPage() {
                               Pratinjau Gambar (4:5)
                             </div>
                           )}
+                        </div>
+                        <div className="w-full mt-4">
+                          <div className="grid w-full gap-1">
+                            <Label htmlFor="produk-src" className="text-base">Upload Gambar</Label>
+                            <div className="relative w-full h-10">
+                              <Input
+                                id="produk-src"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0]
+                                  if (file) {
+                                    setProdukFileName(file.name)
+                                    setProdukFile(file)
+                                    const reader = new FileReader()
+                                    reader.onloadend = () => {
+                                      setNewProduk({ ...newProduk, src: reader.result as string })
+                                    }
+                                    reader.readAsDataURL(file)
+                                  } else {
+                                    setProdukFileName("")
+                                    setProdukFile(null)
+                                    setNewProduk({ ...newProduk, src: "" })
+                                  }
+                                }}
+                                className="sr-only"
+                              />
+                              <Label
+                                htmlFor="produk-src"
+                                className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              >
+                                <span className={`truncate mr-2 font-normal text-base ${produkFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                                  {produkFileName || "Tidak ada yang dipilih"}
+                                </span>
+                                <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                                  Pilih File
+                                </span>
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-full mt-4">
+
                         </div>
                       </div>
                     </div>
@@ -824,7 +946,7 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
-                        <div className="grid w-full gap-2">
+                        <div className="grid w-full gap-1">
                           <Label htmlFor="title" className="text-base">Nama Produk</Label>
                           <Input
                             id="title"
@@ -834,7 +956,7 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
-                        <div className="grid w-full gap-2">
+                        <div className="grid w-full gap-1">
                           <Label htmlFor="price" className="text-base">Harga</Label>
                           <Input
                             id="price"
@@ -844,44 +966,7 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
-                        <div className="grid w-full gap-2">
-                          <Label htmlFor="src" className="text-base">Upload Gambar</Label>
-                          <div className="relative w-full h-10">
-                            <Input
-                              id="src"
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) {
-                                  setPilihanFileName(file.name)
-                                  setPilihanFile(file)
-                                  const reader = new FileReader()
-                                  reader.onloadend = () => {
-                                    setNewPilihan({ ...newPilihan, src: reader.result as string })
-                                  }
-                                  reader.readAsDataURL(file)
-                                } else {
-                                  setPilihanFileName("")
-                                  setPilihanFile(null)
-                                  setNewPilihan({ ...newPilihan, src: "" })
-                                }
-                              }}
-                              className="sr-only"
-                            />
-                            <Label
-                              htmlFor="src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                            >
-                              <span className={`truncate mr-2 font-normal text-base ${pilihanFileName ? "text-foreground" : "text-muted-foreground"}`}>
-                                {pilihanFileName || "Tidak ada yang dipilih"}
-                              </span>
-                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
-                                Pilih File
-                              </span>
-                            </Label>
-                          </div>
-                        </div>
+
                         <div className="pt-4">
                           <Button onClick={handleSavePilihan} className="h-10 w-full text-sm" disabled={isSavingPilihan}>
                             {isSavingPilihan ? (
@@ -897,7 +982,7 @@ export default function SettingsPage() {
                       </div>
 
                       {/* Kolom Kanan: Preview */}
-                      <div className="flex flex-col items-center md:items-end justify-center w-full order-1 md:order-2 mb-2 md:mb-0">
+                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
                         <div className="w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[4/5] shadow-sm">
                           {newPilihan.src ? (
                             <img src={newPilihan.src} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
@@ -906,6 +991,12 @@ export default function SettingsPage() {
                               Pratinjau Gambar (4:5)
                             </div>
                           )}
+                        </div>
+                        <div className="w-full mt-4">
+
+                        </div>
+                        <div className="w-full mt-4">
+
                         </div>
                       </div>
                     </div>
@@ -1067,7 +1158,7 @@ export default function SettingsPage() {
                     </DialogHeader>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       <div className="flex flex-col gap-4 order-2 md:order-1">
-                        <div className="grid w-full gap-2">
+                        <div className="grid w-full gap-1">
                           <Label htmlFor="produk-title" className="text-base">Nama Produk</Label>
                           <Input
                             id="produk-title"
@@ -1077,7 +1168,7 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
-                        <div className="grid w-full gap-2">
+                        <div className="grid w-full gap-1">
                           <Label htmlFor="produk-price" className="text-base">Harga</Label>
                           <Input
                             id="produk-price"
@@ -1087,44 +1178,7 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
-                        <div className="grid w-full gap-2">
-                          <Label htmlFor="produk-src" className="text-base">Upload Gambar</Label>
-                          <div className="relative w-full h-10">
-                            <Input
-                              id="produk-src"
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) {
-                                  setProdukFileName(file.name)
-                                  setProdukFile(file)
-                                  const reader = new FileReader()
-                                  reader.onloadend = () => {
-                                    setNewProduk({ ...newProduk, src: reader.result as string })
-                                  }
-                                  reader.readAsDataURL(file)
-                                } else {
-                                  setProdukFileName("")
-                                  setProdukFile(null)
-                                  setNewProduk({ ...newProduk, src: "" })
-                                }
-                              }}
-                              className="sr-only"
-                            />
-                            <Label
-                              htmlFor="produk-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                            >
-                              <span className={`truncate mr-2 font-normal text-base ${produkFileName ? "text-foreground" : "text-muted-foreground"}`}>
-                                {produkFileName || "Tidak ada yang dipilih"}
-                              </span>
-                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
-                                Pilih File
-                              </span>
-                            </Label>
-                          </div>
-                        </div>
+
                         <div className="pt-4">
                           <Button onClick={handleSaveProduk} className="h-10 w-full text-sm" disabled={isSavingProduk}>
                             {isSavingProduk ? (
@@ -1139,7 +1193,7 @@ export default function SettingsPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center md:items-end justify-center w-full order-1 md:order-2 mb-2 md:mb-0">
+                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
                         <div className="w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[4/5] shadow-sm">
                           {newProduk.src ? (
                             <img src={newProduk.src} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
@@ -1308,7 +1362,7 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
-                        <div className="grid w-full gap-2">
+                        <div className="grid w-full gap-1">
                           <Label htmlFor="banner-title" className="text-base">Nama / Judul Banner</Label>
                           <Input
                             id="banner-title"
@@ -1318,44 +1372,7 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
-                        <div className="grid w-full gap-2">
-                          <Label htmlFor="banner-src" className="text-base">Upload Gambar Banner</Label>
-                          <div className="relative w-full h-10">
-                            <Input
-                              id="banner-src"
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) {
-                                  setBannerFileName(file.name)
-                                  setBannerFile(file)
-                                  const reader = new FileReader()
-                                  reader.onloadend = () => {
-                                    setNewBanner({ ...newBanner, src: reader.result as string })
-                                  }
-                                  reader.readAsDataURL(file)
-                                } else {
-                                  setBannerFileName("")
-                                  setBannerFile(null)
-                                  setNewBanner({ ...newBanner, src: "" })
-                                }
-                              }}
-                              className="sr-only"
-                            />
-                            <Label
-                              htmlFor="banner-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                            >
-                              <span className={`truncate mr-2 font-normal text-base ${bannerFileName ? "text-foreground" : "text-muted-foreground"}`}>
-                                {bannerFileName || "Tidak ada yang dipilih"}
-                              </span>
-                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
-                                Pilih File
-                              </span>
-                            </Label>
-                          </div>
-                        </div>
+
                         <div className="pt-4">
                           <Button onClick={handleSaveBanner} className="h-10 w-full text-sm" disabled={isSavingBanner}>
                             {isSavingBanner ? (
@@ -1371,7 +1388,7 @@ export default function SettingsPage() {
                       </div>
 
                       {/* Kolom Kanan: Preview */}
-                      <div className="flex flex-col items-center md:items-end justify-center w-full order-1 md:order-2 mb-2 md:mb-0">
+                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
                         <div className="w-full relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[2/1] shadow-sm">
                           {newBanner.src ? (
                             <img src={newBanner.src} alt="Preview Banner" className="w-full h-full object-cover absolute inset-0" />
@@ -1380,6 +1397,58 @@ export default function SettingsPage() {
                               Pratinjau Banner Canva (2:1 / 1000x500mm)
                             </div>
                           )}
+                        </div>
+                        <div className="w-full mt-4">
+                          <div className="grid w-full gap-1">
+                            <Label htmlFor="banner-src" className="text-base">Upload Gambar Banner</Label>
+                            <div className="relative w-full h-10">
+                              <Input
+                                id="banner-src"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0]
+                                  if (file) {
+                                    setBannerFileName(file.name)
+                                    setBannerFile(file)
+                                    const reader = new FileReader()
+                                    reader.onloadend = () => {
+                                      setNewBanner({ ...newBanner, src: reader.result as string })
+                                    }
+                                    reader.readAsDataURL(file)
+                                  } else {
+                                    setBannerFileName("")
+                                    setBannerFile(null)
+                                    setNewBanner({ ...newBanner, src: "" })
+                                  }
+                                }}
+                                className="sr-only"
+                              />
+                              <Label
+                                htmlFor="banner-src"
+                                className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              >
+                                <span className={`truncate mr-2 font-normal text-base ${bannerFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                                  {bannerFileName || "Tidak ada yang dipilih"}
+                                </span>
+                                <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                                  Pilih File
+                                </span>
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-full mt-4">
+
+                        </div>
+                        <div className="w-full mt-4">
+
+                        </div>
+                        <div className="w-full mt-4">
+
+                        </div>
+                        <div className="w-full mt-4">
+
                         </div>
                       </div>
                     </div>
@@ -1507,8 +1576,284 @@ export default function SettingsPage() {
                 </div>
               </div>
             )}
+            {activeMenu === 'lokasi' && (
+              <div className="flex flex-col gap-3 md:gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <h2 className="text-lg md:text-xl font-semibold tracking-tight">Manajemen Lokasi</h2>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div className="relative w-full sm:w-64">
+                      <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="Cari lokasi..."
+                        value={searchLokasiQuery}
+                        onChange={(e) => {
+                          setSearchLokasiQuery(e.target.value)
+                          setCurrentPage(1)
+                        }}
+                        className="pr-9 h-10"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
+                      {selectedLokasiRows.length > 0 && (
+                        <Button variant="secondary" onClick={handleDeleteLokasi}>Hapus ({selectedLokasiRows.length})</Button>
+                      )}
+                      <Button onClick={handleAddClickLokasi} className="px-3 sm:px-4">
+                        <Plus className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Tambah Cabang</span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <Dialog open={isLokasiDialogOpen} onOpenChange={setIsLokasiDialogOpen}>
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
+                    <DialogHeader>
+                      <DialogTitle className="text-xl md:text-2xl">{editingLokasiId ? "Edit Lokasi" : "Tambah Lokasi Baru"}</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                      <div className="flex flex-col gap-4 order-2 md:order-1">
+                        <div className="grid w-full gap-1">
+                          <Label htmlFor="lokasi-name" className="text-base">Nama Cabang</Label>
+                          <Input
+                            id="lokasi-name"
+                            value={newLokasi.name}
+                            onChange={(e) => setNewLokasi({ ...newLokasi, name: e.target.value })}
+                            placeholder="Misal: Maga Swalayan Pusat"
+                            className="h-10"
+                          />
+                        </div>
+                        <div className="grid w-full gap-1">
+                          <Label htmlFor="lokasi-address" className="text-base">Alamat</Label>
+                          <Input
+                            id="lokasi-address"
+                            value={newLokasi.address}
+                            onChange={(e) => setNewLokasi({ ...newLokasi, address: e.target.value })}
+                            placeholder="Misal: Jl. Magelang Km 5..."
+                            className="h-10"
+                          />
+                        </div>
+                        <div className="grid w-full gap-1">
+                          <Label htmlFor="lokasi-hours" className="text-base">Jam Buka</Label>
+                          <Input
+                            id="lokasi-hours"
+                            value={newLokasi.hours}
+                            onChange={(e) => setNewLokasi({ ...newLokasi, hours: e.target.value })}
+                            placeholder="Misal: 08:00 - 22:00"
+                            className="h-10"
+                          />
+                        </div>
+                        <div className="grid w-full gap-1">
+                          <Label htmlFor="lokasi-phone" className="text-base">Telepon</Label>
+                          <Input
+                            id="lokasi-phone"
+                            value={newLokasi.phone}
+                            onChange={(e) => setNewLokasi({ ...newLokasi, phone: e.target.value })}
+                            placeholder="Misal: 0274-123456"
+                            className="h-10"
+                          />
+                        </div>
+                        <div className="grid w-full gap-1">
+                          <Label htmlFor="lokasi-maps_url" className="text-base">Link Google Maps</Label>
+                          <Input
+                            id="lokasi-maps_url"
+                            value={newLokasi.maps_url}
+                            onChange={(e) => setNewLokasi({ ...newLokasi, maps_url: e.target.value })}
+                            placeholder="Misal: https://maps.google.com/..."
+                            className="h-10"
+                          />
+                        </div>
+
+                        <div className="pt-4">
+                          <Button onClick={handleSaveLokasi} className="h-10 w-full text-sm" disabled={isSavingLokasi}>
+                            {isSavingLokasi ? (
+                              <>
+                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                Menyimpan...
+                              </>
+                            ) : (
+                              editingLokasiId ? "Edit Lokasi" : "Simpan Lokasi"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
+                        <div className="w-full relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-video shadow-sm">
+                          {newLokasi.image ? (
+                            <img src={newLokasi.image} alt="Preview Lokasi" className="w-full h-full object-cover absolute inset-0" />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm text-center p-4">
+                              Pratinjau Gambar Lokasi
+                            </div>
+                          )}
+                        </div>
+                        <div className="w-full mt-4">
+                          <div className="grid w-full gap-1">
+                            <Label htmlFor="lokasi-image" className="text-base">Upload Gambar Lokasi</Label>
+                            <div className="relative w-full h-10">
+                              <Input
+                                id="lokasi-image"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0]
+                                  if (file) {
+                                    setLokasiFileName(file.name)
+                                    setLokasiFile(file)
+                                    const reader = new FileReader()
+                                    reader.onloadend = () => {
+                                      setNewLokasi({ ...newLokasi, image: reader.result as string })
+                                    }
+                                    reader.readAsDataURL(file)
+                                  } else {
+                                    setLokasiFileName("")
+                                    setLokasiFile(null)
+                                    setNewLokasi({ ...newLokasi, image: "" })
+                                  }
+                                }}
+                                className="sr-only"
+                              />
+                              <Label
+                                htmlFor="lokasi-image"
+                                className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              >
+                                <span className={`truncate mr-2 font-normal text-base ${lokasiFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                                  {lokasiFileName || "Tidak ada yang dipilih"}
+                                </span>
+                                <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                                  Pilih File
+                                </span>
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Mobile Card List */}
+                <div className="flex flex-col gap-3 md:hidden">
+                  {isLoading ? null : filteredLokasis.length === 0 ? (
+                    <div className="text-center py-10 text-muted-foreground bg-card border">
+                      Tidak ada data lokasi.
+                    </div>
+                  ) : (
+                    filteredLokasis.slice((currentPage - 1) * 10, currentPage * 10).map((lokasi) => (
+                      <div key={lokasi.id} className="bg-card border shadow-sm p-3 flex gap-3 relative flex-col">
+                        <div className="flex items-start gap-3">
+                          <div className="flex items-center mt-1">
+                            <Checkbox
+                              checked={selectedLokasiRows.includes(lokasi.id)}
+                              onCheckedChange={(c) => handleSelectRowLokasi(lokasi.id, !!c)}
+                              aria-label={`Select ${lokasi.name}`}
+                            />
+                          </div>
+                          <div className="w-24 h-24 shrink-0 cursor-pointer" onClick={() => handleEditClickLokasi(lokasi)}>
+                            {lokasi.image ? (
+                              <img src={lokasi.image} alt={lokasi.name} className="w-full h-full object-cover rounded-none border" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-muted border rounded-none">
+                                <ImageIcon className="h-8 w-8 text-muted-foreground opacity-50" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-1 flex-col justify-center min-w-0">
+                            <div onClick={() => handleEditClickLokasi(lokasi)} className="cursor-pointer">
+                              <div className="font-semibold text-foreground truncate text-sm line-clamp-2">{lokasi.name}</div>
+                              <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{lokasi.address}</div>
+                              <div className="text-xs text-muted-foreground mt-1">{lokasi.hours}</div>
+                              <div className="text-xs text-muted-foreground mt-1">{lokasi.phone}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Desktop Table */}
+                <div className="hidden md:block rounded-none border bg-card overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[50px] text-center">
+                          <Checkbox
+                            aria-label="Select all"
+                            checked={isAllLokasiSelected}
+                            onCheckedChange={handleSelectAllLokasi}
+                          />
+                        </TableHead>
+                        <TableHead className="w-[120px] text-center">Gambar</TableHead>
+                        <TableHead>Nama Cabang</TableHead>
+                        <TableHead>Alamat</TableHead>
+                        <TableHead>Jam Buka</TableHead>
+                        <TableHead>Telepon</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {isLoading ? null : (filteredLokasis.slice((currentPage - 1) * 10, currentPage * 10).map((lokasi) => (
+                        <TableRow key={lokasi.id}>
+                          <TableCell className="text-center">
+                            <Checkbox
+                              aria-label={`Select ${lokasi.name}`}
+                              checked={selectedLokasiRows.includes(lokasi.id)}
+                              onCheckedChange={(c) => handleSelectRowLokasi(lokasi.id, !!c)}
+                            />
+                          </TableCell>
+                          <TableCell className="p-2 cursor-pointer hover:bg-accent/50" onClick={() => handleEditClickLokasi(lokasi)}>
+                            {lokasi.image ? (
+                              <img
+                                src={lokasi.image}
+                                alt={lokasi.name}
+                                className="w-[60px] h-[60px] rounded-none object-cover border mx-auto"
+                              />
+                            ) : (
+                              <div className="w-[60px] h-[60px] mx-auto flex items-center justify-center bg-muted border rounded-none">
+                                <ImageIcon className="h-6 w-6 text-muted-foreground opacity-50" />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickLokasi(lokasi)}>
+                            {lokasi.name}
+                          </TableCell>
+                          <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickLokasi(lokasi)}>
+                            {lokasi.address}
+                          </TableCell>
+                          <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickLokasi(lokasi)}>
+                            {lokasi.hours}
+                          </TableCell>
+                          <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickLokasi(lokasi)}>
+                            {lokasi.phone}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                      )}
+                      {!isLoading && filteredLokasis.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                            Tidak ada data lokasi.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="rounded-none border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0">
+                  <TablePagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(filteredLokasis.length / 10)}
+                    onPageChange={setCurrentPage}
+                  />
+                </div>
+              </div>
+            )}
+
+
+
           </div>
         )}
+
       </div>
     </div>
   )
