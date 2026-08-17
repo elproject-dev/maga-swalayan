@@ -67,6 +67,7 @@ const menuItems = [
   { id: 'pilihan', label: 'Pilihan Hari Ini', icon: Calendar },
   { id: 'produk', label: 'Produk', icon: Package },
   { id: 'banner', label: 'Banner', icon: ImageIcon },
+  { id: 'lokasi', label: 'Kelola Lokasi', icon: MapPin },
 ]
 
 // Image upload now uses Supabase Storage bucket 'media'
@@ -619,28 +620,11 @@ export default function SettingsPage() {
     <div className="@container/main flex flex-1 flex-col gap-2 md:gap-4 py-2 md:py-4 px-4 lg:px-6">
       <div className="flex flex-row justify-between items-center gap-2">
         <h1 className="text-xl md:text-2xl font-bold tracking-tight">Pengaturan & Manajemen</h1>
-        <Button
-          onClick={() => setActiveMenu(activeMenu === 'lokasi' ? null : 'lokasi')}
-          variant={activeMenu === 'lokasi' ? 'outline' : 'default'}
-          className="px-3 sm:px-4"
-        >
-          {activeMenu === 'lokasi' ? (
-            <>
-              <X className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Tutup</span>
-            </>
-          ) : (
-            <>
-              <MapPin className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Kelola Lokasi</span>
-            </>
-          )}
-        </Button>
       </div>
 
       <div className="flex flex-col gap-4 md:gap-4">
         {/* Top Grid Menu */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {menuItems.map(item => (
             <button
               key={item.id}
@@ -687,7 +671,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
                     <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingId ? "Edit Promo" : "Tambah Promo Baru"}</DialogTitle>
@@ -715,8 +699,46 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
+                        <div className="grid w-full gap-1 mt-2">
+                          <Label htmlFor="promo-src" className="text-base">Upload Gambar</Label>
+                          <div className="relative w-full h-10">
+                            <Input
+                              id="promo-src"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                  setFileName(file.name)
+                                  setPromoFile(file)
+                                  const reader = new FileReader()
+                                  reader.onloadend = () => {
+                                    setNewPromo({ ...newPromo, src: reader.result as string })
+                                  }
+                                  reader.readAsDataURL(file)
+                                } else {
+                                  setFileName("")
+                                  setPromoFile(null)
+                                  setNewPromo({ ...newPromo, src: "" })
+                                }
+                              }}
+                              className="sr-only"
+                            />
+                            <Label
+                              htmlFor="promo-src"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                            >
+                              <span className={`truncate mr-2 font-normal text-base ${fileName ? "text-foreground" : "text-muted-foreground"}`}>
+                                {fileName || "Tidak ada yang dipilih"}
+                              </span>
+                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                                Pilih File
+                              </span>
+                            </Label>
+                          </div>
+                        </div>
 
-                        <div className="pt-4">
+                        <div className="pt-2">
                           <Button onClick={handleSavePromo} className="h-10 w-full text-sm" disabled={isSaving}>
                             {isSaving ? (
                               <>
@@ -740,49 +762,6 @@ export default function SettingsPage() {
                               Pratinjau Gambar (4:5)
                             </div>
                           )}
-                        </div>
-                        <div className="w-full mt-4">
-                          <div className="grid w-full gap-1">
-                            <Label htmlFor="produk-src" className="text-base">Upload Gambar</Label>
-                            <div className="relative w-full h-10">
-                              <Input
-                                id="produk-src"
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0]
-                                  if (file) {
-                                    setProdukFileName(file.name)
-                                    setProdukFile(file)
-                                    const reader = new FileReader()
-                                    reader.onloadend = () => {
-                                      setNewProduk({ ...newProduk, src: reader.result as string })
-                                    }
-                                    reader.readAsDataURL(file)
-                                  } else {
-                                    setProdukFileName("")
-                                    setProdukFile(null)
-                                    setNewProduk({ ...newProduk, src: "" })
-                                  }
-                                }}
-                                className="sr-only"
-                              />
-                              <Label
-                                htmlFor="produk-src"
-                                className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                              >
-                                <span className={`truncate mr-2 font-normal text-base ${produkFileName ? "text-foreground" : "text-muted-foreground"}`}>
-                                  {produkFileName || "Tidak ada yang dipilih"}
-                                </span>
-                                <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
-                                  Pilih File
-                                </span>
-                              </Label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="w-full mt-4">
-
                         </div>
                       </div>
                     </div>
@@ -938,7 +917,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isPilihanDialogOpen} onOpenChange={setIsPilihanDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
                     <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingPilihanId ? "Edit Pilihan" : "Tambah Pilihan Baru"}</DialogTitle>
@@ -966,8 +945,46 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
+                        <div className="grid w-full gap-1 mt-2">
+                          <Label htmlFor="pilihan-src" className="text-base">Upload Gambar</Label>
+                          <div className="relative w-full h-10">
+                            <Input
+                              id="pilihan-src"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                  setPilihanFileName(file.name)
+                                  setPilihanFile(file)
+                                  const reader = new FileReader()
+                                  reader.onloadend = () => {
+                                    setNewPilihan({ ...newPilihan, src: reader.result as string })
+                                  }
+                                  reader.readAsDataURL(file)
+                                } else {
+                                  setPilihanFileName("")
+                                  setPilihanFile(null)
+                                  setNewPilihan({ ...newPilihan, src: "" })
+                                }
+                              }}
+                              className="sr-only"
+                            />
+                            <Label
+                              htmlFor="pilihan-src"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                            >
+                              <span className={`truncate mr-2 font-normal text-base ${pilihanFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                                {pilihanFileName || "Tidak ada yang dipilih"}
+                              </span>
+                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                                Pilih File
+                              </span>
+                            </Label>
+                          </div>
+                        </div>
 
-                        <div className="pt-4">
+                        <div className="pt-2">
                           <Button onClick={handleSavePilihan} className="h-10 w-full text-sm" disabled={isSavingPilihan}>
                             {isSavingPilihan ? (
                               <>
@@ -991,12 +1008,6 @@ export default function SettingsPage() {
                               Pratinjau Gambar (4:5)
                             </div>
                           )}
-                        </div>
-                        <div className="w-full mt-4">
-
-                        </div>
-                        <div className="w-full mt-4">
-
                         </div>
                       </div>
                     </div>
@@ -1151,7 +1162,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isProdukDialogOpen} onOpenChange={setIsProdukDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
                     <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingProdukId ? "Edit Produk" : "Tambah Produk Baru"}</DialogTitle>
@@ -1178,8 +1189,46 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
+                        <div className="grid w-full gap-1 mt-2">
+                          <Label htmlFor="produk-src" className="text-base">Upload Gambar</Label>
+                          <div className="relative w-full h-10">
+                            <Input
+                              id="produk-src"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                  setProdukFileName(file.name)
+                                  setProdukFile(file)
+                                  const reader = new FileReader()
+                                  reader.onloadend = () => {
+                                    setNewProduk({ ...newProduk, src: reader.result as string })
+                                  }
+                                  reader.readAsDataURL(file)
+                                } else {
+                                  setProdukFileName("")
+                                  setProdukFile(null)
+                                  setNewProduk({ ...newProduk, src: "" })
+                                }
+                              }}
+                              className="sr-only"
+                            />
+                            <Label
+                              htmlFor="produk-src"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                            >
+                              <span className={`truncate mr-2 font-normal text-base ${produkFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                                {produkFileName || "Tidak ada yang dipilih"}
+                              </span>
+                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                                Pilih File
+                              </span>
+                            </Label>
+                          </div>
+                        </div>
 
-                        <div className="pt-4">
+                        <div className="pt-2">
                           <Button onClick={handleSaveProduk} className="h-10 w-full text-sm" disabled={isSavingProduk}>
                             {isSavingProduk ? (
                               <>
@@ -1354,7 +1403,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isBannerDialogOpen} onOpenChange={setIsBannerDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
                     <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingBannerId ? "Edit Banner" : "Tambah Banner Baru"}</DialogTitle>
@@ -1372,8 +1421,46 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
+                        <div className="grid w-full gap-1 mt-2">
+                          <Label htmlFor="banner-src" className="text-base">Upload Gambar Banner</Label>
+                          <div className="relative w-full h-10">
+                            <Input
+                              id="banner-src"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                  setBannerFileName(file.name)
+                                  setBannerFile(file)
+                                  const reader = new FileReader()
+                                  reader.onloadend = () => {
+                                    setNewBanner({ ...newBanner, src: reader.result as string })
+                                  }
+                                  reader.readAsDataURL(file)
+                                } else {
+                                  setBannerFileName("")
+                                  setBannerFile(null)
+                                  setNewBanner({ ...newBanner, src: "" })
+                                }
+                              }}
+                              className="sr-only"
+                            />
+                            <Label
+                              htmlFor="banner-src"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                            >
+                              <span className={`truncate mr-2 font-normal text-base ${bannerFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                                {bannerFileName || "Tidak ada yang dipilih"}
+                              </span>
+                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                                Pilih File
+                              </span>
+                            </Label>
+                          </div>
+                        </div>
 
-                        <div className="pt-4">
+                        <div className="pt-2">
                           <Button onClick={handleSaveBanner} className="h-10 w-full text-sm" disabled={isSavingBanner}>
                             {isSavingBanner ? (
                               <>
@@ -1397,58 +1484,6 @@ export default function SettingsPage() {
                               Pratinjau Banner Canva (2:1 / 1000x500mm)
                             </div>
                           )}
-                        </div>
-                        <div className="w-full mt-4">
-                          <div className="grid w-full gap-1">
-                            <Label htmlFor="banner-src" className="text-base">Upload Gambar Banner</Label>
-                            <div className="relative w-full h-10">
-                              <Input
-                                id="banner-src"
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0]
-                                  if (file) {
-                                    setBannerFileName(file.name)
-                                    setBannerFile(file)
-                                    const reader = new FileReader()
-                                    reader.onloadend = () => {
-                                      setNewBanner({ ...newBanner, src: reader.result as string })
-                                    }
-                                    reader.readAsDataURL(file)
-                                  } else {
-                                    setBannerFileName("")
-                                    setBannerFile(null)
-                                    setNewBanner({ ...newBanner, src: "" })
-                                  }
-                                }}
-                                className="sr-only"
-                              />
-                              <Label
-                                htmlFor="banner-src"
-                                className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                              >
-                                <span className={`truncate mr-2 font-normal text-base ${bannerFileName ? "text-foreground" : "text-muted-foreground"}`}>
-                                  {bannerFileName || "Tidak ada yang dipilih"}
-                                </span>
-                                <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
-                                  Pilih File
-                                </span>
-                              </Label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="w-full mt-4">
-
-                        </div>
-                        <div className="w-full mt-4">
-
-                        </div>
-                        <div className="w-full mt-4">
-
-                        </div>
-                        <div className="w-full mt-4">
-
                         </div>
                       </div>
                     </div>
@@ -1605,7 +1640,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isLokasiDialogOpen} onOpenChange={setIsLokasiDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 max-h-[90vh] overflow-y-auto rounded-none">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
                     <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingLokasiId ? "Edit Lokasi" : "Tambah Lokasi Baru"}</DialogTitle>
@@ -1662,8 +1697,46 @@ export default function SettingsPage() {
                             className="h-10"
                           />
                         </div>
+                        <div className="grid w-full gap-1 mt-2">
+                          <Label htmlFor="lokasi-image" className="text-base">Upload Gambar Lokasi</Label>
+                          <div className="relative w-full h-10">
+                            <Input
+                              id="lokasi-image"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                  setLokasiFileName(file.name)
+                                  setLokasiFile(file)
+                                  const reader = new FileReader()
+                                  reader.onloadend = () => {
+                                    setNewLokasi({ ...newLokasi, image: reader.result as string })
+                                  }
+                                  reader.readAsDataURL(file)
+                                } else {
+                                  setLokasiFileName("")
+                                  setLokasiFile(null)
+                                  setNewLokasi({ ...newLokasi, image: "" })
+                                }
+                              }}
+                              className="sr-only"
+                            />
+                            <Label
+                              htmlFor="lokasi-image"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                            >
+                              <span className={`truncate mr-2 font-normal text-base ${lokasiFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                                {lokasiFileName || "Tidak ada yang dipilih"}
+                              </span>
+                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                                Pilih File
+                              </span>
+                            </Label>
+                          </div>
+                        </div>
 
-                        <div className="pt-4">
+                        <div className="pt-2">
                           <Button onClick={handleSaveLokasi} className="h-10 w-full text-sm" disabled={isSavingLokasi}>
                             {isSavingLokasi ? (
                               <>
@@ -1686,46 +1759,6 @@ export default function SettingsPage() {
                               Pratinjau Gambar Lokasi
                             </div>
                           )}
-                        </div>
-                        <div className="w-full mt-4">
-                          <div className="grid w-full gap-1">
-                            <Label htmlFor="lokasi-image" className="text-base">Upload Gambar Lokasi</Label>
-                            <div className="relative w-full h-10">
-                              <Input
-                                id="lokasi-image"
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0]
-                                  if (file) {
-                                    setLokasiFileName(file.name)
-                                    setLokasiFile(file)
-                                    const reader = new FileReader()
-                                    reader.onloadend = () => {
-                                      setNewLokasi({ ...newLokasi, image: reader.result as string })
-                                    }
-                                    reader.readAsDataURL(file)
-                                  } else {
-                                    setLokasiFileName("")
-                                    setLokasiFile(null)
-                                    setNewLokasi({ ...newLokasi, image: "" })
-                                  }
-                                }}
-                                className="sr-only"
-                              />
-                              <Label
-                                htmlFor="lokasi-image"
-                                className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
-                              >
-                                <span className={`truncate mr-2 font-normal text-base ${lokasiFileName ? "text-foreground" : "text-muted-foreground"}`}>
-                                  {lokasiFileName || "Tidak ada yang dipilih"}
-                                </span>
-                                <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
-                                  Pilih File
-                                </span>
-                              </Label>
-                            </div>
-                          </div>
                         </div>
                       </div>
                     </div>
