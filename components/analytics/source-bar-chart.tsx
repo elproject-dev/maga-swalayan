@@ -1,6 +1,6 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts"
 import { Globe } from "lucide-react"
 
 import {
@@ -29,6 +29,30 @@ interface SourceBarChartProps {
   data: { source: string; activeUsers: number }[]
 }
 
+const CustomYAxisTick = (props: any) => {
+  const { x, y, payload, data } = props;
+  const item = data?.find((d: any) => d.source === payload.value);
+  const users = item?.activeUsers !== undefined ? `(${item.activeUsers})` : '';
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text 
+        x={8} 
+        y={-22} 
+        textAnchor="start" 
+        fill="hsl(var(--foreground))" 
+        fontSize={12}
+        className="font-medium"
+      >
+        {payload.value}
+        <tspan fill="hsl(var(--muted-foreground))" className="font-normal ml-2" dx={6}>
+          {users}
+        </tspan>
+      </text>
+    </g>
+  );
+};
+
 export function SourceBarChart({ data }: SourceBarChartProps) {
   // Format the source name for better readability
   const chartData = data.map(item => {
@@ -50,8 +74,8 @@ export function SourceBarChart({ data }: SourceBarChartProps) {
       </CardHeader>
       <CardContent className="flex-1 px-4 pb-0">
         {chartData.length > 0 ? (
-          <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-            <BarChart data={chartData} layout="vertical" margin={{ left: 0 }}>
+          <ChartContainer config={chartConfig} className="min-h-[350px] w-full">
+            <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10, top: 20, bottom: 0 }} barSize={32}>
               <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
               <XAxis type="number" hide />
               <YAxis
@@ -59,8 +83,8 @@ export function SourceBarChart({ data }: SourceBarChartProps) {
                 type="category"
                 tickLine={false}
                 axisLine={false}
-                width={120}
-                tick={{ fontSize: 11 }}
+                width={1}
+                tick={<CustomYAxisTick data={chartData} />}
               />
               <ChartTooltip
                 cursor={{ fill: 'rgba(0,0,0,0.05)' }}
@@ -70,7 +94,6 @@ export function SourceBarChart({ data }: SourceBarChartProps) {
                 dataKey="activeUsers"
                 fill="var(--color-activeUsers)"
                 radius={[0, 4, 4, 0]}
-                barSize={30}
               />
             </BarChart>
           </ChartContainer>

@@ -290,22 +290,22 @@ export default function MemberPage() {
 
 
                 <div className="p-5 grid grid-cols-2 gap-3 flex-1 content-center">
-                  <div className="bg-background border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-1">
+                  <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-1">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">No. Telp</p>
                     <p className="font-medium text-foreground text-sm truncate">{memberData.phone}</p>
                   </div>
 
-                  <div className="bg-background border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-1">
+                  <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-1">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Kelahiran</p>
                     <p className="font-medium text-foreground text-sm truncate">{memberData.tanggalLahir}</p>
                   </div>
 
-                  <div className="bg-background border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-2">
+                  <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-2">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Email Login</p>
                     <p className="font-medium text-foreground text-sm truncate">{memberData.email}</p>
                   </div>
 
-                  <div className="bg-background border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-2">
+                  <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-2">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Alamat</p>
                     {memberData.alamat !== "-" ? (
                       <div className="flex flex-col gap-0.5">

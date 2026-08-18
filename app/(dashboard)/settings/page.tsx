@@ -726,7 +726,7 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="promo-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
                               <span className={`truncate mr-2 font-normal text-base ${fileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {fileName || "Tidak ada yang dipilih"}
@@ -972,7 +972,7 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="pilihan-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
                               <span className={`truncate mr-2 font-normal text-base ${pilihanFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {pilihanFileName || "Tidak ada yang dipilih"}
@@ -1216,7 +1216,7 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="produk-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
                               <span className={`truncate mr-2 font-normal text-base ${produkFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {produkFileName || "Tidak ada yang dipilih"}
@@ -1448,7 +1448,7 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="banner-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
                               <span className={`truncate mr-2 font-normal text-base ${bannerFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {bannerFileName || "Tidak ada yang dipilih"}
@@ -1724,7 +1724,7 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="lokasi-image"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
                               <span className={`truncate mr-2 font-normal text-base ${lokasiFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {lokasiFileName || "Tidak ada yang dipilih"}

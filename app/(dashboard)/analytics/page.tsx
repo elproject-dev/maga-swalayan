@@ -6,7 +6,6 @@ import { supabase } from '@/lib/supabase';
 import { UsersPieChart } from '@/components/analytics/users-pie-chart';
 import { CityTable } from '@/components/analytics/city-table';
 import { SourceBarChart } from '@/components/analytics/source-bar-chart';
-import { TrafficLineChart } from '@/components/analytics/traffic-line-chart';
 import { RealtimeBarChart } from '@/components/analytics/realtime-bar-chart';
 
 export const revalidate = 60; // Cache data for 1 minute for near realtime
@@ -335,12 +334,6 @@ export default async function AnalyticsPage() {
       {!data.error && (
         <div className="mt-4">
           <RealtimeBarChart data={data.realtimeMinutesData || []} />
-        </div>
-      )}
-
-      {!data.error && (
-        <div className="mt-4">
-          <TrafficLineChart data={data.trendData || []} />
         </div>
       )}
     </div>

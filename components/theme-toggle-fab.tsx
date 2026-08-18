@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
-import { Moon, Sun, MapPin, X, Plus } from "lucide-react"
+import { Moon, Sun, MapPin, X, Plus, ChartBar } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
@@ -113,6 +113,19 @@ export function ThemeToggleFab() {
                   <Moon className="h-5 w-5" />
                 )}
               </button>
+              
+              {isAdminOrStaff && (
+                <button
+                  onClick={() => {
+                    setIsOpen(false)
+                    router.push("/analytics")
+                  }}
+                  className="h-12 w-12 bg-white/30 dark:bg-zinc-900/30 backdrop-blur-md text-zinc-900 dark:text-white rounded-full flex items-center justify-center shadow-lg border-none cursor-pointer"
+                  aria-label="Analitik"
+                >
+                  <ChartBar className="h-5 w-5" />
+                </button>
+              )}
               
               {/* Button Lokasi */}
               <button
