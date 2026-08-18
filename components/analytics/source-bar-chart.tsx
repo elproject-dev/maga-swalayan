@@ -40,12 +40,12 @@ const CustomYAxisTick = (props: any) => {
         x={8} 
         y={-22} 
         textAnchor="start" 
-        fill="hsl(var(--foreground))" 
+        fill="currentColor" 
         fontSize={12}
-        className="font-medium"
+        className="font-medium text-foreground"
       >
         {payload.value}
-        <tspan fill="hsl(var(--muted-foreground))" className="font-normal ml-2" dx={6}>
+        <tspan fill="currentColor" className="font-normal ml-2 text-muted-foreground" dx={6}>
           {users}
         </tspan>
       </text>
