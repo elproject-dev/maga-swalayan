@@ -130,9 +130,10 @@ export default function DatabasePage() {
     worksheet.columns = [
       { header: 'ID Member', key: 'idmember', width: 15, style: { alignment: { horizontal: 'center' } } },
       { header: 'Nama Pelanggan', key: 'nama', width: 25, style: { alignment: { horizontal: 'left' } } }, // B
-      { header: 'Email', key: 'email', width: 25, style: { alignment: { horizontal: 'left' } } }, // C
+      { header: 'Email', key: 'email', width: 25, style: { alignment: { horizontal: 'left' } } },
       { header: 'No. Telp', key: 'notelp', width: 18, style: { alignment: { horizontal: 'left' } } }, // D
-      { header: 'Alamat', key: 'alamat', width: 30, style: { alignment: { horizontal: 'left' } } }, // E
+      { header: 'Alamat', key: 'alamat', width: 30, style: { alignment: { horizontal: 'left' } } },
+      { header: 'Provinsi', key: 'provinsi', width: 25, style: { alignment: { horizontal: 'left' } } }, // E
       { header: 'Kecamatan', key: 'kecamatan', width: 20, style: { alignment: { horizontal: 'center' } } }, // F
       { header: 'Kabupaten', key: 'kabupaten', width: 20, style: { alignment: { horizontal: 'center' } } }, // G
       { header: 'Kelahiran', key: 'kelahiran', width: 15, style: { alignment: { horizontal: 'center' } } },
@@ -146,6 +147,7 @@ export default function DatabasePage() {
         email: c.email || '-',
         notelp: c.phone || '-',
         alamat: c.alamat || '-',
+        provinsi: c.provinsi || '-',
         kecamatan: c.kecamatan || '-',
         kabupaten: c.kabupaten || '-',
         kelahiran: c.tanggal_lahir || '-',
@@ -278,14 +280,11 @@ export default function DatabasePage() {
                 </div>
               </div>
 
-              <div className="text-sm">
-                <span className="text-muted-foreground block text-xs">Email</span>
-                <span className="truncate block max-w-full">{customer.email || "-"}</span>
-              </div>
+
 
               <div className="text-sm">
-                <span className="text-muted-foreground block text-xs">Alamat</span>
-                <span className="truncate block max-w-full">{customer.alamat || "-"}</span>
+                <span className="text-muted-foreground block text-xs">Provinsi</span>
+                <span className="truncate block max-w-full">{customer.provinsi || "-"}</span>
               </div>
             </div>
           ))
@@ -311,9 +310,9 @@ export default function DatabasePage() {
               </TableHead>
               <TableHead>ID Member</TableHead>
               <TableHead>Nama Pelanggan</TableHead>
-              <TableHead className="hidden lg:table-cell">Email</TableHead>
+
               <TableHead className="hidden sm:table-cell">No. Telp</TableHead>
-              <TableHead className="hidden lg:table-cell">Alamat</TableHead>
+              <TableHead className="hidden lg:table-cell">Provinsi</TableHead>
               <TableHead className="hidden md:table-cell">Kecamatan</TableHead>
               <TableHead className="hidden md:table-cell">Kabupaten</TableHead>
               <TableHead className="hidden xl:table-cell text-center">Kelahiran</TableHead>
@@ -352,14 +351,12 @@ export default function DatabasePage() {
                   <TableCell>
                     {customer.name || "-"}
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {customer.email || "-"}
-                  </TableCell>
+
                   <TableCell className="hidden sm:table-cell">
                     {customer.phone || "-"}
                   </TableCell>
-                  <TableCell className="truncate max-w-[120px] hidden lg:table-cell" title={customer.alamat}>
-                    {customer.alamat || "-"}
+                  <TableCell className="truncate max-w-[120px] hidden lg:table-cell" title={customer.provinsi}>
+                    {customer.provinsi || "-"}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {customer.kecamatan || "-"}

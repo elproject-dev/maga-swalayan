@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
 import { Loader2, Mail, Phone, User, CreditCard, Award, MapPin, Calendar, Hash, ShoppingCart, Gift, Star, Percent, Sparkles } from "lucide-react"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { LocationCombobox, LocationItem } from "@/components/location-combobox"
 
 interface MemberData {
   name: string
@@ -31,8 +32,76 @@ export default function MemberPage() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
   const [regPhone, setRegPhone] = useState("")
   const [regAlamat, setRegAlamat] = useState("")
-  const [regKecamatan, setRegKecamatan] = useState("")
-  const [regKabupaten, setRegKabupaten] = useState("")
+
+  const [regProvinsiId, setRegProvinsiId] = useState("")
+  const [regKabupatenId, setRegKabupatenId] = useState("")
+  const [regKecamatanId, setRegKecamatanId] = useState("")
+
+  const [provinces, setProvinces] = useState<LocationItem[]>([])
+  const [regencies, setRegencies] = useState<LocationItem[]>([])
+  const [districts, setDistricts] = useState<LocationItem[]>([])
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(false)
+  const [isLoadingRegencies, setIsLoadingRegencies] = useState(false)
+  const [isLoadingDistricts, setIsLoadingDistricts] = useState(false)
+
+  useEffect(() => {
+    async function fetchProvinces() {
+      setIsLoadingProvinces(true)
+      try {
+        const res = await fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
+        const data = await res.json()
+        setProvinces(data)
+      } catch (error) {
+        console.error("Failed to fetch provinces", error)
+      } finally {
+        setIsLoadingProvinces(false)
+      }
+    }
+    if (isRegisterModalOpen) fetchProvinces()
+  }, [isRegisterModalOpen])
+
+  useEffect(() => {
+    if (!regProvinsiId) {
+      setRegencies([])
+      setRegKabupatenId("")
+      return
+    }
+    async function fetchRegencies() {
+      setIsLoadingRegencies(true)
+      try {
+        const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${regProvinsiId}.json`)
+        const data = await res.json()
+        setRegencies(data)
+      } catch (error) {
+        console.error("Failed to fetch regencies", error)
+      } finally {
+        setIsLoadingRegencies(false)
+      }
+    }
+    fetchRegencies()
+  }, [regProvinsiId])
+
+  useEffect(() => {
+    if (!regKabupatenId) {
+      setDistricts([])
+      setRegKecamatanId("")
+      return
+    }
+    async function fetchDistricts() {
+      setIsLoadingDistricts(true)
+      try {
+        const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${regKabupatenId}.json`)
+        const data = await res.json()
+        setDistricts(data)
+      } catch (error) {
+        console.error("Failed to fetch districts", error)
+      } finally {
+        setIsLoadingDistricts(false)
+      }
+    }
+    fetchDistricts()
+  }, [regKabupatenId])
+
   const [regTgl, setRegTgl] = useState("")
   const [regBln, setRegBln] = useState("")
   const [regThn, setRegThn] = useState("")
@@ -82,13 +151,19 @@ export default function MemberPage() {
 
       const { data: existing } = await supabase.from('pelanggan').select('id').eq('email', userEmail).limit(1)
 
-      const payload = {
+        const toTitleCase = (str: string) => str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase())
+        const selectedProv = toTitleCase(provinces.find(p => p.id === regProvinsiId)?.name || "")
+        const selectedKab = toTitleCase(regencies.find(r => r.id === regKabupatenId)?.name || "")
+        const selectedKec = toTitleCase(districts.find(d => d.id === regKecamatanId)?.name || "")
+
+        const payload = {
         name: userName,
         email: userEmail,
         phone: regPhone,
         alamat: regAlamat,
-        kecamatan: regKecamatan,
-        kabupaten: regKabupaten,
+        provinsi: selectedProv,
+        kecamatan: selectedKec,
+        kabupaten: selectedKab,
         tanggal_lahir: (regThn && regBln && regTgl) ? `${regThn}-${regBln.padStart(2, '0')}-${regTgl.padStart(2, '0')}` : null,
         membercard: newId,
         is_active: true,
@@ -152,7 +227,10 @@ export default function MemberPage() {
             if (p.alamat) userAlamat = p.alamat
             if (p.kecamatan) userKecamatan = p.kecamatan
             if (p.kabupaten) userKabupaten = p.kabupaten
-            if (p.tanggal_lahir) userTanggalLahir = new Date(p.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+            if (p.tanggal_lahir) {
+              const d = new Date(p.tanggal_lahir);
+              userTanggalLahir = `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+            }
             if (p.membercard) memberCardId = p.membercard
           }
         }
@@ -347,14 +425,41 @@ export default function MemberPage() {
               <Label htmlFor="regAlamat">Alamat Lengkap</Label>
               <Input id="regAlamat" required placeholder="Masukkan Alamat" value={regAlamat} onChange={e => setRegAlamat(e.target.value)} />
             </div>
+            <div className="space-y-2">
+              <Label>Provinsi</Label>
+              <LocationCombobox 
+                value={regProvinsiId}
+                onChange={(val, name) => { setRegProvinsiId(val); setRegKabupatenId(""); setRegKecamatanId(""); }}
+                items={provinces}
+                isLoading={isLoadingProvinces}
+                placeholder="Pilih Provinsi..."
+                searchPlaceholder="Cari provinsi..."
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="regKecamatan">Kecamatan</Label>
-                <Input id="regKecamatan" required placeholder="Kec" value={regKecamatan} onChange={e => setRegKecamatan(e.target.value)} />
+                <Label>Kabupaten</Label>
+                <LocationCombobox 
+                  value={regKabupatenId}
+                  onChange={(val, name) => { setRegKabupatenId(val); setRegKecamatanId(""); }}
+                  items={regencies}
+                  isLoading={isLoadingRegencies}
+                  placeholder="Pilih Kabupaten..."
+                  searchPlaceholder="Cari kabupaten..."
+                  disabled={!regProvinsiId}
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="regKabupaten">Kabupaten</Label>
-                <Input id="regKabupaten" required placeholder="Kab" value={regKabupaten} onChange={e => setRegKabupaten(e.target.value)} />
+                <Label>Kecamatan</Label>
+                <LocationCombobox 
+                  value={regKecamatanId}
+                  onChange={(val, name) => setRegKecamatanId(val)}
+                  items={districts}
+                  isLoading={isLoadingDistricts}
+                  placeholder="Pilih Kecamatan..."
+                  searchPlaceholder="Cari kecamatan..."
+                  disabled={!regKabupatenId}
+                />
               </div>
             </div>
             <div className="space-y-2">
@@ -364,27 +469,31 @@ export default function MemberPage() {
                   <SelectTrigger className="w-full [&>span]:flex-1 [&>span]:justify-center [&>span]:text-center">
                     <SelectValue placeholder="Tanggal" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
-                      <SelectItem key={d} value={d.toString()}>{d}</SelectItem>
-                    ))}
+                  <SelectContent className="max-h-[200px]" alignItemWithTrigger={false}>
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map(d => {
+                      const padded = String(d).padStart(2, '0');
+                      return <SelectItem key={d} value={padded}>{padded}</SelectItem>;
+                    })}
                   </SelectContent>
                 </Select>
                 <Select value={regBln} onValueChange={(val) => setRegBln(val || "")} required>
                   <SelectTrigger className="w-full [&>span]:flex-1 [&>span]:justify-center [&>span]:text-center">
-                    <SelectValue placeholder="Bulan" />
+                    <SelectValue placeholder="Bulan">
+                      {regBln ? ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"][parseInt(regBln) - 1] : undefined}
+                    </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-                      <SelectItem key={m} value={m.toString()}>{m}</SelectItem>
-                    ))}
+                  <SelectContent className="max-h-[200px]" alignItemWithTrigger={false}>
+                    {["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"].map((name, i) => {
+                      const padded = String(i + 1).padStart(2, '0');
+                      return <SelectItem key={padded} value={padded}>{name}</SelectItem>;
+                    })}
                   </SelectContent>
                 </Select>
                 <Select value={regThn} onValueChange={(val) => setRegThn(val || "")} required>
                   <SelectTrigger className="w-full [&>span]:flex-1 [&>span]:justify-center [&>span]:text-center">
                     <SelectValue placeholder="Tahun" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
+                  <SelectContent className="max-h-[200px]" alignItemWithTrigger={false}>
                     {Array.from({ length: 80 }, (_, i) => new Date().getFullYear() - i).map(y => (
                       <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
                     ))}

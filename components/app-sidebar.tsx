@@ -174,6 +174,7 @@ const data = {
         />
       ),
     },
+
     {
       name: "Manajemen",
       url: "/settings",
