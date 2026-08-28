@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toast"
+import { Toaster } from "@/components/ui/sonner"
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
 import { ThemeToggleFab } from "@/components/theme-toggle-fab"
 import { GoogleAnalytics } from "@next/third-parties/google"
