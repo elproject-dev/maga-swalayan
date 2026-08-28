@@ -44,6 +44,11 @@ export async function POST(req: Request) {
         body: messageBody,
         ...(imageUrl && { image: imageUrl })
       },
+      webpush: {
+        notification: {
+          icon: '/icon-192x192.png'
+        }
+      },
       topic: 'all_users'
     };
 
