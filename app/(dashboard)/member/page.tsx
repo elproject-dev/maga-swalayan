@@ -151,12 +151,12 @@ export default function MemberPage() {
 
       const { data: existing } = await supabase.from('pelanggan').select('id').eq('email', userEmail).limit(1)
 
-        const toTitleCase = (str: string) => str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase())
-        const selectedProv = toTitleCase(provinces.find(p => p.id === regProvinsiId)?.name || "")
-        const selectedKab = toTitleCase(regencies.find(r => r.id === regKabupatenId)?.name || "")
-        const selectedKec = toTitleCase(districts.find(d => d.id === regKecamatanId)?.name || "")
+      const toTitleCase = (str: string) => str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase())
+      const selectedProv = toTitleCase(provinces.find(p => p.id === regProvinsiId)?.name || "")
+      const selectedKab = toTitleCase(regencies.find(r => r.id === regKabupatenId)?.name || "")
+      const selectedKec = toTitleCase(districts.find(d => d.id === regKecamatanId)?.name || "")
 
-        const payload = {
+      const payload = {
         name: userName,
         email: userEmail,
         phone: regPhone,
@@ -427,7 +427,7 @@ export default function MemberPage() {
             </div>
             <div className="space-y-2">
               <Label>Provinsi</Label>
-              <LocationCombobox 
+              <LocationCombobox
                 value={regProvinsiId}
                 onChange={(val, name) => { setRegProvinsiId(val); setRegKabupatenId(""); setRegKecamatanId(""); }}
                 items={provinces}
@@ -439,7 +439,7 @@ export default function MemberPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Kabupaten</Label>
-                <LocationCombobox 
+                <LocationCombobox
                   value={regKabupatenId}
                   onChange={(val, name) => { setRegKabupatenId(val); setRegKecamatanId(""); }}
                   items={regencies}
@@ -451,7 +451,7 @@ export default function MemberPage() {
               </div>
               <div className="space-y-2">
                 <Label>Kecamatan</Label>
-                <LocationCombobox 
+                <LocationCombobox
                   value={regKecamatanId}
                   onChange={(val, name) => setRegKecamatanId(val)}
                   items={districts}

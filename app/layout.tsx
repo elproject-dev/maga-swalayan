@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/toast"
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
 import { ThemeToggleFab } from "@/components/theme-toggle-fab"
 import { GoogleAnalytics } from "@next/third-parties/google"
+import { PushNotificationManager } from "@/components/push-notification-manager"
+
 
 const outfit = Outfit({subsets:['latin'],variable:'--font-sans'});
 
@@ -52,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Toaster />
           <PWAInstallPrompt />
           <ThemeToggleFab />
+          <PushNotificationManager />
         </ThemeProvider>
       </body>
       <GoogleAnalytics gaId="G-YQ06T8BHFM" />
