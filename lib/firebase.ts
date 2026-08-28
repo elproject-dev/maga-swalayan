@@ -26,6 +26,15 @@ export const requestForToken = async () => {
     const permission = await Notification.requestPermission();
     
     if (permission === 'granted') {
+      // Unregister old firebase-messaging-sw.js if it exists to prevent duplicate notifications
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const reg of registrations) {
+        if (reg.active?.scriptURL.includes('firebase-messaging-sw.js')) {
+          await reg.unregister();
+          console.log('Unregistered old firebase-messaging-sw.js');
+        }
+      }
+
       // Wait for next-pwa to register the service worker, then get the registration
       const registration = await navigator.serviceWorker.ready;
       
