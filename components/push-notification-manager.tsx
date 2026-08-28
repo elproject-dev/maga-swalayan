@@ -39,6 +39,15 @@ export function PushNotificationManager() {
           body: payload?.notification?.body,
           icon: '/icon-192x192.png'
         };
+
+        // Mainkan suara custom saat aplikasi sedang terbuka
+        try {
+          const audio = new Audio('/notif.wav');
+          // Browser kadang memblokir autoplay jika user belum berinteraksi dengan web
+          audio.play().catch(e => console.log('Audio di-blokir oleh browser: ', e));
+        } catch (error) {
+          console.error("Gagal memutar suara:", error);
+        }
         
         if (Notification.permission === 'granted') {
           navigator.serviceWorker.ready.then((registration) => {
