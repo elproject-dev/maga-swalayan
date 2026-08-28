@@ -258,7 +258,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} isAdminOrStaff={isAdminOrStaff} />
         {isAdminOrStaff && <NavDocuments items={data.documents} />}
       </SidebarContent>
       <SidebarFooter>

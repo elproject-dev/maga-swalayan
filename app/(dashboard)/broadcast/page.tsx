@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { SendIcon, BellRingIcon } from "lucide-react"
+import { SendIcon } from "lucide-react"
 
 export default function BroadcastPage() {
   const [title, setTitle] = useState("")
   const [body, setBody] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSendBroadcast = async (e: React.FormEvent) => {
@@ -29,13 +30,14 @@ export default function BroadcastPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title, body }),
+        body: JSON.stringify({ title, body, imageUrl }),
       })
 
       if (response.ok) {
         toast.success("Broadcast berhasil dikirim!")
         setTitle("")
         setBody("")
+        setImageUrl("")
       } else {
         const error = await response.json()
         toast.error(`Gagal mengirim: ${error.error || "Unknown error"}`)
@@ -49,23 +51,13 @@ export default function BroadcastPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <BellRingIcon className="h-8 w-8 text-primary" />
-          Kirim Broadcast Notifikasi
-        </h2>
+    <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Kirim Pesan Masal</h1>
       </div>
 
-      <div className="max-w-2xl mt-8">
-        <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-          <div className="flex flex-col space-y-1.5 p-6">
-            <h3 className="text-lg font-semibold leading-none tracking-tight">Kirim Pesan Masal</h3>
-            <p className="text-sm text-muted-foreground">
-              Pesan ini akan dikirimkan ke semua perangkat pengguna yang telah mengizinkan notifikasi aplikasi.
-            </p>
-          </div>
-          <div className="p-6 pt-0">
+      <div className="rounded-none border bg-card text-card-foreground shadow-sm">
+        <div className="p-4 md:p-6">
             <form onSubmit={handleSendBroadcast} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="title">Judul Notifikasi</Label>
@@ -82,11 +74,23 @@ export default function BroadcastPage() {
                 <Textarea
                   id="body"
                   placeholder="Tuliskan pesan broadcast Anda di sini..."
-                  rows={5}
+                  rows={4}
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   disabled={isLoading}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="imageUrl">URL Gambar Banner (Opsional)</Label>
+                <Input
+                  id="imageUrl"
+                  type="url"
+                  placeholder="Contoh: https://domain.com/banner-promo.jpg"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  disabled={isLoading}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Gambar ini akan membentang besar di dalam notifikasi HP pengguna.</p>
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Mengirim..." : (
@@ -100,6 +104,5 @@ export default function BroadcastPage() {
           </div>
         </div>
       </div>
-    </div>
   )
 }

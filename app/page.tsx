@@ -14,9 +14,11 @@ import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { toast } from "@/components/ui/toast"
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [isCheckingSession, setIsCheckingSession] = useState(true)
   const router = useRouter()
 
   React.useEffect(() => {
@@ -25,6 +27,8 @@ export default function LoginPage() {
 
       if (session?.user) {
         router.push("/home")
+      } else {
+        setIsCheckingSession(false)
       }
     }
     checkUser()
@@ -49,6 +53,14 @@ export default function LoginPage() {
       toast.add({ title: "Gagal login", description: error.message, type: "error" })
       setIsLoading(false)
     }
+  }
+
+  if (isCheckingSession) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-zinc-50">
+        <LoadingSpinner text="Memeriksa sesi..." />
+      </div>
+    )
   }
 
   return (
