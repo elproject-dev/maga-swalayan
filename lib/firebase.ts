@@ -26,8 +26,8 @@ export const requestForToken = async () => {
     const permission = await Notification.requestPermission();
     
     if (permission === 'granted') {
-      // Register the service worker manually to prevent Firebase from timing out trying to do it
-      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      // Wait for next-pwa to register the service worker, then get the registration
+      const registration = await navigator.serviceWorker.ready;
       
       const currentToken = await getToken(messaging, {
         serviceWorkerRegistration: registration,
