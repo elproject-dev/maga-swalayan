@@ -24,6 +24,7 @@ import { supabase } from "@/lib/supabase"
 export function SiteHeader() {
   const router = useRouter()
   const [user, setUser] = useState<{ name: string; email: string; avatar: string } | null>(null)
+  const [isCheckingUser, setIsCheckingUser] = useState(true)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -35,6 +36,7 @@ export function SiteHeader() {
           avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
         })
       }
+      setIsCheckingUser(false)
     }
     fetchUser()
 
@@ -46,6 +48,7 @@ export function SiteHeader() {
           avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
         })
       }
+      setIsCheckingUser(false)
     })
 
     return () => subscription.unsubscribe()
@@ -63,12 +66,16 @@ export function SiteHeader() {
         <div className="md:hidden -ml-1">
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center justify-center outline-none">
-              <Avatar className="size-8 rounded-full">
-                <AvatarImage src={user?.avatar} alt={user?.name || "User"} />
-                <AvatarFallback className="rounded-full text-xs">
-                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
+              {isCheckingUser ? (
+                <div className="size-8 rounded-full bg-muted animate-pulse" />
+              ) : (
+                <Avatar className="size-8 rounded-full">
+                  <AvatarImage src={user?.avatar} alt={user?.name || "User"} />
+                  <AvatarFallback className="rounded-full text-xs">
+                    {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              )}
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="min-w-56"

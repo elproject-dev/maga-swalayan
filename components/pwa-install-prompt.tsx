@@ -15,10 +15,19 @@ export function PWAInstallPrompt() {
     if (typeof window !== "undefined") {
       // Manual Service Worker registration
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker
-          .register("/sw.js")
-          .then((reg) => console.log("Service Worker registered successfully", reg))
-          .catch((err) => console.log("Service Worker registration failed: ", err));
+        if (process.env.NODE_ENV === 'development') {
+          // Bersihkan sisa service worker di mode development
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (let registration of registrations) {
+              registration.unregister();
+            }
+          });
+        } else {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((reg) => console.log("Service Worker registered successfully", reg))
+            .catch((err) => console.log("Service Worker registration failed: ", err));
+        }
       }
 
       // Cek jika event sudah ditangkap sebelumnya oleh global script (opsional)
