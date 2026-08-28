@@ -26,6 +26,7 @@ import { TablePagination } from "@/components/table-pagination"
 
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { supabase } from "@/lib/supabase"
@@ -64,7 +65,7 @@ const dummyProdukHariIni = [
 
 const menuItems = [
   { id: 'promo', label: 'Manajemen Promo', icon: Tag },
-  { id: 'pilihan', label: 'Pilihan Hari Ini', icon: Calendar },
+  { id: 'pilihan', label: 'Manajemen Event', icon: Calendar },
   { id: 'produk', label: 'Produk', icon: Package },
   { id: 'banner', label: 'Banner', icon: ImageIcon },
   { id: 'lokasi', label: 'Kelola Lokasi', icon: MapPin },
@@ -82,7 +83,7 @@ export default function SettingsPage() {
   }, [activeMenu])
   const [isMounted, setIsMounted] = useState(false)
 
-  const [promos, setPromos] = useState<any[]>(dummyPromos)
+  const [promos, setPromos] = useState<any[]>([])
   const [searchPromoQuery, setSearchPromoQuery] = useState("")
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -92,13 +93,14 @@ export default function SettingsPage() {
   const [fileName, setFileName] = useState("")
   const [promoFile, setPromoFile] = useState<File | null>(null)
 
-  const [pilihans, setPilihans] = useState<any[]>(dummyPilihanHariIni)
+  // State untuk Pilihan (Event)
+  const [pilihans, setPilihans] = useState<any[]>([])
   const [searchPilihanQuery, setSearchPilihanQuery] = useState("")
   const [selectedPilihanRows, setSelectedPilihanRows] = useState<number[]>([])
   const [isPilihanDialogOpen, setIsPilihanDialogOpen] = useState(false)
   const [editingPilihanId, setEditingPilihanId] = useState<number | null>(null)
   const [isSavingPilihan, setIsSavingPilihan] = useState(false)
-  const [newPilihan, setNewPilihan] = useState({ title: "", price: "", src: "" })
+  const [newPilihan, setNewPilihan] = useState({ title: "", description: "", src: "" })
   const [pilihanFileName, setPilihanFileName] = useState("")
   const [pilihanFile, setPilihanFile] = useState<File | null>(null)
 
@@ -230,7 +232,7 @@ export default function SettingsPage() {
 
   const filteredPilihans = pilihans.filter((p) => {
     const q = searchPilihanQuery.toLowerCase()
-    return p.title.toLowerCase().includes(q) || p.price.toLowerCase().includes(q)
+    return p.title.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q))
   })
 
   const filteredProduks = produks.filter((p) => {
@@ -250,7 +252,7 @@ export default function SettingsPage() {
     const { data: promosData } = await supabase.from('promo').select('*').order('id', { ascending: true })
     if (promosData) setPromos(promosData)
 
-    const { data: pilihansData } = await supabase.from('pilihan').select('*').order('id', { ascending: true })
+    const { data: pilihansData } = await supabase.from('event').select('*').order('id', { ascending: true })
     if (pilihansData) setPilihans(pilihansData)
 
     const { data: produksData } = await supabase.from('produk').select('*').order('id', { ascending: true })
@@ -464,7 +466,7 @@ export default function SettingsPage() {
   const handleDeletePilihan = async () => {
     const count = selectedPilihanRows.length
     const { error } = await supabase
-      .from('pilihan')
+      .from('event')
       .delete()
       .in('id', selectedPilihanRows)
     if (!error) {
@@ -479,7 +481,7 @@ export default function SettingsPage() {
 
   const handleAddClickPilihan = () => {
     setEditingPilihanId(null)
-    setNewPilihan({ title: "", price: "", src: "" })
+    setNewPilihan({ title: "", description: "", src: "" })
     setPilihanFileName("")
     setPilihanFile(null)
     setIsPilihanDialogOpen(true)
@@ -487,23 +489,23 @@ export default function SettingsPage() {
 
   const handleEditClickPilihan = (pilihan: any) => {
     setEditingPilihanId(pilihan.id)
-    setNewPilihan({ title: pilihan.title, price: pilihan.price, src: pilihan.src })
+    setNewPilihan({ title: pilihan.title, description: pilihan.description || "", src: pilihan.src })
     setPilihanFileName("Gambar saat ini")
     setIsPilihanDialogOpen(true)
   }
 
   const handleSavePilihan = async () => {
-    if (newPilihan.title && newPilihan.price && (newPilihan.src || pilihanFile)) {
+    if (newPilihan.title && newPilihan.description && (newPilihan.src || pilihanFile)) {
       setIsSavingPilihan(true)
       let srcUrl = newPilihan.src
       if (pilihanFile) {
-        const url = await uploadMedia(pilihanFile, 'pilihan')
+        const url = await uploadMedia(pilihanFile, 'event')
         if (url) srcUrl = url
       }
-      const payload = { title: newPilihan.title, price: newPilihan.price, src: srcUrl }
+      const payload = { title: newPilihan.title, description: newPilihan.description, src: srcUrl }
       if (editingPilihanId) {
         const { error } = await supabase
-          .from('pilihan')
+          .from('event')
           .update(payload)
           .eq('id', editingPilihanId)
         if (!error) {
@@ -514,7 +516,7 @@ export default function SettingsPage() {
         }
       } else {
         const { data, error } = await supabase
-          .from('pilihan')
+          .from('event')
           .insert([payload])
           .select()
         if (data) {
@@ -672,7 +674,7 @@ export default function SettingsPage() {
                 </div>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
-                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
+
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingId ? "Edit Promo" : "Tambah Promo Baru"}</DialogTitle>
                     </DialogHeader>
@@ -894,12 +896,12 @@ export default function SettingsPage() {
             {activeMenu === 'pilihan' && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Pilihan Hari Ini</h2>
+                  <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Event</h2>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <div className="relative w-full sm:w-64">
                       <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
-                        placeholder="Cari pilihan..."
+                        placeholder="Cari event..."
                         value={searchPilihanQuery}
                         onChange={(e) => {
                           setSearchPilihanQuery(e.target.value)
@@ -912,37 +914,38 @@ export default function SettingsPage() {
                       {selectedPilihanRows.length > 0 && (
                         <Button variant="secondary" onClick={handleDeletePilihan}>Hapus ({selectedPilihanRows.length})</Button>
                       )}
-                      <Button onClick={handleAddClickPilihan}>Tambah Produk</Button>
+                      <Button onClick={handleAddClickPilihan}>Tambah Event</Button>
                     </div>
                   </div>
                 </div>
-                <Dialog open={isPilihanDialogOpen} onOpenChange={setIsPilihanDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
-                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
-                    <DialogHeader>
-                      <DialogTitle className="text-xl md:text-2xl">{editingPilihanId ? "Edit Pilihan" : "Tambah Pilihan Baru"}</DialogTitle>
-                    </DialogHeader>
+                {isPilihanDialogOpen && (
+                  <div className="border bg-card text-card-foreground shadow-sm mb-6 p-4 md:p-6 rounded-none">
+                    <div className="flex flex-col space-y-1.5 mb-4">
+                      <h3 className="text-xl md:text-2xl font-semibold leading-none tracking-tight">
+                        {editingPilihanId ? "Edit Event" : "Tambah Event"}
+                      </h3>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="title" className="text-base">Nama Produk</Label>
+                          <Label htmlFor="title" className="text-base">Nama Event</Label>
                           <Input
                             id="title"
                             value={newPilihan.title}
                             onChange={(e) => setNewPilihan({ ...newPilihan, title: e.target.value })}
-                            placeholder="Misal: Minyak Goreng"
+                            placeholder="Misal: Event Heboh"
                             className="h-10"
                           />
                         </div>
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="price" className="text-base">Harga</Label>
-                          <Input
-                            id="price"
-                            value={newPilihan.price}
-                            onChange={(e) => setNewPilihan({ ...newPilihan, price: formatRupiah(e.target.value) })}
-                            placeholder="Misal: Rp 15.000"
-                            className="h-10"
+                          <Label htmlFor="description" className="text-base">Deskripsi Event</Label>
+                          <Textarea
+                            id="description"
+                            className="flex min-h-[80px] w-full rounded-none px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            value={newPilihan.description}
+                            onChange={(e) => setNewPilihan({ ...newPilihan, description: e.target.value })}
+                            rows={3}
                           />
                         </div>
                         <div className="grid w-full gap-1 mt-2">
@@ -983,36 +986,39 @@ export default function SettingsPage() {
                             </Label>
                           </div>
                         </div>
+                      </div>
 
-                        <div className="pt-2">
-                          <Button onClick={handleSavePilihan} className="h-10 w-full text-sm" disabled={isSavingPilihan}>
+                      {/* Kolom Kanan: Preview & Actions */}
+                      <div className="flex flex-col w-full order-1 md:order-2 mb-2 md:mb-0 gap-4">
+                        <div className="w-full relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[2/1] shadow-sm">
+                          {newPilihan.src ? (
+                            <img src={newPilihan.src} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm text-center p-4">
+                              Pratinjau Gambar (2:1)
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-2 mt-auto w-full">
+                          <Button variant="outline" onClick={() => setIsPilihanDialogOpen(false)} className="h-10 w-full sm:flex-1 text-sm rounded-none">
+                            Batal
+                          </Button>
+                          <Button onClick={handleSavePilihan} className="h-10 w-full sm:flex-1 text-sm rounded-none" disabled={isSavingPilihan}>
                             {isSavingPilihan ? (
                               <>
                                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                                 Menyimpan...
                               </>
                             ) : (
-                              editingPilihanId ? "Edit" : "Simpan Pilihan"
+                              editingPilihanId ? "Edit Event" : "Simpan Event"
                             )}
                           </Button>
                         </div>
                       </div>
-
-                      {/* Kolom Kanan: Preview */}
-                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
-                        <div className="w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[4/5] shadow-sm">
-                          {newPilihan.src ? (
-                            <img src={newPilihan.src} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm text-center p-4">
-                              Pratinjau Gambar (4:5)
-                            </div>
-                          )}
-                        </div>
-                      </div>
                     </div>
-                  </DialogContent>
-                </Dialog>
+                  </div>
+                )}
 
                 {/* Mobile Card List */}
                 <div className="flex flex-col gap-3 md:hidden">
@@ -1036,14 +1042,14 @@ export default function SettingsPage() {
                         <div className="flex flex-1 flex-col justify-between min-w-0">
                           <div onClick={() => handleEditClickPilihan(pilihan)} className="cursor-pointer">
                             <div className="font-semibold text-foreground truncate text-sm">{pilihan.title}</div>
-                            <div className="text-xs text-muted-foreground truncate">{pilihan.price}</div>
+                            <div className="text-xs text-muted-foreground truncate">{pilihan.description || "-"}</div>
                           </div>
                           <div className="flex items-center justify-between mt-2 border-t pt-2">
                             <span className="text-xs text-muted-foreground">Status</span>
                             <Switch
                               checked={pilihan.is_active}
                               onCheckedChange={async (checked) => {
-                                const { error } = await supabase.from('pilihan').update({ is_active: checked }).eq('id', pilihan.id)
+                                const { error } = await supabase.from('event').update({ is_active: checked }).eq('id', pilihan.id)
                                 if (!error) {
                                   setPilihans(pilihans.map(p => p.id === pilihan.id ? { ...p, is_active: checked } : p))
                                   toast.add({ title: `Status pilihan produk ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
@@ -1072,9 +1078,9 @@ export default function SettingsPage() {
                             onCheckedChange={handleSelectAllPilihan}
                           />
                         </TableHead>
-                        <TableHead className="w-[80px] text-center">Foto</TableHead>
-                        <TableHead>Nama Produk</TableHead>
-                        <TableHead>Harga</TableHead>
+                        <TableHead className="w-[160px] text-center">Foto Event</TableHead>
+                        <TableHead>Judul Event</TableHead>
+                        <TableHead>Deskripsi</TableHead>
                         <TableHead className="text-center w-[100px]">Status</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1092,16 +1098,16 @@ export default function SettingsPage() {
                             <img
                               src={pilihan.src}
                               alt={pilihan.title}
-                              className="w-12 h-[60px] rounded-none object-cover border mx-auto"
+                              className="w-28 h-14 rounded-none object-cover border mx-auto"
                             />
                           </TableCell>
                           <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickPilihan(pilihan)}>{pilihan.title}</TableCell>
-                          <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClickPilihan(pilihan)}>{pilihan.price}</TableCell>
+                          <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors max-w-[200px] truncate" onClick={() => handleEditClickPilihan(pilihan)}>{pilihan.description || "-"}</TableCell>
                           <TableCell className="text-center">
                             <Switch
                               checked={pilihan.is_active}
                               onCheckedChange={async (checked) => {
-                                const { error } = await supabase.from('pilihan').update({ is_active: checked }).eq('id', pilihan.id)
+                                const { error } = await supabase.from('event').update({ is_active: checked }).eq('id', pilihan.id)
                                 if (!error) {
                                   setPilihans(pilihans.map(p => p.id === pilihan.id ? { ...p, is_active: checked } : p))
                                   toast.add({ title: `Status pilihan produk ${checked ? 'diaktifkan' : 'dinonaktifkan'}`, type: "success" })
@@ -1163,7 +1169,7 @@ export default function SettingsPage() {
                 </div>
                 <Dialog open={isProdukDialogOpen} onOpenChange={setIsProdukDialogOpen}>
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
-                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
+
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingProdukId ? "Edit Produk" : "Tambah Produk Baru"}</DialogTitle>
                     </DialogHeader>
@@ -1404,7 +1410,7 @@ export default function SettingsPage() {
                 </div>
                 <Dialog open={isBannerDialogOpen} onOpenChange={setIsBannerDialogOpen}>
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
-                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
+
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingBannerId ? "Edit Banner" : "Tambah Banner Baru"}</DialogTitle>
                     </DialogHeader>
@@ -1641,7 +1647,6 @@ export default function SettingsPage() {
                 </div>
                 <Dialog open={isLokasiDialogOpen} onOpenChange={setIsLokasiDialogOpen}>
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
-                    <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
                     <DialogHeader>
                       <DialogTitle className="text-xl md:text-2xl">{editingLokasiId ? "Edit Lokasi" : "Tambah Lokasi Baru"}</DialogTitle>
                     </DialogHeader>

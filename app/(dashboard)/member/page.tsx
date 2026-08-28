@@ -11,6 +11,7 @@ import { toast } from "@/components/ui/toast"
 import { Loader2, Mail, Phone, User, CreditCard, Award, MapPin, Calendar, Hash, ShoppingCart, Gift, Star, Percent, Sparkles } from "lucide-react"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { LocationCombobox, LocationItem } from "@/components/location-combobox"
+import { cn } from "@/lib/utils"
 
 interface MemberData {
   name: string
@@ -25,8 +26,14 @@ interface MemberData {
   membercard: string
 }
 
+import { usePathname } from "next/navigation"
+
 export default function MemberPage() {
+  const pathname = usePathname()
+  const isCardView = pathname === "/card"
   const [memberData, setMemberData] = useState<MemberData | null>(null)
+  
+  const showInfoAkun = !isCardView && memberData?.isMember
   const [isLoading, setIsLoading] = useState(true)
 
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
@@ -284,16 +291,16 @@ export default function MemberPage() {
     <>
       <div className="flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8 bg-muted/20">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h1 className="text-2xl font-bold tracking-tight">Profil Member</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{isCardView ? "Member Card" : "Profil Member"}</h1>
         </div>
 
         {isLoading ? (
           <LoadingSpinner text="Memuat profil member..." />
         ) : memberData ? (
-          <div className="grid gap-8 lg:grid-cols-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Bagian Kiri: Kartu Premium */}
-            <div className="lg:col-span-7 flex flex-col gap-6">
-              <div className={`relative overflow-hidden p-8 text-white shadow-2xl transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 ${memberData.isMember
+          <div className={cn("animate-in fade-in slide-in-from-bottom-4 duration-700", !showInfoAkun ? "flex justify-center" : "grid gap-8 lg:grid-cols-12")}>
+            {/* Bagian Kiri/Tengah: Kartu Premium */}
+            <div className={cn("flex flex-col gap-6", !showInfoAkun ? "w-full max-w-2xl" : "lg:col-span-7")}>
+              <div className={`relative overflow-hidden p-5 sm:p-8 text-white shadow-2xl transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 ${memberData.isMember
                 ? 'bg-gradient-to-br from-zinc-900 via-zinc-800 to-black ring-1 ring-white/10'
                 : 'bg-muted text-muted-foreground ring-1 ring-border'
                 }`}>
@@ -302,43 +309,43 @@ export default function MemberPage() {
                 <div className="absolute bottom-0 left-0 -mb-16 -ml-16 bg-gradient-to-t from-primary/20 to-transparent w-64 h-64 rounded-full blur-3xl pointer-events-none" />
 
                 {/* Konten Kartu */}
-                <div className="relative z-10 flex flex-col h-full min-h-[240px] justify-between">
+                <div className="relative z-10 flex flex-col h-full min-h-[180px] sm:min-h-[240px] justify-between">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-xl font-bold tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Maga Swalayan</h3>
-                      <p className="text-xs font-medium text-white/40 tracking-widest mt-1">MEMBERSHIP CARD</p>
+                      <h3 className="text-lg sm:text-xl font-bold tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Maga Swalayan</h3>
+                      <p className="text-[10px] sm:text-xs font-medium text-white/40 tracking-widest mt-1">MEMBERSHIP CARD</p>
                     </div>
                     {/* Chip Hologram */}
-                    <div className="w-12 h-9 rounded bg-gradient-to-br from-yellow-200/90 via-yellow-400/80 to-yellow-600/90 shadow-inner flex items-center justify-center overflow-hidden">
+                    <div className="w-10 h-7 sm:w-12 sm:h-9 rounded bg-gradient-to-br from-yellow-200/90 via-yellow-400/80 to-yellow-600/90 shadow-inner flex items-center justify-center overflow-hidden">
                       <div className="w-full h-[1px] bg-black/20" />
                     </div>
                   </div>
 
-                  <div className={`mt-12 transition-all duration-500 ${!memberData.isMember ? 'opacity-30 blur-sm' : ''}`}>
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-6">
+                  <div className={`mt-8 sm:mt-12 transition-all duration-500 ${!memberData.isMember ? 'opacity-30 blur-sm' : ''}`}>
+                    <div className="flex flex-row justify-between items-end gap-2 sm:gap-6">
                       <div className="flex flex-col">
-                        <span className="text-xs font-medium text-white/50 tracking-widest uppercase mb-1">Total Poin</span>
-                        <div className="flex items-baseline gap-1.5">
-                          <span className="text-5xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70 drop-shadow-sm pr-2 pb-1">
+                        <span className="text-[10px] sm:text-xs font-medium text-white/50 tracking-widest uppercase mb-1">Total Poin</span>
+                        <div className="flex items-baseline gap-1 sm:gap-1.5">
+                          <span className="text-3xl sm:text-5xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70 drop-shadow-sm pr-1 sm:pr-2 pb-1">
                             {memberData.isMember ? memberData.points.toLocaleString('id-ID') : '0'}
                           </span>
-                          <span className="text-lg font-bold text-white/40">pts</span>
+                          <span className="text-sm sm:text-lg font-bold text-white/40">pts</span>
                         </div>
                       </div>
-                      <div className="text-left sm:text-right">
-                        <span className="text-[10px] font-medium text-white/40 tracking-widest uppercase mb-1 block">ID Member</span>
-                        <span className="text-xl font-mono tracking-widest text-white/90">{memberData.membercard}</span>
+                      <div className="text-right">
+                        <span className="text-[8px] sm:text-[10px] font-medium text-white/40 tracking-widest uppercase mb-1 block">ID Member</span>
+                        <span className="text-sm sm:text-xl font-mono tracking-widest text-white/90">{memberData.membercard}</span>
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-5 border-t border-white/10 flex justify-between items-center">
+                    <div className="mt-4 sm:mt-6 pt-3 sm:pt-5 border-t border-white/10 flex justify-between items-center">
                       <div>
-                        <span className="text-[10px] font-medium text-white/40 tracking-widest uppercase block mb-1">Nama Pemilik</span>
-                        <span className="text-sm font-bold tracking-wider uppercase text-white/90">{memberData.name}</span>
+                        <span className="text-[8px] sm:text-[10px] font-medium text-white/40 tracking-widest uppercase block mb-0.5 sm:mb-1">Nama Pemilik</span>
+                        <span className="text-xs sm:text-sm font-bold tracking-wider uppercase text-white/90">{memberData.name}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-[10px] font-medium text-white/40 tracking-widest uppercase block mb-1">Status</span>
-                        <span className="text-sm font-bold tracking-wider text-emerald-400 uppercase drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">Aktif</span>
+                        <span className="text-[8px] sm:text-[10px] font-medium text-white/40 tracking-widest uppercase block mb-0.5 sm:mb-1">Status</span>
+                        <span className="text-xs sm:text-sm font-bold tracking-wider text-emerald-400 uppercase drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">Aktif</span>
                       </div>
                     </div>
                   </div>
@@ -346,14 +353,14 @@ export default function MemberPage() {
 
                 {/* Overlay Belum Member */}
                 {!memberData.isMember && (
-                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-yellow-500 p-6 text-center gap-5 overflow-hidden">
-                    <div className="relative z-10 flex flex-col items-center gap-5">
-                      <img src="/logo.png" alt="Maga Swalayan Logo" className="w-16 h-16 object-contain mb-2 drop-shadow-md" />
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-yellow-500 p-4 sm:p-6 text-center overflow-hidden">
+                    <div className="relative z-10 flex flex-col items-center gap-2 sm:gap-5">
+                      <img src="/logo.png" alt="Maga Swalayan Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain mb-1 sm:mb-2 drop-shadow-md" />
                       <div>
-                        <h3 className="text-2xl font-bold text-white mb-2">Gabung Member Maga</h3>
-                        <p className="text-white/90 text-sm max-w-sm mx-auto">Dapatkan poin setiap belanja dan nikmati berbagai promo eksklusif khusus untuk Anda.</p>
+                        <h3 className="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2 leading-tight">Gabung Member Maga</h3>
+                        <p className="text-white/90 text-xs sm:text-sm max-w-[250px] sm:max-w-sm mx-auto leading-snug">Dapatkan poin setiap belanja dan nikmati berbagai promo eksklusif khusus untuk Anda.</p>
                       </div>
-                      <Button size="lg" className="rounded-none px-8 font-semibold shadow-lg hover:shadow-orange-700/25 transition-all hover:-translate-y-0.5 bg-white text-yellow-500 hover:bg-zinc-50" onClick={() => setIsRegisterModalOpen(true)}>
+                      <Button className="h-9 px-5 text-sm sm:h-11 sm:px-8 sm:text-base rounded-none font-semibold shadow-lg hover:shadow-orange-700/25 transition-all hover:-translate-y-0.5 bg-white text-yellow-500 hover:bg-zinc-50" onClick={() => setIsRegisterModalOpen(true)}>
                         Daftar Sekarang
                       </Button>
                     </div>
@@ -363,40 +370,40 @@ export default function MemberPage() {
             </div>
 
             {/* Bagian Kanan: Info Akun */}
-            <div className="lg:col-span-5 flex flex-col">
-              <div className="bg-card border-l-4 border-l-primary shadow-sm flex flex-col h-full transition-all hover:shadow-md">
+            {showInfoAkun && (
+              <div className="lg:col-span-5 flex flex-col">
+                <div className="bg-card border-l-4 border-l-primary shadow-sm flex flex-col h-full transition-all hover:shadow-md">
+                  <div className="p-5 grid grid-cols-2 gap-3 flex-1 content-center">
+                    <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-1">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">No. Telp</p>
+                      <p className="font-medium text-foreground text-sm truncate">{memberData.phone}</p>
+                    </div>
 
+                    <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-1">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Kelahiran</p>
+                      <p className="font-medium text-foreground text-sm truncate">{memberData.tanggalLahir}</p>
+                    </div>
 
-                <div className="p-5 grid grid-cols-2 gap-3 flex-1 content-center">
-                  <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-1">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">No. Telp</p>
-                    <p className="font-medium text-foreground text-sm truncate">{memberData.phone}</p>
-                  </div>
+                    <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-2">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Email Login</p>
+                      <p className="font-medium text-foreground text-sm truncate">{memberData.email}</p>
+                    </div>
 
-                  <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-1">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Kelahiran</p>
-                    <p className="font-medium text-foreground text-sm truncate">{memberData.tanggalLahir}</p>
-                  </div>
-
-                  <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-2">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Email Login</p>
-                    <p className="font-medium text-foreground text-sm truncate">{memberData.email}</p>
-                  </div>
-
-                  <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-2">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Alamat</p>
-                    {memberData.alamat !== "-" ? (
-                      <div className="flex flex-col gap-0.5">
-                        <p className="font-medium text-foreground text-sm leading-relaxed">{memberData.alamat}</p>
-                        <p className="font-medium text-foreground text-xs text-muted-foreground leading-relaxed">Kec. {memberData.kecamatan}, Kab. {memberData.kabupaten}</p>
-                      </div>
-                    ) : (
-                      <p className="font-medium text-foreground text-sm leading-relaxed">-</p>
-                    )}
+                    <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-2">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Alamat</p>
+                      {memberData.alamat !== "-" ? (
+                        <div className="flex flex-col gap-0.5">
+                          <p className="font-medium text-foreground text-sm leading-relaxed">{memberData.alamat}</p>
+                          <p className="font-medium text-foreground text-xs text-muted-foreground leading-relaxed">Kec. {memberData.kecamatan}, Kab. {memberData.kabupaten}</p>
+                        </div>
+                      ) : (
+                        <p className="font-medium text-foreground text-sm leading-relaxed">-</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 bg-card border rounded-none">

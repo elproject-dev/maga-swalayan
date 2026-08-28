@@ -116,16 +116,7 @@ export function ThemeToggleFab() {
               
               {isAdminOrStaff && (
                 <>
-                  <button
-                    onClick={() => {
-                      setIsOpen(false)
-                      router.push("/broadcast")
-                    }}
-                    className="h-12 w-12 bg-white/30 dark:bg-zinc-900/30 backdrop-blur-md text-zinc-900 dark:text-white rounded-full flex items-center justify-center shadow-lg border-none cursor-pointer"
-                    aria-label="Broadcast"
-                  >
-                    <CirclePlus className="h-5 w-5" />
-                  </button>
+
                   <button
                     onClick={() => {
                       setIsOpen(false)

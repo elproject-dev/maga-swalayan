@@ -16,24 +16,35 @@ import {
   HdIcon,
   LayoutGrid,
   CirclePercent,
-  Building,
+  CalendarDays,
   HandCoins,
   CircleUser,
   Shield,
   ShieldUser,
   Database,
   UserCog,
+  IdCard,
+  ScanBarcode,
+  Megaphone,
+  Send,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 
 import { supabase } from "@/lib/supabase"
 
-const mainLinks = [
+const defaultMainLinks = [
   { href: "/home", label: "Beranda", icon: LayoutGrid },
   { href: "/promo", label: "Promo", icon: CirclePercent },
-  { href: "/produk", label: "Produk", icon: Box },
-  { href: "/pilihan", label: "Pilihan", icon: Building },
+  { href: "/card", label: "Card", icon: ScanBarcode },
+  { href: "/event", label: "Event", icon: CalendarDays },
+]
+
+const adminMainLinks = [
+  { href: "/home", label: "Beranda", icon: LayoutGrid },
+  { href: "/promo", label: "Promo", icon: CirclePercent },
+  { href: "/broadcast", label: "Broadcast", icon: Send },
+  { href: "/event", label: "Event", icon: CalendarDays },
 ]
 
 const moreLinks = [
@@ -103,6 +114,8 @@ export function BottomNavigation() {
           link.href !== "/settings"
       )
 
+  const currentMainLinks = isAdminOrStaff ? adminMainLinks : defaultMainLinks
+
   return (
     <>
       {/* Overlay backdrop */}
@@ -169,12 +182,26 @@ export function BottomNavigation() {
 
         {/* Main bottom bar */}
         <div className="grid grid-cols-5 py-2 px-1 relative z-10 bg-background rounded-t-2xl">
-          {mainLinks.map((link) => {
+          {currentMainLinks.map((link) => {
             const Icon = link.icon
             const isActive =
               pathname === link.href ||
               (link.href !== "/home" && pathname.startsWith(link.href))
-            return (
+            return link.label === "Card" ? (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="relative flex flex-col items-center justify-center w-16 mx-auto transition-all duration-200 group"
+              >
+                <div className={cn(
+                  "absolute -top-7 flex items-center justify-center w-14 h-14 shrink-0 aspect-square rounded-full shadow-lg border-2 border-muted transition-transform group-hover:-translate-y-1 bg-black text-white"
+                )}
+                style={{ borderRadius: '50%' }}
+                >
+                  <Icon className="w-6 h-6" />
+                </div>
+              </Link>
+            ) : (
               <Link
                 key={link.href}
                 href={link.href}
