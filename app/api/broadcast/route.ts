@@ -47,6 +47,9 @@ export async function POST(req: Request) {
       webpush: {
         notification: {
           icon: '/icon-192x192.png'
+        },
+        fcmOptions: {
+          link: '/' // Memaksa browser membuka/fokus ke aplikasi PWA saat notifikasi diklik
         }
       },
       topic: 'all_users'
