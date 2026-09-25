@@ -15,6 +15,7 @@ import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "@/components/ui/toast"
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 import { TablePagination } from "@/components/table-pagination"
 import { supabase } from "@/lib/supabase"
@@ -184,12 +185,16 @@ export default function DatabasePage() {
 
   const isAllSelected = selectedRows.length === filteredCustomers.length && filteredCustomers.length > 0
 
+  if (isLoading) {
+    return <LoadingSpinner text="Memuat database member..." />
+  }
+
   return (
     <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Database Member</h1>
-          <p className="text-muted-foreground text-sm mt-1">Data pelanggan yang terdaftar sebagai member.</p>
+          <h1 className="text-md md:text-xl font-bold tracking-tight">Database Member</h1>
+          <p className="text-muted-foreground text-[10px] mt-1">Data pelanggan yang terdaftar sebagai member.</p>
         </div>
       </div>
 
@@ -293,8 +298,8 @@ export default function DatabasePage() {
 
       {/* Desktop Table */}
       <div className="hidden md:block rounded-none border bg-card overflow-hidden shadow-sm overflow-x-auto mt-4">
-        <Table className="whitespace-nowrap min-w-max">
-          <TableHeader>
+        <Table className="whitespace-nowrap min-w-max [&_td]:border [&_th]:border">
+          <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead className="w-[50px] text-center">
                 {isActionMode ? (

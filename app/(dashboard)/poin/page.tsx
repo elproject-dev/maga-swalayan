@@ -20,6 +20,7 @@ import { TablePagination } from "@/components/table-pagination"
 import { supabase } from "@/lib/supabase"
 
 import { toast } from "@/components/ui/toast"
+import { LoadingSpinner } from "@/components/loading-spinner"
 import {
   Dialog,
   DialogContent,
@@ -371,11 +372,15 @@ export default function PoinPage() {
 
   if (!isMounted) return null
 
+  if (isLoading) {
+    return <LoadingSpinner text="Memuat riwayat poin..." />
+  }
+
   return (
     <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Riwayat Poin Member</h1>
+          <h1 className="text-md md:text-xl font-bold tracking-tight">Riwayat Poin Member</h1>
         </div>
       </div>
 
@@ -390,7 +395,7 @@ export default function PoinPage() {
           />
         </div>
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center w-full sm:w-auto">
-          <div className="flex items-center justify-center sm:justify-start px-3 py-2 border rounded-none bg-card text-xs font-medium text-muted-foreground whitespace-nowrap w-full sm:w-auto h-10 shadow-sm">
+          <div className="flex items-center justify-center sm:justify-start px-3 py-2 border rounded-none bg-card text-xs font-medium text-muted-foreground whitespace-nowrap w-full sm:w-auto h-8 shadow-sm">
             Update: <span className="text-foreground ml-1.5">{lastUpdate ? lastUpdate.toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace('pukul ', '') : '-'}</span>
           </div>
           <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
@@ -489,8 +494,8 @@ export default function PoinPage() {
       {/* Desktop Table */}
       <div className="hidden md:block rounded-none border bg-card overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
+          <Table className="[&_td]:border [&_th]:border">
+            <TableHeader className="bg-muted/50">
               <TableRow>
                 {isActionMode && (
                   <TableHead className="w-[50px] text-center">

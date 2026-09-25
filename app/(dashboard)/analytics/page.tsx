@@ -145,7 +145,7 @@ async function getAnalyticsData() {
           { name: 'activeUsers' },
         ],
       });
-      
+
       let total = 0;
       const minutesMap = new Map();
       realtimeResponse.rows?.forEach(row => {
@@ -155,7 +155,7 @@ async function getAnalyticsData() {
         total += users;
       });
       realtimeUsers = total.toString();
-      
+
       for (let i = 29; i >= 0; i--) {
         realtimeMinutesData.push({
           minute: i === 0 ? 'Sekarang' : `${i} mnt`,
@@ -212,7 +212,7 @@ export default async function AnalyticsPage() {
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Google Analytics</h2>
+        <h2 className="text-md md:text-xl font-bold tracking-tight">Google Analytics</h2>
       </div>
 
       {data.error ? (
@@ -227,88 +227,88 @@ export default async function AnalyticsPage() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 rounded-sm">
+          <Card className="bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-md border-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-white/90">
                 Total Pelanggan
               </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Users className="h-4 w-4 text-white/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalPelanggan || 0}</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/70">
                 Terdaftar di database
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-md border-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-white/90">
                 Total Member
               </CardTitle>
-              <UserCheck className="h-4 w-4 text-muted-foreground" />
+              <UserCheck className="h-4 w-4 text-white/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalMember || 0}</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/70">
                 Memiliki kartu member
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-md border-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-white/90">
                 Total Staf
               </CardTitle>
-              <UserCog className="h-4 w-4 text-muted-foreground" />
+              <UserCog className="h-4 w-4 text-white/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalStaf || 0}</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/70">
                 Staf / Admin aktif
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-violet-500 to-violet-700 text-white shadow-md border-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-white/90">
                 Pengguna Aktif (30 Hari)
               </CardTitle>
-              <UsersIcon className="h-4 w-4 text-muted-foreground" />
+              <UsersIcon className="h-4 w-4 text-white/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{data.overview?.activeUsers || '0'}</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/70">
                 Total pengguna aktif bulan ini
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-pink-500 to-rose-600 text-white shadow-md border-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-white/90">
                 Tayangan Halaman
               </CardTitle>
-              <EyeIcon className="h-4 w-4 text-muted-foreground" />
+              <EyeIcon className="h-4 w-4 text-white/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{data.overview?.pageViews || '0'}</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/70">
                 Total halaman yang dilihat
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-cyan-500 to-cyan-700 text-white shadow-md border-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-white/90">
                 Sesi
               </CardTitle>
-              <ClockIcon className="h-4 w-4 text-muted-foreground" />
+              <ClockIcon className="h-4 w-4 text-white/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{data.overview?.sessions || '0'}</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/70">
                 Total sesi kunjungan
               </p>
             </CardContent>

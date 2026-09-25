@@ -32,7 +32,7 @@ export default function MemberPage() {
   const pathname = usePathname()
   const isCardView = pathname === "/card"
   const [memberData, setMemberData] = useState<MemberData | null>(null)
-  
+
   const showInfoAkun = !isCardView && memberData?.isMember
   const [isLoading, setIsLoading] = useState(true)
 
@@ -291,7 +291,7 @@ export default function MemberPage() {
     <>
       <div className="flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8 bg-muted/20">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h1 className="text-2xl font-bold tracking-tight">{isCardView ? "Member Card" : "Profil Member"}</h1>
+          <h1 className="text-md md:text-xl font-bold tracking-tight">{isCardView ? "Member Card" : "Profil Member"}</h1>
         </div>
 
         {isLoading ? (
@@ -360,7 +360,7 @@ export default function MemberPage() {
                         <h3 className="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2 leading-tight">Gabung Member Maga</h3>
                         <p className="text-white/90 text-xs sm:text-sm max-w-[250px] sm:max-w-sm mx-auto leading-snug">Dapatkan poin setiap belanja dan nikmati berbagai promo eksklusif khusus untuk Anda.</p>
                       </div>
-                      <Button className="h-9 px-5 text-sm sm:h-11 sm:px-8 sm:text-base rounded-none font-semibold shadow-lg hover:shadow-orange-700/25 transition-all hover:-translate-y-0.5 bg-white text-yellow-500 hover:bg-zinc-50" onClick={() => setIsRegisterModalOpen(true)}>
+                      <Button className="h-9 px-5 text-sm sm:h-11 sm:px-8 sm:text-base rounded-full font-semibold shadow-lg hover:shadow-orange-700/25 transition-all hover:-translate-y-0.5 bg-white text-yellow-500 hover:bg-zinc-50" onClick={() => setIsRegisterModalOpen(true)}>
                         Daftar Sekarang
                       </Button>
                     </div>
@@ -416,8 +416,8 @@ export default function MemberPage() {
         <DialogContent className="sm:max-w-[425px] rounded-none border-primary/20">
           <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
           <DialogHeader>
-            <DialogTitle className="text-base text-yellow-500">Pendaftaran Member Baru</DialogTitle>
-            <DialogDescription className="text-sm">
+            <DialogTitle className="text-[15px] text-primary font-bold">Pendaftaran Member Baru</DialogTitle>
+            <DialogDescription className="text-[11px]">
               Lengkapi data Anda untuk bergabung menjadi
               <br />
               member setia Maga Swalayan.

@@ -621,7 +621,7 @@ export default function SettingsPage() {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2 md:gap-4 py-2 md:py-4 px-4 lg:px-6">
       <div className="flex flex-row justify-between items-center gap-2">
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight">Pengaturan & Manajemen</h1>
+        <h1 className="text-md md:text-xl font-bold tracking-tight">Pengaturan & Manajemen</h1>
       </div>
 
       <div className="flex flex-col gap-4 md:gap-4">
@@ -639,7 +639,7 @@ export default function SettingsPage() {
               )}
             >
               <item.icon className={cn("w-8 h-8 transition-colors", activeMenu !== item.id && "group-hover:text-yellow-500")} />
-              <span className={cn("font-semibold text-sm md:text-base transition-colors", activeMenu !== item.id && "group-hover:text-yellow-500")}>{item.label}</span>
+              <span className={cn("font-semibold text-xs md:text-sm transition-colors", activeMenu !== item.id && "group-hover:text-yellow-500")}>{item.label}</span>
             </button>
           ))}
         </div>
@@ -650,9 +650,9 @@ export default function SettingsPage() {
             {activeMenu === 'promo' && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Manajemen Promo</h2>
+                  <h2 className="text-md md:text-xl font-semibold tracking-tight">Manajemen Promo</h2>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                    <div className="relative w-full sm:w-64">
+                    <div className="relative w-full sm:w-auto">
                       <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         placeholder="Cari promo..."
@@ -661,7 +661,7 @@ export default function SettingsPage() {
                           setSearchPromoQuery(e.target.value)
                           setCurrentPage(1)
                         }}
-                        className="pr-9 h-10"
+                        className="pr-9 h-8"
                       />
                     </div>
                     <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
@@ -818,8 +818,8 @@ export default function SettingsPage() {
 
                 {/* Desktop Table */}
                 <div className="hidden md:block rounded-none border bg-card overflow-hidden justify-center items-center">
-                  <Table>
-                    <TableHeader>
+                  <Table className="[&_td]:border [&_th]:border">
+                    <TableHeader className="bg-muted/50">
                       <TableRow>
                         <TableHead className="w-[50px] text-center">
                           <Checkbox
@@ -896,7 +896,7 @@ export default function SettingsPage() {
             {activeMenu === 'pilihan' && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Event</h2>
+                  <h2 className="text-md md:text-xl font-semibold tracking-tight">Event</h2>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <div className="relative w-full sm:w-64">
                       <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -907,7 +907,7 @@ export default function SettingsPage() {
                           setSearchPilihanQuery(e.target.value)
                           setCurrentPage(1)
                         }}
-                        className="pr-9 h-10"
+                        className="pr-9 h-8"
                       />
                     </div>
                     <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
@@ -1068,8 +1068,8 @@ export default function SettingsPage() {
 
                 {/* Desktop Table */}
                 <div className="hidden md:block rounded-none border bg-card overflow-hidden">
-                  <Table>
-                    <TableHeader>
+                  <Table className="[&_td]:border [&_th]:border">
+                    <TableHeader className="bg-muted/50">
                       <TableRow>
                         <TableHead className="w-[50px] text-center">
                           <Checkbox
@@ -1145,7 +1145,7 @@ export default function SettingsPage() {
             {activeMenu === 'produk' && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Manajemen Produk</h2>
+                  <h2 className="text-md md:text-xl font-semibold tracking-tight">Manajemen Produk</h2>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <div className="relative w-full sm:w-64">
                       <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -1156,7 +1156,7 @@ export default function SettingsPage() {
                           setSearchProdukQuery(e.target.value)
                           setCurrentPage(1)
                         }}
-                        className="pr-9 h-10"
+                        className="pr-9 h-8"
                       />
                     </div>
                     <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
@@ -1171,7 +1171,7 @@ export default function SettingsPage() {
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
 
                     <DialogHeader>
-                      <DialogTitle className="text-xl md:text-2xl">{editingProdukId ? "Edit Produk" : "Tambah Produk Baru"}</DialogTitle>
+                      <DialogTitle className="text-md md:text-xl">{editingProdukId ? "Edit Produk" : "Tambah Produk Baru"}</DialogTitle>
                     </DialogHeader>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       <div className="flex flex-col gap-4 order-2 md:order-1">
@@ -1311,8 +1311,8 @@ export default function SettingsPage() {
 
                 {/* Desktop Table */}
                 <div className="hidden md:block rounded-none border bg-card overflow-hidden">
-                  <Table>
-                    <TableHeader>
+                  <Table className="[&_td]:border [&_th]:border">
+                    <TableHeader className="bg-muted/50">
                       <TableRow>
                         <TableHead className="w-[50px] text-center">
                           <Checkbox
@@ -1386,7 +1386,7 @@ export default function SettingsPage() {
             {activeMenu === 'banner' && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Manajemen Banner</h2>
+                  <h2 className="text-md md:text-xl font-semibold tracking-tight">Manajemen Banner</h2>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <div className="relative w-full sm:w-64">
                       <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -1397,7 +1397,7 @@ export default function SettingsPage() {
                           setSearchBannerQuery(e.target.value)
                           setCurrentPage(1)
                         }}
-                        className="pr-9 h-10"
+                        className="pr-9 h-8"
                       />
                     </div>
                     <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
@@ -1412,7 +1412,7 @@ export default function SettingsPage() {
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
 
                     <DialogHeader>
-                      <DialogTitle className="text-xl md:text-2xl">{editingBannerId ? "Edit Banner" : "Tambah Banner Baru"}</DialogTitle>
+                      <DialogTitle className="text-md md:text-xl">{editingBannerId ? "Edit Banner" : "Tambah Banner Baru"}</DialogTitle>
                     </DialogHeader>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                       {/* Kolom Kiri: Form Input */}
@@ -1545,8 +1545,8 @@ export default function SettingsPage() {
 
                 {/* Desktop Table */}
                 <div className="hidden md:block rounded-none border bg-card overflow-hidden">
-                  <Table>
-                    <TableHeader>
+                  <Table className="[&_td]:border [&_th]:border">
+                    <TableHeader className="bg-muted/50">
                       <TableRow>
                         <TableHead className="w-[50px] text-center">
                           <Checkbox
@@ -1631,7 +1631,7 @@ export default function SettingsPage() {
                           setSearchLokasiQuery(e.target.value)
                           setCurrentPage(1)
                         }}
-                        className="pr-9 h-10"
+                        className="pr-9 h-8"
                       />
                     </div>
                     <div className="flex items-center gap-2 w-full justify-end sm:w-auto">
@@ -1787,7 +1787,7 @@ export default function SettingsPage() {
                               aria-label={`Select ${lokasi.name}`}
                             />
                           </div>
-                          <div className="w-24 h-24 shrink-0 cursor-pointer" onClick={() => handleEditClickLokasi(lokasi)}>
+                          <div className="w-[120px] aspect-video shrink-0 cursor-pointer" onClick={() => handleEditClickLokasi(lokasi)}>
                             {lokasi.image ? (
                               <img src={lokasi.image} alt={lokasi.name} className="w-full h-full object-cover rounded-none border" />
                             ) : (
@@ -1812,8 +1812,8 @@ export default function SettingsPage() {
 
                 {/* Desktop Table */}
                 <div className="hidden md:block rounded-none border bg-card overflow-hidden">
-                  <Table>
-                    <TableHeader>
+                  <Table className="[&_td]:border [&_th]:border">
+                    <TableHeader className="bg-muted/50">
                       <TableRow>
                         <TableHead className="w-[50px] text-center">
                           <Checkbox
@@ -1844,10 +1844,10 @@ export default function SettingsPage() {
                               <img
                                 src={lokasi.image}
                                 alt={lokasi.name}
-                                className="w-[60px] h-[60px] rounded-none object-cover border mx-auto"
+                                className="w-[100px] aspect-video rounded-none object-cover border mx-auto"
                               />
                             ) : (
-                              <div className="w-[60px] h-[60px] mx-auto flex items-center justify-center bg-muted border rounded-none">
+                              <div className="w-[100px] aspect-video mx-auto flex items-center justify-center bg-muted border rounded-none">
                                 <ImageIcon className="h-6 w-6 text-muted-foreground opacity-50" />
                               </div>
                             )}

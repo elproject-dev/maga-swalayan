@@ -30,12 +30,12 @@ export function NavMain({
           {isAdminOrStaff && (
             <SidebarMenuItem className="flex items-center gap-2">
               <SidebarMenuButton
-                tooltip="Broadcase"
+                tooltip="Broadcast"
                 className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
                 render={<Link href="/broadcast" />}
               >
                 <CirclePlusIcon />
-                <span>Broadcase</span>
+                <span>Broadcast</span>
               </SidebarMenuButton>
 
               <div className="group-data-[collapsible=icon]:opacity-0">

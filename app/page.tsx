@@ -66,17 +66,17 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 relative bg-yellow-500">
       <div className="w-full max-w-sm flex flex-col items-center gap-6 relative z-10 mx-auto">
-        <Card className="w-full aspect-square shadow-2xl shadow-black/20 border border-zinc-200 flex flex-col justify-center p-6 bg-white rounded-none" size="sm">
+        <Card className="w-full aspect-square shadow-2xl shadow-black/20 border border-zinc-200 flex flex-col justify-center p-6 bg-white rounded-sm" size="sm">
           <CardHeader className="text-center pb-6">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-24 h-24 flex items-center justify-center">
-                <img src="/logo.png" alt="Maga Swalayan Logo" className="w-full h-full object-contain" />
+              <div className="w-30 h-30 flex items-center justify-center">
+                <img src="/logo.svg" alt="Maga Swalayan Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col items-center gap-1">
-                <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900">
-                  Maga Swalayan
+                <CardTitle className="!text-3xl font-bold tracking-[2px] text-zinc-600">
+                  MAGA SWALAYAN
                 </CardTitle>
-                <CardDescription className="text-base text-zinc-500">
+                <CardDescription className="text-[12px] text-zinc-500">
                   Teman Setia Belanja Anda Disini
                 </CardDescription>
               </div>
@@ -86,7 +86,7 @@ export default function LoginPage() {
           <CardContent className="flex justify-center pb-4">
             <Button
               variant="outline"
-              className="w-full rounded-none border-zinc-200 hover:bg-zinc-50 transition-all duration-300 group"
+              className="w-full rounded-sm border-zinc-200 hover:bg-zinc-50 transition-all duration-300 group"
               type="button"
               onClick={() => handleOAuthLogin('google')}
               disabled={isLoading}
@@ -109,7 +109,7 @@ export default function LoginPage() {
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
-                  <span className="text-zinc-900">Masuk dengan Google</span>
+                  <span className="text-zinc-600 text-[12px] font-bold hover:text-green-600 transition-all duration-300 px-2 py-1 rounded-sm">Masuk dengan Google</span>
                 </>
               )}
             </Button>

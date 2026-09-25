@@ -70,7 +70,7 @@ export function SiteHeader() {
                 <div className="size-8 rounded-full bg-muted animate-pulse" />
               ) : (
                 <Avatar className="size-8 rounded-full">
-                  <AvatarImage src={user?.avatar} alt={user?.name || "User"} />
+                  <AvatarImage src={user?.avatar} alt={user?.name || "User"} referrerPolicy="no-referrer" />
                   <AvatarFallback className="rounded-full text-xs">
                     {user?.name?.charAt(0)?.toUpperCase() || "U"}
                   </AvatarFallback>
@@ -87,7 +87,7 @@ export function SiteHeader() {
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="size-8">
-                      <AvatarImage src={user?.avatar} alt={user?.name || "User"} />
+                      <AvatarImage src={user?.avatar} alt={user?.name || "User"} referrerPolicy="no-referrer" />
                       <AvatarFallback className="rounded-full text-xs">
                         {user?.name?.charAt(0)?.toUpperCase() || "U"}
                       </AvatarFallback>

@@ -59,14 +59,14 @@ export default function PromoPage() {
     <>
       <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
         <DialogContent className="w-[90vw] max-w-lg p-0 border-none bg-transparent shadow-none [&>button]:text-white [&>button]:bg-black/50 [&>button]:rounded-full [&>button]:p-2 [&>button]:right-2 [&>button]:top-2 [&>button]:hover:bg-black/70">
-          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-none object-contain shadow-2xl" />}
+          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-sm object-contain shadow-2xl" />}
         </DialogContent>
       </Dialog>
       <div className="@container/main flex flex-1 flex-col gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6 px-4 lg:px-6">
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Semua Promo</h1>
+            <h1 className="text-md md:text-xl font-bold tracking-tight">Semua Promo</h1>
             <div className="relative w-full sm:max-w-xs">
               <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -80,7 +80,7 @@ export default function PromoPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-4">
             {filteredImages.map((item) => (
-              <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-none p-0 group cursor-pointer relative aspect-[4/5] transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 hover:shadow-xl">
+              <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-sm rounded-sm p-0 group cursor-pointer relative aspect-[4/5] transition-all duration-500 hover:-translate-y-1 hover:shadow-sm hover:shadow-sm">
                 <img
                   src={item.src}
                   alt={item.title}
@@ -90,10 +90,10 @@ export default function PromoPage() {
 
                 <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 flex flex-col pointer-events-none">
                   <div className="w-full border-t border-white/30 pt-3 flex flex-col gap-1">
-                    <h3 className="text-white text-sm md:text-base font-semibold line-clamp-1 drop-shadow-md">
+                    <h3 className="text-white text-[10px] md:text-[10px] font-semibold line-clamp-1 drop-shadow-md">
                       {item.title}
                     </h3>
-                    <p className="text-yellow-400 text-xs md:text-sm font-bold drop-shadow-md">
+                    <p className="text-yellow-400 text-[10px] md:text-[10px] font-bold drop-shadow-md">
                       {item.promo}
                     </p>
                   </div>

@@ -55,15 +55,15 @@ export default function PilihanPage() {
   return (
     <>
       <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEvent(null)}>
-        <DialogContent className="w-[95vw] max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto p-0 rounded-none border-none">
+        <DialogContent className="w-[95vw] max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto p-0 rounded-sm border-none">
           {selectedEvent && (
             <div className="flex flex-col">
               <div className="relative w-full aspect-[2/1] bg-muted">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={selectedEvent.src} 
-                  alt={selectedEvent.title} 
-                  className="w-full h-full object-cover" 
+                <img
+                  src={selectedEvent.src}
+                  alt={selectedEvent.title}
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="p-6">
@@ -78,7 +78,7 @@ export default function PilihanPage() {
                   {selectedEvent.description || "Tidak ada deskripsi rinci untuk event ini."}
                 </DialogDescription>
                 <div className="mt-8 flex justify-end">
-                  <Button onClick={() => setSelectedEvent(null)} className="rounded-none">Tutup</Button>
+                  <Button onClick={() => setSelectedEvent(null)} className="rounded-sm">Tutup</Button>
                 </div>
               </div>
             </div>
@@ -87,10 +87,10 @@ export default function PilihanPage() {
       </Dialog>
 
       <div className="@container/main flex flex-1 flex-col gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-8 max-w-4xl mx-auto w-full">
+        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-8 w-full">
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Info & Event Terbaru</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
+            <h1 className="text-md md:text-xl font-bold tracking-tight">Info & Event Terbaru</h1>
             <div className="relative w-full sm:max-w-xs">
               <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -102,14 +102,14 @@ export default function PilihanPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.map((item) => (
-              <Card 
-                key={item.id} 
-                className="overflow-hidden border shadow-sm rounded-none bg-card hover:shadow-md transition-shadow duration-300 flex flex-col p-0 gap-0"
+              <Card
+                key={item.id}
+                className="overflow-hidden border shadow-sm rounded-sm bg-card hover:shadow-md transition-shadow duration-300 flex flex-col p-0 gap-0"
               >
                 {/* Banner Image */}
-                <div 
+                <div
                   className="w-full aspect-[2/1] bg-muted relative overflow-hidden cursor-pointer"
                   onClick={() => setSelectedEvent(item)}
                 >
@@ -120,29 +120,28 @@ export default function PilihanPage() {
                     className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                   />
                 </div>
-                
+
                 {/* Content */}
-                <div className="p-5 md:p-6 flex flex-col gap-3">
-                  <div className="flex items-center text-xs font-medium text-muted-foreground">
-                    <CalendarDays className="h-3.5 w-3.5 mr-1.5" />
+                <div className="p-2 md:p-4 flex flex-col gap-2">
+                  <div className="flex items-center text-[10px] font-xs text-muted-foreground">
                     {formatDate(item.created_at)}
                   </div>
-                  
-                  <h3 
-                    className="text-xl md:text-2xl font-bold leading-tight cursor-pointer hover:text-primary transition-colors"
+
+                  <h3
+                    className="text-[15px] md:text-md font-bold leading-tight cursor-pointer hover:text-primary transition-colors"
                     onClick={() => setSelectedEvent(item)}
                   >
                     {item.title}
                   </h3>
-                  
-                  <p className="text-muted-foreground text-sm md:text-base line-clamp-2 leading-relaxed">
+
+                  <p className="text-muted-foreground text-[10px] md:text-[10px] line-clamp-2 leading-relaxed">
                     {item.description || "Klik untuk membaca selengkapnya mengenai info ini."}
                   </p>
-                  
+
                   <div className="mt-2">
-                    <Button 
-                      variant="link" 
-                      className="px-0 text-primary font-semibold h-auto rounded-none"
+                    <Button
+                      variant="link"
+                      className="px-0 text-primary font-semibold h-auto rounded-sm"
                       onClick={() => setSelectedEvent(item)}
                     >
                       Baca selengkapnya &rarr;
@@ -151,9 +150,9 @@ export default function PilihanPage() {
                 </div>
               </Card>
             ))}
-            
+
             {filteredEvents.length === 0 && (
-              <div className="py-12 text-center text-muted-foreground bg-muted/30 rounded-none border border-dashed">
+              <div className="col-span-full py-12 text-center text-muted-foreground bg-muted/30 rounded-sm border border-dashed">
                 <p>Tidak ada event yang cocok dengan pencarian Anda.</p>
               </div>
             )}

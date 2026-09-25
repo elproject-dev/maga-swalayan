@@ -1,11 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { cn } from "cn"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
@@ -255,34 +255,35 @@ function CarouselDots({
 
     onInit(api)
     onSelect(api)
+
     api.on("reInit", onInit)
     api.on("reInit", onSelect)
     api.on("select", onSelect)
+
+    return () => {
+      api?.off("reInit", onInit)
+      api?.off("reInit", onSelect)
+      api?.off("select", onSelect)
+    }
   }, [api, onInit, onSelect])
 
-  const dotCount = realCount ?? scrollSnaps.length
+  const count = realCount ?? scrollSnaps.length
 
-  if (dotCount === 0) return null
+  if (count <= 1) return null
 
   return (
-    <div
-      className={cn("flex items-center justify-center gap-1.5", className)}
-      {...props}
-    >
-      {Array.from({ length: dotCount }).map((_, index) => {
-        const isActive = index === (selectedIndex % dotCount)
+    <div className={cn("flex justify-center gap-1.5", className)} {...props}>
+      {Array.from({ length: count }).map((_, index) => {
+        const isActive = selectedIndex % count === index
         return (
           <button
             key={index}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            aria-label={`Go to slide ${index + 1}`}
-            onClick={() => api?.scrollTo(index)}
             className={cn(
-              "h-2 w-2 rounded-full transition-all duration-300",
-              isActive ? "w-6 bg-primary" : "bg-primary/30"
+              "h-2 w-2 rounded-full transition-all",
+              isActive ? "bg-primary w-4" : "bg-primary/20"
             )}
+            onClick={() => api?.scrollTo(index)}
+            aria-label={`Go to slide ${index + 1}`}
           />
         )
       })}

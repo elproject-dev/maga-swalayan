@@ -75,7 +75,7 @@ export function LocationCombobox({
           />
         }
       >
-        <span className={cn("block truncate", !selectedItem && "text-muted-foreground")}>
+        <span className={cn("block truncate", !selectedItem && "text-muted-foreground text-[11px]")}>
           {selectedItem ? toTitleCase(selectedItem.name) : placeholder}
         </span>
         {/* Icons removed per user request */}
@@ -86,6 +86,7 @@ export function LocationCombobox({
             placeholder={searchPlaceholder} 
             value={searchQuery}
             onValueChange={setSearchQuery}
+            className="text-[11px] placeholder:text-[11px]"
           />
           <CommandList>
             {isLoading ? (

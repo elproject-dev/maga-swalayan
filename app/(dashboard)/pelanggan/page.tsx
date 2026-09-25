@@ -19,6 +19,7 @@ import { TablePagination } from "@/components/table-pagination"
 import { supabase } from "@/lib/supabase"
 
 import { toast } from "@/components/ui/toast"
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 const initialCustomers = [
   { id: 1, name: "Budi Santoso", email: "budi.santoso@example.com", phone: "081234567890", points: 1500, isActive: true },
@@ -46,13 +47,13 @@ export default function PelangganPage() {
       .from('pelanggan')
       .select('*')
       .order('id', { ascending: true })
-      
+
     if (data) {
       // Fetch poin_transactions to calculate actual points
       const { data: poinData } = await supabase
         .from('poin_transactions')
         .select('notelp, poin, tipe')
-        
+
       const pointsByPhone: Record<string, number> = {};
       if (poinData) {
         poinData.forEach(trx => {
@@ -128,7 +129,7 @@ export default function PelangganPage() {
   const handleTransferToAdmin = async () => {
     if (selectedRows.length === 0) return
     setIsTransferring(true)
-    
+
     const selectedCustomers = customers.filter(c => selectedRows.includes(c.id))
     const staffData = selectedCustomers.map(c => ({
       name: c.name,
@@ -137,11 +138,11 @@ export default function PelangganPage() {
       phone: c.phone,
       is_active: true
     }))
-    
+
     const { error: insertError } = await supabase
       .from('staf')
       .insert(staffData)
-      
+
     if (!insertError) {
       // Hapus data dari tabel pelanggan setelah berhasil masuk staf
       const { error: deleteError } = await supabase
@@ -160,7 +161,7 @@ export default function PelangganPage() {
     } else {
       toast.add({ title: "Gagal mentransfer ke staf", description: insertError.message, type: "error" })
     }
-    
+
     setIsTransferring(false)
   }
 
@@ -190,10 +191,14 @@ export default function PelangganPage() {
     setCurrentPage(1)
   }
 
+  if (isLoading) {
+    return <LoadingSpinner text="Memuat daftar pelanggan..." />
+  }
+
   return (
     <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Daftar Pelanggan</h1>
+        <h1 className="text-md md:text-xl font-bold tracking-tight">Daftar Pelanggan</h1>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -260,8 +265,8 @@ export default function PelangganPage() {
           </div>
         ) : (
           filteredCustomers.slice((currentPage - 1) * 10, currentPage * 10).map((customer) => (
-            <div 
-              key={customer.id} 
+            <div
+              key={customer.id}
               className="bg-card border shadow-sm p-4 space-y-3 relative"
             >
               {isActionMode && (
@@ -296,8 +301,8 @@ export default function PelangganPage() {
 
       {/* Desktop Table */}
       <div className="hidden md:block rounded-none border bg-card overflow-hidden shadow-sm">
-        <Table>
-          <TableHeader>
+        <Table className="[&_td]:border [&_th]:border">
+          <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead className="w-[50px] text-center">
                 {isActionMode ? (
@@ -364,7 +369,7 @@ export default function PelangganPage() {
           </TableBody>
         </Table>
       </div>
-      
+
       <div className="rounded-none border bg-card overflow-hidden shadow-sm mt-4 md:mt-0 md:border-t-0">
         <TablePagination
           currentPage={currentPage}

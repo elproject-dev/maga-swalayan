@@ -28,6 +28,7 @@ import { TablePagination } from "@/components/table-pagination"
 import { supabase } from "@/lib/supabase"
 
 import { toast } from "@/components/ui/toast"
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 export default function StafPage() {
   const [isMounted, setIsMounted] = useState(false)
@@ -38,7 +39,7 @@ export default function StafPage() {
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   const [isDeleting, setIsDeleting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  
+
   const [isAdmin, setIsAdmin] = useState(false)
 
   const fetchStaff = async () => {
@@ -63,7 +64,7 @@ export default function StafPage() {
   useEffect(() => {
     setIsMounted(true)
     fetchStaff()
-    
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user?.email === "elproject.dev@gmail.com") {
@@ -74,7 +75,7 @@ export default function StafPage() {
           .select('id')
           .eq('email', 'elproject.dev@gmail.com')
           .limit(1)
-        
+
         if (!existingAdmins || existingAdmins.length === 0) {
           await supabase.from('staf').insert([{
             name: 'Admin Utama',
@@ -158,11 +159,15 @@ export default function StafPage() {
     setCurrentPage(1)
   }
 
+  if (isLoading) {
+    return <LoadingSpinner text="Memuat daftar staf..." />
+  }
+
   return (
     <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Daftar Staf</h1>
+          <h1 className="text-md md:text-xl font-bold tracking-tight">Daftar Staf</h1>
         </div>
       </div>
 
@@ -261,8 +266,8 @@ export default function StafPage() {
 
       {/* Desktop Table */}
       <div className="hidden md:block rounded-none border bg-card overflow-hidden shadow-sm">
-        <Table>
-          <TableHeader>
+        <Table className="[&_td]:border [&_th]:border">
+          <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead className="w-[50px] text-center">
                 {isActionMode ? (

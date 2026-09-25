@@ -10,7 +10,7 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 import { PushNotificationManager } from "@/components/push-notification-manager"
 
 
-const outfit = Outfit({subsets:['latin'],variable:'--font-sans'});
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#1f2937",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
