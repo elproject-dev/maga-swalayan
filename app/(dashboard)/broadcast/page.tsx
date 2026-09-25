@@ -114,7 +114,7 @@ export default function BroadcastPage() {
     const toastId = toast.loading("Mengunggah dan mengompres gambar...")
 
     try {
-      const url = await uploadMedia(file, "images")
+      const url = await uploadMedia(file, "images", true) // JPEG untuk FCM
       if (url) {
         toast.success("Gambar berhasil diunggah!", { id: toastId })
         setImageUrl(url)

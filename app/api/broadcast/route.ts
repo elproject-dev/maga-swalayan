@@ -18,7 +18,10 @@ export async function POST(req: Request) {
       },
       webpush: {
         notification: {
-          icon: '/icon-192x192.png'
+          title,
+          body: messageBody,
+          icon: '/icon-192x192.png',
+          ...(imageUrl && { image: imageUrl }), // Gambar di notifikasi browser/PWA
         },
         fcmOptions: {
           link: '/' // Memaksa browser membuka/fokus ke aplikasi PWA saat notifikasi diklik

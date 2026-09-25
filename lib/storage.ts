@@ -3,6 +3,58 @@ import { supabase } from './supabase'
 /**
  * Kompres file gambar menjadi WebP
  */
+/**
+ * Kompres gambar khusus untuk broadcast notifikasi FCM
+ * FCM hanya mendukung JPEG/PNG — BUKAN WebP
+ * Max 600px lebar, kualitas JPEG 0.75 (target <100KB)
+ */
+export const compressImageForBroadcast = (file: File | Blob): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') return reject(new Error('Bukan di browser'))
+
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = (event) => {
+      const img = new Image()
+      img.src = event.target?.result as string
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const MAX_WIDTH = 600
+        let width = img.width
+        let height = img.height
+
+        // Pertahankan aspect ratio, max lebar 600px
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width)
+          width = MAX_WIDTH
+        }
+
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return reject(new Error('Canvas tidak didukung'))
+
+        // Background putih (penting untuk JPEG transparan)
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, width, height)
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Output JPEG — FCM tidak support WebP untuk gambar notifikasi
+        canvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob)
+            else reject(new Error('Kompresi gagal'))
+          },
+          'image/jpeg',
+          0.75
+        )
+      }
+      img.onerror = (err) => reject(err)
+    }
+    reader.onerror = (err) => reject(err)
+  })
+}
+
 export const compressImageToWebP = (file: File | Blob): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined') return reject(new Error('Bukan di browser'))
@@ -56,15 +108,20 @@ export const compressImageToWebP = (file: File | Blob): Promise<Blob> => {
  * Automatically compresses to WebP first!
  * Returns the public URL of the uploaded file
  */
-export async function uploadMedia(file: File, folder: string = 'images'): Promise<string | null> {
+export async function uploadMedia(file: File, folder: string = 'images', forBroadcast: boolean = false): Promise<string | null> {
   let finalBlob: Blob = file
-  let fileExt = 'webp'
-  let contentType = 'image/webp'
-  
+  let fileExt = forBroadcast ? 'jpg' : 'webp'
+  let contentType = forBroadcast ? 'image/jpeg' : 'image/webp'
+
   try {
-    finalBlob = await compressImageToWebP(file)
+    if (forBroadcast) {
+      // Khusus broadcast: pakai JPEG agar FCM support gambar di notifikasi
+      finalBlob = await compressImageForBroadcast(file)
+    } else {
+      finalBlob = await compressImageToWebP(file)
+    }
   } catch (err) {
-    console.warn("Gagal kompresi ke WebP, menggunakan file asli:", err)
+    console.warn('Gagal kompresi, menggunakan file asli:', err)
     fileExt = file.name ? file.name.split('.').pop() || 'jpg' : 'jpg'
     contentType = file.type || 'image/jpeg'
   }
