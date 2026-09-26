@@ -121,12 +121,12 @@ export function BottomNavigation() {
       {/* Overlay backdrop */}
       {isAdminOrStaff && showMore && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden animate-in fade-in duration-200"
           onClick={() => setShowMore(false)}
         />
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border md:hidden z-50 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.15)] rounded-t-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border lg:hidden z-50 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.15)] rounded-t-2xl">
         {/* Expandable "More" panel */}
         {isAdminOrStaff && (
           <div

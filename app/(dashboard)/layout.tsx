@@ -64,7 +64,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <AppSidebar variant="inset" />
         <SidebarInset>
           <SiteHeader />
-          <div className="flex flex-1 flex-col pb-16 md:pb-0">
+          <div className="flex flex-1 flex-col pb-16 lg:pb-0">
             {isChecking ? <LoadingSpinner text="" /> : children}
           </div>
         </SidebarInset>

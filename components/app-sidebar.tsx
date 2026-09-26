@@ -253,7 +253,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               render={<a href="#" />}
             >
               <div className="flex w-full items-center">
-                <img src="/logo-maga2.png" alt="Maga Swalayan Logo" className="h-8 w-auto object-contain" />
+                <img src="/logo-maga2.png" alt="Maga Swalayan Logo" className="h-8 w-auto object-contain dark:brightness-0 dark:invert" />
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
