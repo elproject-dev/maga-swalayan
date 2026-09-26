@@ -100,7 +100,7 @@ export function PWAInstallPrompt() {
 
           <div className="flex flex-col items-center text-center gap-3 mt-2">
             <div className="w-16 h-16 flex items-center justify-center">
-              <img src="/logo.png" alt="Logo Maga Swalayan" className="w-full h-full object-contain drop-shadow-md" />
+              <img src="/logo-maga-tr.png" alt="Logo Maga Swalayan" className="w-full h-full object-contain drop-shadow-md" />
             </div>
             <div>
               <h4 className="text-base font-bold text-white mb-1">

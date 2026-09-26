@@ -355,7 +355,7 @@ export default function MemberPage() {
                 {!memberData.isMember && (
                   <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-yellow-500 p-4 sm:p-6 text-center overflow-hidden">
                     <div className="relative z-10 flex flex-col items-center gap-2 sm:gap-5">
-                      <img src="/logo.png" alt="Maga Swalayan Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain mb-1 sm:mb-2 drop-shadow-md" />
+                      <img src="/logo-maga-tr.png" alt="Maga Swalayan Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain mb-1 sm:mb-2 drop-shadow-md" />
                       <div>
                         <h3 className="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2 leading-tight">Gabung Member Maga</h3>
                         <p className="text-white/90 text-xs sm:text-sm max-w-[250px] sm:max-w-sm mx-auto leading-snug">Dapatkan poin setiap belanja dan nikmati berbagai promo eksklusif khusus untuk Anda.</p>

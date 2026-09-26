@@ -67,14 +67,13 @@ export default function PilihanPage() {
                 />
               </div>
               <div className="p-6">
-                <DialogTitle className="text-2xl font-bold mb-2 leading-tight">
+                <DialogTitle className="text-lg md:text-xl font-bold mb-2 leading-tight">
                   {selectedEvent.title}
                 </DialogTitle>
                 <div className="flex items-center text-sm text-muted-foreground mb-6">
-                  <CalendarDays className="h-4 w-4 mr-2" />
                   {formatDate(selectedEvent.created_at)}
                 </div>
-                <DialogDescription className="text-base text-foreground leading-relaxed whitespace-pre-wrap">
+                <DialogDescription className="text-sm md:text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
                   {selectedEvent.description || "Tidak ada deskripsi rinci untuk event ini."}
                 </DialogDescription>
                 <div className="mt-8 flex justify-end">
@@ -128,7 +127,7 @@ export default function PilihanPage() {
                   </div>
 
                   <h3
-                    className="text-[15px] md:text-md font-bold leading-tight cursor-pointer hover:text-primary transition-colors"
+                    className="text-[15px] md:text-sm font-bold leading-tight cursor-pointer hover:text-primary transition-colors"
                     onClick={() => setSelectedEvent(item)}
                   >
                     {item.title}
@@ -141,7 +140,7 @@ export default function PilihanPage() {
                   <div className="mt-2">
                     <Button
                       variant="link"
-                      className="px-0 text-primary font-semibold h-auto rounded-sm"
+                      className="px-0 text-sm font-semibold h-auto rounded-sm"
                       onClick={() => setSelectedEvent(item)}
                     >
                       Baca selengkapnya &rarr;
@@ -152,7 +151,7 @@ export default function PilihanPage() {
             ))}
 
             {filteredEvents.length === 0 && (
-              <div className="col-span-full py-12 text-center text-muted-foreground bg-muted/30 rounded-sm border border-dashed">
+              <div className="col-span-full py-12 text-center text-sm bg-muted/30 rounded-sm border border-dashed">
                 <p>Tidak ada event yang cocok dengan pencarian Anda.</p>
               </div>
             )}

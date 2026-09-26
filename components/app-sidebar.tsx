@@ -252,7 +252,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
               render={<a href="#" />}
             >
-              <span className="text-base font-semibold">Maga Swalayan</span>
+              <div className="flex w-full items-center">
+                <img src="/logo-maga2.png" alt="Maga Swalayan Logo" className="h-8 w-auto object-contain" />
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

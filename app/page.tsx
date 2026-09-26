@@ -64,21 +64,26 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 relative bg-yellow-500">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-4 relative overflow-hidden">
+      {/* Desktop Background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat hidden sm:block"
+        style={{ backgroundImage: "url('/bg.webp')" }}
+      ></div>
+      {/* Mobile Background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat sm:hidden"
+        style={{ backgroundImage: "url('/bg-mobile.webp')" }}
+      ></div>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0"></div>
+
       <div className="w-full max-w-sm flex flex-col items-center gap-6 relative z-10 mx-auto">
-        <Card className="w-full aspect-square shadow-2xl shadow-black/20 border border-zinc-200 flex flex-col justify-center p-6 bg-white rounded-sm" size="sm">
-          <CardHeader className="text-center pb-6">
+        <Card className="w-full aspect-square shadow-2xl shadow-black/20 border-4 border-white/80 flex flex-col justify-center p-6 bg-white/96 backdrop-blur-none rounded-sm" size="sm">
+          <CardHeader className="text-center">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-30 h-30 flex items-center justify-center">
-                <img src="/logo.svg" alt="Maga Swalayan Logo" className="w-full h-full object-contain" />
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <CardTitle className="!text-3xl font-bold tracking-[2px] text-zinc-600">
-                  MAGA SWALAYAN
-                </CardTitle>
-                <CardDescription className="text-[12px] text-zinc-500">
-                  Teman Setia Belanja Anda Disini
-                </CardDescription>
+              <div className="w-60 h-60 flex items-center justify-center">
+                <img src="/logo-maga1.png" alt="Maga Swalayan Logo" className="w-full h-full object-contain" />
               </div>
             </div>
           </CardHeader>

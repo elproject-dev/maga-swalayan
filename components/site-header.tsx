@@ -119,7 +119,7 @@ export function SiteHeader() {
 
         <div className="flex flex-1 items-center justify-end">
           <div className="flex items-center justify-center">
-            <span className="font-bold text-lg md:text-xl text-black dark:text-white">Maga Swalayan</span>
+            <img src="/logo-maga2.png" alt="Maga Swalayan Logo" className="h-8 md:h-10 w-auto object-contain" />
           </div>
         </div>
       </div>
