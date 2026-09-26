@@ -3,8 +3,8 @@ import { MetadataRoute } from 'next'
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Maga Swalayan',
-    short_name: 'Maga',
-    description: 'Aplikasi Manajemen Maga Swalayan',
+    short_name: 'Maga Swalayan',
+    description: 'Aplikasi Promo Maga Swalayan',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
