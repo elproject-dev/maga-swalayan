@@ -354,7 +354,7 @@ export default function MemberPage() {
                   <div className="flex flex-col items-center gap-5 sm:gap-6 w-full max-w-sm mx-auto mt-4">
                     <img src="/logo-maga2.png" alt="Maga Swalayan Logo" className="h-14 sm:h-16 object-contain drop-shadow-sm dark:brightness-0 dark:invert" />
                     <div className="space-y-2">
-                      <h3 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tracking-tight">Gabung Member</h3>
+                      <h3 className="text-xl sm:text-2xl font-gray/80 font-bold text-gray-700 dark:text-white tracking-tight">Gabung Member</h3>
                       <p className="text-zinc-600 dark:text-zinc-400 text-xs leading-relaxed">
                         Dapatkan poin setiap belanja dan nikmati promo eksklusif khusus untuk Anda yang ikut bergabung menjadi member.
                       </p>

@@ -72,7 +72,7 @@ export default function LokasiPage() {
                   href={store.maps_url || store.mapsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 text-center w-full py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white transition-colors text-sm font-bold rounded-none"
+                  className="mt-3 text-center w-full py-2.5 bg-yellow-500 hover:bg-green-600 text-white transition-colors text-sm font-bold rounded-full border-1 shadow-md"
                 >
                   Petunjuk Arah
                 </a>
