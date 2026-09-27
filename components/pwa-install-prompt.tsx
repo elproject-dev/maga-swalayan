@@ -89,7 +89,7 @@ export function PWAInstallPrompt() {
             damping: 20,
             delay: 1.5
           }}
-          className="fixed top-12 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] sm:left-auto sm:right-6 sm:translate-x-0 sm:w-80 z-[9999] p-5 rounded-2xl bg-zinc-900/95 backdrop-blur-xl border border-white/10 shadow-2xl flex flex-col gap-4"
+          className="fixed top-12 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] sm:left-auto sm:right-6 sm:translate-x-0 sm:w-80 z-[9999] p-5 rounded-lg bg-white/95 backdrop-blur-xl border border-white/10 shadow-2xl flex flex-col gap-4"
         >
           <button
             onClick={handleDismiss}
@@ -99,11 +99,11 @@ export function PWAInstallPrompt() {
           </button>
 
           <div className="flex flex-col items-center text-center gap-3 mt-2">
-            <div className="w-16 h-16 flex items-center justify-center">
-              <img src="/logo-maga-tr.png" alt="Logo Maga Swalayan" className="w-full h-full object-contain drop-shadow-md" />
+            <div className="w-40 h-20 flex items-center justify-center">
+              <img src="/logo-maga2.png" alt="Logo Maga Swalayan" className="w-full h-full object-contain drop-shadow-md" />
             </div>
             <div>
-              <h4 className="text-base font-bold text-white mb-1">
+              <h4 className="text-base font-bold text-primary mb-1">
                 Install Maga Swalayan
               </h4>
               <p className="text-xs text-zinc-400">Install Maga Swalayan ke perangkat</p>
@@ -113,7 +113,7 @@ export function PWAInstallPrompt() {
 
           <button
             onClick={handleInstallClick}
-            className="w-full py-2.5 mt-1 text-sm font-bold bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition-colors shadow-lg shadow-yellow-500/20"
+            className="w-full py-2.5 mt-1 text-sm font-bold bg-yellow-500 text-white rounded-full hover:bg-green-600 transition-colors shadow-lg shadow-yellow-500/20"
           >
             Install Sekarang
           </button>
