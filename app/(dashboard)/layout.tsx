@@ -8,11 +8,10 @@ import { BottomNavigation } from "@/components/bottom-navigation"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/toast"
-import { LoadingSpinner } from "@/components/loading-spinner"
+
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const [isChecking, setIsChecking] = useState(true)
 
 
   useEffect(() => {
@@ -29,8 +28,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       if (!session) {
         router.replace("/")
       } else {
-        // (Cek nomor telepon dihapus)
-        setIsChecking(false)
       }
     }
 
@@ -65,7 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SidebarInset>
           <SiteHeader />
           <div className="flex flex-1 flex-col pb-16 lg:pb-0">
-            {isChecking ? <LoadingSpinner text="" /> : children}
+            {children}
           </div>
         </SidebarInset>
         <BottomNavigation />
