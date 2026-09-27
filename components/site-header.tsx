@@ -60,7 +60,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+    <header className="flex h-(--header-height) shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-2 px-4 lg:gap-2 lg:px-6 ml-1">
         {/* Mobile: Profile avatar dropdown */}
         <div className="lg:hidden -ml-1">
@@ -118,7 +118,7 @@ export function SiteHeader() {
         />
 
         <div className="flex flex-1 items-center justify-end">
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center mt-3">
             <img src="/logo-maga2.png" alt="Maga Swalayan Logo" className="h-8 md:h-10 w-auto object-contain dark:brightness-0 dark:invert" />
           </div>
         </div>

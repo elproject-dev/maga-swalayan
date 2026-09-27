@@ -657,7 +657,7 @@ export default function SettingsPage() {
 
       <div className="flex flex-col gap-4 md:gap-4">
         {/* Top Grid Menu */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {menuItems.map(item => (
             <button
               key={item.id}
@@ -704,37 +704,37 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
 
                     <DialogHeader>
-                      <DialogTitle className="text-xl md:text-2xl">{editingId ? "Edit Promo" : "Tambah Promo Baru"}</DialogTitle>
+                      <DialogTitle className="text-xs md:text-sm font-semibold tracking-tight">{editingId ? "Edit Promo" : "Tambah Promo Baru"}</DialogTitle>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="title" className="text-base">Nama Promo</Label>
+                          <Label htmlFor="title" className="text-xs">Nama Promo</Label>
                           <Input
                             id="title"
                             value={newPromo.title}
                             onChange={(e) => setNewPromo({ ...newPromo, title: e.target.value })}
                             placeholder="Misal: Minyak Goreng"
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="promo" className="text-base">Keterangan</Label>
+                          <Label htmlFor="promo" className="text-xs">Keterangan</Label>
                           <Input
                             id="promo"
                             value={newPromo.promo}
                             onChange={(e) => setNewPromo({ ...newPromo, promo: e.target.value })}
                             placeholder="Misal: Diskon 20%"
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1 mt-2">
-                          <Label htmlFor="promo-src" className="text-base">Upload Gambar</Label>
-                          <div className="relative w-full h-10">
+                          <Label htmlFor="promo-src" className="text-xs">Upload Gambar</Label>
+                          <div className="relative w-full h-8">
                             <Input
                               id="promo-src"
                               type="file"
@@ -759,12 +759,12 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="promo-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-8 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 pl-3 pr-1 py-1 text-xs ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
-                              <span className={`truncate mr-2 font-normal text-base ${fileName ? "text-foreground" : "text-muted-foreground"}`}>
+                              <span className={`truncate mr-2 font-normal text-xs ${fileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {fileName || "Tidak ada yang dipilih"}
                               </span>
-                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                              <span className="bg-primary text-primary-foreground px-2 py-1 rounded-none text-[10px] font-medium shrink-0">
                                 Pilih File
                               </span>
                             </Label>
@@ -772,10 +772,10 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="pt-2">
-                          <Button onClick={handleSavePromo} className="h-10 w-full text-sm" disabled={isSaving}>
+                          <Button onClick={handleSavePromo} className="h-8 w-full text-xs" disabled={isSaving}>
                             {isSaving ? (
                               <>
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Menyimpan...
                               </>
                             ) : (
@@ -786,8 +786,8 @@ export default function SettingsPage() {
                       </div>
 
                       {/* Kolom Kanan: Preview */}
-                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
-                        <div className="w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[4/5] shadow-sm">
+                      <div className="flex flex-col items-center md:items-end justify-start order-1 md:order-2 mb-2 md:mb-0 md:mt-5">
+                        <div className="w-[170px] sm:w-[180px] md:w-[190px] lg:w-[185px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[4/5] shadow-sm">
                           {newPromo.src ? (
                             <img src={newPromo.src} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
                           ) : (
@@ -949,39 +949,39 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 </div>
-                {isPilihanDialogOpen && (
-                  <div className="border bg-card text-card-foreground shadow-sm mb-6 p-4 md:p-6 rounded-none">
-                    <div className="flex flex-col space-y-1.5 mb-4">
-                      <h3 className="text-xl md:text-2xl font-semibold leading-none tracking-tight">
+                <Dialog open={isPilihanDialogOpen} onOpenChange={setIsPilihanDialogOpen}>
+                  <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
+                    <DialogHeader>
+                      <DialogTitle className="text-xs md:text-sm font-semibold tracking-tight">
                         {editingPilihanId ? "Edit Event" : "Tambah Event"}
-                      </h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="title" className="text-base">Nama Event</Label>
+                          <Label htmlFor="title" className="text-xs">Nama Event</Label>
                           <Input
                             id="title"
                             value={newPilihan.title}
                             onChange={(e) => setNewPilihan({ ...newPilihan, title: e.target.value })}
                             placeholder="Misal: Event Heboh"
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="description" className="text-base">Deskripsi Event</Label>
+                          <Label htmlFor="description" className="text-xs">Deskripsi Event</Label>
                           <Textarea
                             id="description"
-                            className="flex min-h-[80px] w-full rounded-none px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex min-h-[60px] w-full rounded-none px-3 py-2 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             value={newPilihan.description}
                             onChange={(e) => setNewPilihan({ ...newPilihan, description: e.target.value })}
-                            rows={3}
+                            rows={2}
                           />
                         </div>
                         <div className="grid w-full gap-1 mt-2">
-                          <Label htmlFor="pilihan-src" className="text-base">Upload Gambar</Label>
-                          <div className="relative w-full h-10">
+                          <Label htmlFor="pilihan-src" className="text-xs">Upload Gambar</Label>
+                          <div className="relative w-full h-8">
                             <Input
                               id="pilihan-src"
                               type="file"
@@ -1006,39 +1006,23 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="pilihan-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-8 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 pl-3 pr-1 py-1 text-xs ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
-                              <span className={`truncate mr-2 font-normal text-base ${pilihanFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                              <span className={`truncate mr-2 font-normal text-xs ${pilihanFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {pilihanFileName || "Tidak ada yang dipilih"}
                               </span>
-                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                              <span className="bg-primary text-primary-foreground px-2 py-1 rounded-none text-[10px] font-medium shrink-0">
                                 Pilih File
                               </span>
                             </Label>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Kolom Kanan: Preview & Actions */}
-                      <div className="flex flex-col w-full order-1 md:order-2 mb-2 md:mb-0 gap-4">
-                        <div className="w-full relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[2/1] shadow-sm">
-                          {newPilihan.src ? (
-                            <img src={newPilihan.src} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm text-center p-4">
-                              Pratinjau Gambar (2:1)
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-2 mt-auto w-full">
-                          <Button variant="outline" onClick={() => setIsPilihanDialogOpen(false)} className="h-10 w-full sm:flex-1 text-sm rounded-none">
-                            Batal
-                          </Button>
-                          <Button onClick={handleSavePilihan} className="h-10 w-full sm:flex-1 text-sm rounded-none" disabled={isSavingPilihan}>
+                        <div className="pt-2">
+                          <Button onClick={handleSavePilihan} className="h-8 w-full text-xs" disabled={isSavingPilihan}>
                             {isSavingPilihan ? (
                               <>
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Menyimpan...
                               </>
                             ) : (
@@ -1047,9 +1031,22 @@ export default function SettingsPage() {
                           </Button>
                         </div>
                       </div>
+
+                      {/* Kolom Kanan: Preview */}
+                      <div className="flex flex-col items-center md:items-end justify-start order-1 md:order-2 mb-2 md:mb-0 md:mt-5">
+                        <div className="w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[2/1] shadow-sm">
+                          {newPilihan.src ? (
+                            <img src={newPilihan.src} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-[10px] sm:text-xs text-center p-2">
+                              Pratinjau Gambar (2:1)
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  </DialogContent>
+                </Dialog>
 
                 {/* Mobile Card List */}
                 <div className="flex flex-col gap-3 md:hidden">
@@ -1202,33 +1199,33 @@ export default function SettingsPage() {
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
 
                     <DialogHeader>
-                      <DialogTitle className="text-md md:text-xl">{editingProdukId ? "Edit Produk" : "Tambah Produk Baru"}</DialogTitle>
+                      <DialogTitle className="text-xs md:text-sm font-semibold tracking-tight">{editingProdukId ? "Edit Produk" : "Tambah Produk Baru"}</DialogTitle>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 pt-4">
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="produk-title" className="text-base">Nama Produk</Label>
+                          <Label htmlFor="produk-title" className="text-xs">Nama Produk</Label>
                           <Input
                             id="produk-title"
                             value={newProduk.title}
                             onChange={(e) => setNewProduk({ ...newProduk, title: e.target.value })}
                             placeholder="Misal: Minyak Goreng"
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="produk-price" className="text-base">Harga</Label>
+                          <Label htmlFor="produk-price" className="text-xs">Harga</Label>
                           <Input
                             id="produk-price"
                             value={newProduk.price}
                             onChange={(e) => setNewProduk({ ...newProduk, price: formatRupiah(e.target.value) })}
                             placeholder="Misal: Rp 15.000"
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1 mt-2">
-                          <Label htmlFor="produk-src" className="text-base">Upload Gambar</Label>
-                          <div className="relative w-full h-10">
+                          <Label htmlFor="produk-src" className="text-xs">Upload Gambar</Label>
+                          <div className="relative w-full h-8">
                             <Input
                               id="produk-src"
                               type="file"
@@ -1253,12 +1250,12 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="produk-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-8 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 pl-3 pr-1 py-1 text-xs ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
-                              <span className={`truncate mr-2 font-normal text-base ${produkFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                              <span className={`truncate mr-2 font-normal text-xs ${produkFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {produkFileName || "Tidak ada yang dipilih"}
                               </span>
-                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                              <span className="bg-primary text-primary-foreground px-2 py-1 rounded-none text-[10px] font-medium shrink-0">
                                 Pilih File
                               </span>
                             </Label>
@@ -1266,10 +1263,10 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="pt-2">
-                          <Button onClick={handleSaveProduk} className="h-10 w-full text-sm" disabled={isSavingProduk}>
+                          <Button onClick={handleSaveProduk} className="h-8 w-full text-xs" disabled={isSavingProduk}>
                             {isSavingProduk ? (
                               <>
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Menyimpan...
                               </>
                             ) : (
@@ -1279,12 +1276,12 @@ export default function SettingsPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
-                        <div className="w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[4/5] shadow-sm">
+                      <div className="flex flex-col items-center md:items-end justify-start order-1 md:order-2 mb-2 md:mb-0 md:mt-5">
+                        <div className="w-[170px] sm:w-[180px] md:w-[190px] lg:w-[185px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[4/5] shadow-sm">
                           {newProduk.src ? (
                             <img src={newProduk.src} alt="Preview" className="w-full h-full object-cover absolute inset-0" />
                           ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm text-center p-4">
+                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-[10px] sm:text-xs text-center p-2">
                               Pratinjau Gambar (4:5)
                             </div>
                           )}
@@ -1443,24 +1440,24 @@ export default function SettingsPage() {
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
 
                     <DialogHeader>
-                      <DialogTitle className="text-md md:text-xl">{editingBannerId ? "Edit Banner" : "Tambah Banner Baru"}</DialogTitle>
+                      <DialogTitle className="text-xs md:text-sm font-semibold tracking-tight">{editingBannerId ? "Edit Banner" : "Tambah Banner Baru"}</DialogTitle>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 pt-4">
                       {/* Kolom Kiri: Form Input */}
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="banner-title" className="text-base">Nama / Judul Banner</Label>
+                          <Label htmlFor="banner-title" className="text-xs">Nama / Judul Banner</Label>
                           <Input
                             id="banner-title"
                             value={newBanner.title}
                             onChange={(e) => setNewBanner({ ...newBanner, title: e.target.value })}
                             placeholder="Misal: Promo Akhir Tahun"
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1 mt-2">
-                          <Label htmlFor="banner-src" className="text-base">Upload Gambar Banner</Label>
-                          <div className="relative w-full h-10">
+                          <Label htmlFor="banner-src" className="text-xs">Upload Gambar Banner</Label>
+                          <div className="relative w-full h-8">
                             <Input
                               id="banner-src"
                               type="file"
@@ -1485,12 +1482,12 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="banner-src"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-8 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 pl-3 pr-1 py-1 text-xs ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
-                              <span className={`truncate mr-2 font-normal text-base ${bannerFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                              <span className={`truncate mr-2 font-normal text-xs ${bannerFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {bannerFileName || "Tidak ada yang dipilih"}
                               </span>
-                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                              <span className="bg-primary text-primary-foreground px-2 py-1 rounded-none text-[10px] font-medium shrink-0">
                                 Pilih File
                               </span>
                             </Label>
@@ -1498,10 +1495,10 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="pt-2">
-                          <Button onClick={handleSaveBanner} className="h-10 w-full text-sm" disabled={isSavingBanner}>
+                          <Button onClick={handleSaveBanner} className="h-8 w-full text-xs" disabled={isSavingBanner}>
                             {isSavingBanner ? (
                               <>
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Menyimpan...
                               </>
                             ) : (
@@ -1512,12 +1509,12 @@ export default function SettingsPage() {
                       </div>
 
                       {/* Kolom Kanan: Preview */}
-                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
-                        <div className="w-full relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[2/1] shadow-sm">
+                      <div className="flex flex-col items-center md:items-end justify-start order-1 md:order-2 mb-2 md:mb-0 md:mt-5">
+                        <div className="w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-[2/1] shadow-sm">
                           {newBanner.src ? (
                             <img src={newBanner.src} alt="Preview Banner" className="w-full h-full object-cover absolute inset-0" />
                           ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm text-center p-4">
+                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-[10px] sm:text-xs text-center p-2">
                               Pratinjau Banner Canva (2:1 / 1000x500mm)
                             </div>
                           )}
@@ -1679,63 +1676,63 @@ export default function SettingsPage() {
                 <Dialog open={isLokasiDialogOpen} onOpenChange={setIsLokasiDialogOpen}>
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-3xl lg:max-w-4xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
                     <DialogHeader>
-                      <DialogTitle className="text-xl md:text-2xl">{editingLokasiId ? "Edit Lokasi" : "Tambah Lokasi Baru"}</DialogTitle>
+                      <DialogTitle className="text-xs md:text-sm font-semibold tracking-tight">{editingLokasiId ? "Edit Lokasi" : "Tambah Lokasi Baru"}</DialogTitle>
                     </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 pt-4">
                       <div className="flex flex-col gap-4 order-2 md:order-1">
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="lokasi-name" className="text-base">Nama Cabang</Label>
+                          <Label htmlFor="lokasi-name" className="text-xs">Nama Cabang</Label>
                           <Input
                             id="lokasi-name"
                             value={newLokasi.name}
                             onChange={(e) => setNewLokasi({ ...newLokasi, name: e.target.value })}
                             placeholder="Misal: Maga Swalayan Pusat"
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="lokasi-address" className="text-base">Alamat</Label>
+                          <Label htmlFor="lokasi-address" className="text-xs">Alamat</Label>
                           <Input
                             id="lokasi-address"
                             value={newLokasi.address}
                             onChange={(e) => setNewLokasi({ ...newLokasi, address: e.target.value })}
                             placeholder="Misal: Jl. Magelang Km 5..."
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="lokasi-hours" className="text-base">Jam Buka</Label>
+                          <Label htmlFor="lokasi-hours" className="text-xs">Jam Buka</Label>
                           <Input
                             id="lokasi-hours"
                             value={newLokasi.hours}
                             onChange={(e) => setNewLokasi({ ...newLokasi, hours: e.target.value })}
                             placeholder="Misal: 08:00 - 22:00"
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="lokasi-phone" className="text-base">Telepon</Label>
+                          <Label htmlFor="lokasi-phone" className="text-xs">Telepon</Label>
                           <Input
                             id="lokasi-phone"
                             value={newLokasi.phone}
                             onChange={(e) => setNewLokasi({ ...newLokasi, phone: e.target.value })}
                             placeholder="Misal: 0274-123456"
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1">
-                          <Label htmlFor="lokasi-maps_url" className="text-base">Link Google Maps</Label>
+                          <Label htmlFor="lokasi-maps_url" className="text-xs">Link Google Maps</Label>
                           <Input
                             id="lokasi-maps_url"
                             value={newLokasi.maps_url}
                             onChange={(e) => setNewLokasi({ ...newLokasi, maps_url: e.target.value })}
                             placeholder="Misal: https://maps.google.com/..."
-                            className="h-10"
+                            className="h-8 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1 mt-2">
-                          <Label htmlFor="lokasi-image" className="text-base">Upload Gambar Lokasi</Label>
-                          <div className="relative w-full h-10">
+                          <Label htmlFor="lokasi-image" className="text-xs">Upload Gambar Lokasi</Label>
+                          <div className="relative w-full h-8">
                             <Input
                               id="lokasi-image"
                               type="file"
@@ -1760,12 +1757,12 @@ export default function SettingsPage() {
                             />
                             <Label
                               htmlFor="lokasi-image"
-                              className="cursor-pointer flex h-10 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 px-4 py-2 text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                              className="cursor-pointer flex h-8 w-full items-center justify-between rounded-none border border-input bg-background dark:bg-muted/20 pl-3 pr-1 py-1 text-xs ring-offset-background hover:bg-accent hover:text-accent-foreground transition-colors"
                             >
-                              <span className={`truncate mr-2 font-normal text-base ${lokasiFileName ? "text-foreground" : "text-muted-foreground"}`}>
+                              <span className={`truncate mr-2 font-normal text-xs ${lokasiFileName ? "text-foreground" : "text-muted-foreground"}`}>
                                 {lokasiFileName || "Tidak ada yang dipilih"}
                               </span>
-                              <span className="bg-primary text-primary-foreground px-2.5 py-1 rounded-none text-xs font-medium shrink-0">
+                              <span className="bg-primary text-primary-foreground px-2 py-1 rounded-none text-[10px] font-medium shrink-0">
                                 Pilih File
                               </span>
                             </Label>
@@ -1773,10 +1770,10 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="pt-2">
-                          <Button onClick={handleSaveLokasi} className="h-10 w-full text-sm" disabled={isSavingLokasi}>
+                          <Button onClick={handleSaveLokasi} className="h-8 w-full text-xs" disabled={isSavingLokasi}>
                             {isSavingLokasi ? (
                               <>
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Menyimpan...
                               </>
                             ) : (
@@ -1786,12 +1783,12 @@ export default function SettingsPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center md:items-end justify-start w-full order-1 md:order-2 mb-2 md:mb-0">
-                        <div className="w-full relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-video shadow-sm">
+                      <div className="flex flex-col items-center md:items-end justify-start order-1 md:order-2 mb-2 md:mb-0 md:mt-5">
+                        <div className="w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px] relative rounded-none border border-input overflow-hidden bg-muted/30 aspect-video shadow-sm">
                           {newLokasi.image ? (
                             <img src={newLokasi.image} alt="Preview Lokasi" className="w-full h-full object-cover absolute inset-0" />
                           ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm text-center p-4">
+                            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-[10px] sm:text-xs text-center p-2">
                               Pratinjau Gambar Lokasi
                             </div>
                           )}
@@ -1928,42 +1925,42 @@ export default function SettingsPage() {
                 <div className="rounded-none border bg-card p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   {/* Master toggle */}
                   <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-4">
-                      <div>
-                        <p className="text-sm font-semibold leading-tight">{rtConfig.is_enabled ? 'Aktif' : 'Nonaktif'}</p>
-                        <p className="text-[11px] text-muted-foreground">Tampilkan running text di beranda</p>
-                      </div>
-                      <Switch
-                        checked={rtConfig.is_enabled}
-                        onCheckedChange={async (v) => {
-                          setRtConfig({ ...rtConfig, is_enabled: v })
-                          const { error } = await supabase.from('running_text_config').upsert({ id: 1, is_enabled: v, speed: rtConfig.speed, updated_at: new Date().toISOString() })
-                          if (error) toast.add({ title: 'Gagal memperbarui', description: error.message, type: 'error' })
-                        }}
-                      />
+                    <div>
+                      <p className="text-sm font-semibold leading-tight">{rtConfig.is_enabled ? 'Aktif' : 'Nonaktif'}</p>
+                      <p className="text-[11px] text-muted-foreground">Tampilkan running text di beranda</p>
                     </div>
+                    <Switch
+                      checked={rtConfig.is_enabled}
+                      onCheckedChange={async (v) => {
+                        setRtConfig({ ...rtConfig, is_enabled: v })
+                        const { error } = await supabase.from('running_text_config').upsert({ id: 1, is_enabled: v, speed: rtConfig.speed, updated_at: new Date().toISOString() })
+                        if (error) toast.add({ title: 'Gagal memperbarui', description: error.message, type: 'error' })
+                      }}
+                    />
+                  </div>
 
-                    {/* Speed selector */}
-                    <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 pt-2 sm:pt-0 border-t sm:border-0 border-border">
-                      <Label className="text-sm whitespace-nowrap">Kecepatan</Label>
-                      <Select
-                        value={rtConfig.speed}
-                        onValueChange={async (newSpeed) => {
-                          if (!newSpeed) return
-                          setRtConfig({ ...rtConfig, speed: newSpeed })
-                          const { error } = await supabase.from('running_text_config').upsert({ id: 1, is_enabled: rtConfig.is_enabled, speed: newSpeed, updated_at: new Date().toISOString() })
-                          if (error) toast.add({ title: 'Gagal memperbarui kecepatan', description: error.message, type: 'error' })
-                        }}
-                      >
-                        <SelectTrigger className="h-8 w-[100px] text-xs">
-                          <SelectValue placeholder="Pilih Kecepatan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="slow">Lambat</SelectItem>
-                          <SelectItem value="normal">Normal</SelectItem>
-                          <SelectItem value="fast">Cepat</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  {/* Speed selector */}
+                  <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 pt-2 sm:pt-0 border-t sm:border-0 border-border">
+                    <Label className="text-sm whitespace-nowrap">Kecepatan</Label>
+                    <Select
+                      value={rtConfig.speed}
+                      onValueChange={async (newSpeed) => {
+                        if (!newSpeed) return
+                        setRtConfig({ ...rtConfig, speed: newSpeed })
+                        const { error } = await supabase.from('running_text_config').upsert({ id: 1, is_enabled: rtConfig.is_enabled, speed: newSpeed, updated_at: new Date().toISOString() })
+                        if (error) toast.add({ title: 'Gagal memperbarui kecepatan', description: error.message, type: 'error' })
+                      }}
+                    >
+                      <SelectTrigger className="h-8 w-[100px] text-xs">
+                        <SelectValue placeholder="Pilih Kecepatan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="slow">Lambat</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="fast">Cepat</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
                 </div>
 
@@ -2020,7 +2017,7 @@ export default function SettingsPage() {
                         ) : (
                           runningTexts.map((rt, idx) => (
                             <TableRow key={rt.id}>
-                              <TableCell 
+                              <TableCell
                                 className="text-center text-muted-foreground font-mono cursor-pointer hover:bg-accent/50 transition-colors"
                                 onClick={() => {
                                   setEditingRunningTextId(rt.id)
@@ -2030,7 +2027,7 @@ export default function SettingsPage() {
                               >
                                 {idx + 1}
                               </TableCell>
-                              <TableCell 
+                              <TableCell
                                 className="font-medium cursor-pointer hover:bg-accent/50 transition-colors"
                                 onClick={() => {
                                   setEditingRunningTextId(rt.id)
@@ -2067,8 +2064,8 @@ export default function SettingsPage() {
                     ) : (
                       runningTexts.map((rt, idx) => (
                         <div key={rt.id} className="flex flex-col gap-2 p-3 border rounded-sm bg-card shadow-sm">
-                          <div 
-                            className="flex-1 cursor-pointer" 
+                          <div
+                            className="flex-1 cursor-pointer"
                             onClick={() => {
                               setEditingRunningTextId(rt.id)
                               setNewRunningText({ text: rt.text, is_active: rt.is_active })

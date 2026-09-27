@@ -95,7 +95,7 @@ function PromoGallery({ promos }: { promos: any[] }) {
 
             <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 flex flex-col pointer-events-none">
               <div className="w-full border-t border-white/30 pt-3 flex flex-col gap-1">
-                <h3 className="text-white/90 text-[10px] md:text-[10px] font-normal line-clamp-1 drop-shadow-sm">
+                <h3 className="text-white/90 text-[10px] md:text-[10px] font-bold line-clamp-1 drop-shadow-sm">
                   {item.title}
                 </h3>
                 <p className="text-yellow-400 text-[10px] md:text-[10px] font-bold drop-shadow-md">

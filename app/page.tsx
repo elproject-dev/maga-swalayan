@@ -22,16 +22,54 @@ export default function LoginPage() {
   const router = useRouter()
 
   React.useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+    let mounted = true
 
-      if (session?.user) {
-        router.push("/home")
-      } else {
-        setIsCheckingSession(false)
+    const checkUser = async () => {
+      // Fast-path: check if any supabase auth token exists in localStorage
+      if (typeof window !== "undefined") {
+        try {
+          const hasToken = Object.keys(window.localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
+          if (!hasToken) {
+            setIsCheckingSession(false)
+            return
+          }
+        } catch (e) {
+          // ignore localStorage access errors (e.g. strict privacy mode)
+        }
+      }
+
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        if (!mounted) return
+
+        if (error) {
+          console.error("Supabase auth error:", error)
+          setIsCheckingSession(false)
+          return
+        }
+
+        if (session?.user) {
+          router.replace("/home")
+        } else {
+          setIsCheckingSession(false)
+        }
+      } catch (err) {
+        console.error("Session check failed:", err)
+        if (mounted) setIsCheckingSession(false)
       }
     }
+
     checkUser()
+
+    // Fallback: If getSession hangs for more than 1 second, abort loading state
+    const timer = setTimeout(() => {
+      if (mounted) setIsCheckingSession(false)
+    }, 1000)
+
+    return () => {
+      mounted = false
+      clearTimeout(timer)
+    }
   }, [router])
 
 
