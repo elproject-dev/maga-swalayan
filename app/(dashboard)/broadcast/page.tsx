@@ -179,9 +179,9 @@ export default function BroadcastPage() {
             <span className="text-xs font-semibold">Template Cepat</span>
             <span className="text-xs text-muted-foreground hidden sm:inline">— Klik untuk mengisi form secara otomatis</span>
           </div>
-          <Button size="sm" variant="outline" className="h-8 gap-1 text-xs" onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="h-3 w-3" />
-            Tambah Template
+          <Button size="sm" variant="outline" className="h-8 gap-1 text-xs px-2 sm:px-3" onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 sm:h-3 sm:w-3" />
+            <span className="hidden sm:inline">Tambah Template</span>
           </Button>
         </div>
 

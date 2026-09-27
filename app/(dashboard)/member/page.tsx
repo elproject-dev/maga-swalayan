@@ -301,7 +301,7 @@ export default function MemberPage() {
             {/* Bagian Kiri/Tengah: Kartu Premium */}
             <div className={cn("flex flex-col gap-6", !showInfoAkun ? "w-full max-w-2xl" : "lg:col-span-7")}>
               {memberData.isMember ? (
-                <div className="relative overflow-hidden p-5 sm:p-8 text-white shadow-2xl transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 bg-gradient-to-br from-zinc-900 via-zinc-800 to-black ring-1 ring-white/10 rounded-2xl">
+                <div className="relative overflow-hidden p-5 sm:p-8 text-white shadow-2xl transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 bg-gradient-to-br from-zinc-900 via-zinc-800 to-black ring-1 ring-white/10 rounded-sm">
                   {/* Efek Cahaya / Glassmorphism */}
                   <div className="absolute top-0 right-0 -mt-16 -mr-16 bg-gradient-to-b from-white/10 to-transparent w-64 h-64 rounded-full blur-3xl pointer-events-none" />
                   <div className="absolute bottom-0 left-0 -mb-16 -ml-16 bg-gradient-to-t from-primary/20 to-transparent w-64 h-64 rounded-full blur-3xl pointer-events-none" />
