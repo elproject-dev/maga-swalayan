@@ -8,6 +8,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselDots } from "@/compone
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { supabase } from "@/lib/supabase"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { RunningText } from "@/components/running-text"
 
 const defaultPromoBanners = [
   {
@@ -56,7 +57,7 @@ function CarouselDemo({ banners }: { banners: any[] }) {
               />
               {banner.title && (
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3 md:p-4 rounded-sm">
-                  <h2 className="text-white text-[10px] md:text-[10px] font-semibold tracking-wide drop-shadow-md">
+                  <h2 className="text-white/90 text-[10px] md:text-[10px] font-normal tracking-wide drop-shadow-sm">
                     {banner.title}
                   </h2>
                 </div>
@@ -94,7 +95,7 @@ function PromoGallery({ promos }: { promos: any[] }) {
 
             <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 flex flex-col pointer-events-none">
               <div className="w-full border-t border-white/30 pt-3 flex flex-col gap-1">
-                <h3 className="text-white text-[10px] md:text-[10px] font-semibold line-clamp-1 drop-shadow-md">
+                <h3 className="text-white/90 text-[10px] md:text-[10px] font-normal line-clamp-1 drop-shadow-sm">
                   {item.title}
                 </h3>
                 <p className="text-yellow-400 text-[10px] md:text-[10px] font-bold drop-shadow-md">
@@ -149,6 +150,9 @@ export default function Page() {
       <div className="flex flex-col gap-4 py-4 md:gap-4 md:py-6">
         <div className="px-4 lg:px-6">
           <CarouselDemo banners={banners} />
+        </div>
+        <div className="px-4 lg:px-6">
+          <RunningText />
         </div>
         <div className="px-4 lg:px-6 pb-6">
           <div className="mb-4 flex items-center justify-between">

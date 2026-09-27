@@ -1,6 +1,6 @@
 "use client"
 import { toast } from "@/components/ui/toast"
-import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search, Plus, MapPin, X } from "lucide-react"
+import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search, Plus, MapPin, X, AlignLeft, Store, Bell, Star, Megaphone } from "lucide-react"
 import { uploadMedia } from "@/lib/storage"
 import { cn } from "@/lib/utils"
 import {
@@ -23,6 +23,13 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { TablePagination } from "@/components/table-pagination"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
@@ -69,6 +76,7 @@ const menuItems = [
   { id: 'produk', label: 'Produk', icon: Package },
   { id: 'banner', label: 'Banner', icon: ImageIcon },
   { id: 'lokasi', label: 'Kelola Lokasi', icon: MapPin },
+  { id: 'running_text', label: 'Running Text', icon: AlignLeft },
 ]
 
 // Image upload now uses Supabase Storage bucket 'media'
@@ -133,6 +141,23 @@ export default function SettingsPage() {
   const [isSavingLokasi, setIsSavingLokasi] = useState(false)
   const [selectedLokasiRows, setSelectedLokasiRows] = useState<string[]>([])
   const [newLokasi, setNewLokasi] = useState({ name: '', address: '', hours: '', phone: '', maps_url: '', image: '' })
+
+  // Running Text states
+  const [runningTexts, setRunningTexts] = useState<any[]>([])
+  const [rtConfig, setRtConfig] = useState<{ is_enabled: boolean; speed: string }>({ is_enabled: true, speed: 'normal' })
+  const [isSavingRtConfig, setIsSavingRtConfig] = useState(false)
+  const [isRunningTextDialogOpen, setIsRunningTextDialogOpen] = useState(false)
+  const [editingRunningTextId, setEditingRunningTextId] = useState<number | null>(null)
+  const [isSavingRunningText, setIsSavingRunningText] = useState(false)
+  const [newRunningText, setNewRunningText] = useState({ text: '', is_active: true })
+
+  const RUNNING_TEXT_TEMPLATES = [
+    { label: '🛒 Selamat Datang', text: 'Selamat datang di Maga Swalayan! Nikmati berbagai promo menarik hari ini.' },
+    { label: '🎉 Promo Member', text: 'Member baru mendapatkan poin ekstra untuk setiap transaksi pertama!' },
+    { label: '⚡ Diskon Hari Ini', text: 'Diskon spesial hari ini! Belanja minimum Rp 100.000 gratis ongkos kirim.' },
+    { label: '🕐 Jam Operasional', text: 'Kami buka setiap hari pukul 07.00 – 22.00 WIB. Terima kasih telah berbelanja bersama kami!' },
+    { label: '🌟 Promo Akhir Pekan', text: 'Promo akhir pekan! Dapatkan diskon hingga 50% untuk produk pilihan setiap Sabtu & Minggu.' },
+  ]
 
   const filteredLokasis = lokasis.filter(l => l.name?.toLowerCase().includes(searchLokasiQuery.toLowerCase()))
   const isAllLokasiSelected = selectedLokasiRows.length === filteredLokasis.length && filteredLokasis.length > 0
@@ -260,6 +285,12 @@ export default function SettingsPage() {
 
     const { data: bannerData } = await supabase.from('banner').select('*').order('id', { ascending: true })
     if (bannerData) setBanners(bannerData)
+
+    const { data: runningTextData } = await supabase.from('running_text').select('*').order('created_at', { ascending: true })
+    if (runningTextData) setRunningTexts(runningTextData)
+
+    const { data: rtCfg } = await supabase.from('running_text_config').select('*').eq('id', 1).single()
+    if (rtCfg) setRtConfig({ is_enabled: rtCfg.is_enabled, speed: rtCfg.speed })
     setIsLoading(false)
   }
 
@@ -1887,6 +1918,263 @@ export default function SettingsPage() {
               </div>
             )}
 
+            {activeMenu === 'running_text' && (
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <h2 className="text-md md:text-xl font-semibold tracking-tight">Running Text</h2>
+                </div>
+
+                {/* ── GLOBAL CONFIG CARD ── */}
+                <div className="rounded-none border bg-card p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  {/* Master toggle */}
+                  <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-4">
+                      <div>
+                        <p className="text-sm font-semibold leading-tight">{rtConfig.is_enabled ? 'Aktif' : 'Nonaktif'}</p>
+                        <p className="text-[11px] text-muted-foreground">Tampilkan running text di beranda</p>
+                      </div>
+                      <Switch
+                        checked={rtConfig.is_enabled}
+                        onCheckedChange={async (v) => {
+                          setRtConfig({ ...rtConfig, is_enabled: v })
+                          const { error } = await supabase.from('running_text_config').upsert({ id: 1, is_enabled: v, speed: rtConfig.speed, updated_at: new Date().toISOString() })
+                          if (error) toast.add({ title: 'Gagal memperbarui', description: error.message, type: 'error' })
+                        }}
+                      />
+                    </div>
+
+                    {/* Speed selector */}
+                    <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 pt-2 sm:pt-0 border-t sm:border-0 border-border">
+                      <Label className="text-sm whitespace-nowrap">Kecepatan</Label>
+                      <Select
+                        value={rtConfig.speed}
+                        onValueChange={async (newSpeed) => {
+                          if (!newSpeed) return
+                          setRtConfig({ ...rtConfig, speed: newSpeed })
+                          const { error } = await supabase.from('running_text_config').upsert({ id: 1, is_enabled: rtConfig.is_enabled, speed: newSpeed, updated_at: new Date().toISOString() })
+                          if (error) toast.add({ title: 'Gagal memperbarui kecepatan', description: error.message, type: 'error' })
+                        }}
+                      >
+                        <SelectTrigger className="h-8 w-[100px] text-xs">
+                          <SelectValue placeholder="Pilih Kecepatan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="slow">Lambat</SelectItem>
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="fast">Cepat</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                </div>
+
+                {/* ── TEMPLATE CEPAT ── */}
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Template Cepat — Klik untuk tambahkan</p>
+                  <div className="flex flex-wrap gap-2">
+                    {RUNNING_TEXT_TEMPLATES.map((tpl, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setEditingRunningTextId(null)
+                          setNewRunningText({ text: tpl.text, is_active: true })
+                          setIsRunningTextDialogOpen(true)
+                        }}
+                        className="px-3 py-1.5 text-xs rounded-sm border border-dashed border-border bg-muted hover:bg-yellow-50 hover:border-yellow-400 hover:text-yellow-700 dark:hover:bg-yellow-900/20 dark:hover:border-yellow-600 dark:hover:text-yellow-300 transition-colors font-medium"
+                      >
+                        {tpl.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── DAFTAR TEKS ── */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Daftar Teks ({runningTexts.length})</p>
+                    <Button size="sm" variant="outline" onClick={() => {
+                      setEditingRunningTextId(null)
+                      setNewRunningText({ text: '', is_active: true })
+                      setIsRunningTextDialogOpen(true)
+                    }}>
+                      <Plus className="h-3.5 w-3.5 mr-1" /> Tambah Teks
+                    </Button>
+                  </div>
+
+                  {/* Desktop Table */}
+                  <div className="hidden md:block rounded-none border bg-card overflow-hidden">
+                    <Table className="[&_td]:border [&_th]:border">
+                      <TableHeader className="bg-muted/50">
+                        <TableRow>
+                          <TableHead className="w-[50px] text-center">No</TableHead>
+                          <TableHead>Teks Berjalan</TableHead>
+                          <TableHead className="text-center w-[100px]">Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {runningTexts.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} className="h-24 text-center text-sm text-muted-foreground">
+                              Belum ada teks. Pilih template di atas atau klik <b>Tambah Teks</b>.
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          runningTexts.map((rt, idx) => (
+                            <TableRow key={rt.id}>
+                              <TableCell 
+                                className="text-center text-muted-foreground font-mono cursor-pointer hover:bg-accent/50 transition-colors"
+                                onClick={() => {
+                                  setEditingRunningTextId(rt.id)
+                                  setNewRunningText({ text: rt.text, is_active: rt.is_active })
+                                  setIsRunningTextDialogOpen(true)
+                                }}
+                              >
+                                {idx + 1}
+                              </TableCell>
+                              <TableCell 
+                                className="font-medium cursor-pointer hover:bg-accent/50 transition-colors"
+                                onClick={() => {
+                                  setEditingRunningTextId(rt.id)
+                                  setNewRunningText({ text: rt.text, is_active: rt.is_active })
+                                  setIsRunningTextDialogOpen(true)
+                                }}
+                              >
+                                <p className={cn("text-sm min-w-0", !rt.is_active && "text-muted-foreground line-through")}>
+                                  {rt.text}
+                                </p>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Switch
+                                  checked={rt.is_active}
+                                  onCheckedChange={async (checked) => {
+                                    await supabase.from('running_text').update({ is_active: checked }).eq('id', rt.id)
+                                    setRunningTexts(runningTexts.map(r => r.id === rt.id ? { ...r, is_active: checked } : r))
+                                  }}
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Mobile List */}
+                  <div className="md:hidden flex flex-col gap-3">
+                    {runningTexts.length === 0 ? (
+                      <div className="py-10 text-center text-sm text-muted-foreground border border-dashed rounded-none">
+                        Belum ada teks. Pilih template di atas atau klik <b>Tambah Teks</b>.
+                      </div>
+                    ) : (
+                      runningTexts.map((rt, idx) => (
+                        <div key={rt.id} className="flex flex-col gap-2 p-3 border rounded-sm bg-card shadow-sm">
+                          <div 
+                            className="flex-1 cursor-pointer" 
+                            onClick={() => {
+                              setEditingRunningTextId(rt.id)
+                              setNewRunningText({ text: rt.text, is_active: rt.is_active })
+                              setIsRunningTextDialogOpen(true)
+                            }}
+                          >
+                            <div className="flex items-start gap-2">
+                              <span className="text-xs font-mono text-muted-foreground mt-0.5">{idx + 1}.</span>
+                              <p className={cn("text-sm leading-snug", !rt.is_active && "text-muted-foreground line-through")}>
+                                {rt.text}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between border-t border-border pt-2 mt-1">
+                            <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">Status</span>
+                            <Switch
+                              checked={rt.is_active}
+                              onCheckedChange={async (checked) => {
+                                await supabase.from('running_text').update({ is_active: checked }).eq('id', rt.id)
+                                setRunningTexts(runningTexts.map(r => r.id === rt.id ? { ...r, is_active: checked } : r))
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* ── DIALOG TAMBAH/EDIT ── */}
+                <Dialog open={isRunningTextDialogOpen} onOpenChange={setIsRunningTextDialogOpen}>
+                  <DialogContent className="w-[95vw] sm:max-w-md p-4 md:p-5 rounded-none">
+                    <DialogHeader>
+                      <DialogTitle className="text-sm">{editingRunningTextId ? 'Edit Teks' : 'Tambah Teks Baru'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4 pt-2">
+                      <div className="grid gap-1.5">
+                        <Label>Teks Berjalan</Label>
+                        <Textarea
+                          value={newRunningText.text}
+                          onChange={(e) => setNewRunningText({ ...newRunningText, text: e.target.value })}
+                          placeholder="Masukkan teks yang akan berjalan di beranda..."
+                          rows={3}
+                          className="resize-none"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Switch
+                          checked={newRunningText.is_active}
+                          onCheckedChange={(v) => setNewRunningText({ ...newRunningText, is_active: v })}
+                        />
+                        <Label className="cursor-pointer">{newRunningText.is_active ? 'Aktif' : 'Nonaktif'}</Label>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        {editingRunningTextId && (
+                          <Button
+                            variant="destructive"
+                            onClick={async () => {
+                              await supabase.from('running_text').delete().eq('id', editingRunningTextId)
+                              setRunningTexts(runningTexts.filter(r => r.id !== editingRunningTextId))
+                              setIsRunningTextDialogOpen(false)
+                              toast.add({ title: 'Teks dihapus', type: 'success' })
+                            }}
+                            className="shrink-0"
+                          >
+                            Hapus
+                          </Button>
+                        )}
+                        <Button
+                          onClick={async () => {
+                            if (!newRunningText.text.trim()) return
+                            setIsSavingRunningText(true)
+                            try {
+                              const payload = { text: newRunningText.text.trim(), is_active: newRunningText.is_active }
+                              if (editingRunningTextId) {
+                                const { error } = await supabase.from('running_text').update(payload).eq('id', editingRunningTextId)
+                                if (error) throw error
+                                setRunningTexts(runningTexts.map(r => r.id === editingRunningTextId ? { ...r, ...payload } : r))
+                                toast.add({ title: 'Teks diperbarui', type: 'success' })
+                              } else {
+                                const { data, error } = await supabase.from('running_text').insert([payload]).select()
+                                if (error) throw error
+                                if (data) setRunningTexts([...runningTexts, ...data])
+                                toast.add({ title: 'Teks berhasil ditambahkan', type: 'success' })
+                              }
+                              setIsRunningTextDialogOpen(false)
+                            } catch (err: any) {
+                              toast.add({ title: 'Gagal menyimpan', description: err.message, type: 'error' })
+                            } finally {
+                              setIsSavingRunningText(false)
+                            }
+                          }}
+                          disabled={isSavingRunningText || !newRunningText.text.trim()}
+                          className="flex-1"
+                        >
+                          {isSavingRunningText ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                          Simpan
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+
+
 
 
           </div>
@@ -1896,4 +2184,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-

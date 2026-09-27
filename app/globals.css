@@ -144,3 +144,9 @@ body {
   scrollbar-width: none;
   /* Firefox */
 }
+
+/* Running text marquee animation — seamless loop */
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
