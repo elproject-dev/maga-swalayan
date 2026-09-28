@@ -1,164 +1,89 @@
-"use client"
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { TopBar } from "@/components/top-bar";
+import { Banner } from "@/components/banner";
+import { ActionButtons } from "@/components/action-buttons";
+import { PromoSection } from "@/components/promo-section";
+import { LoadingSpinner } from "@/components/loading-spinner";
+import { ChevronDown } from "lucide-react";
 
-import * as React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
-import { toast } from "@/components/ui/toast"
-import { LoadingSpinner } from "@/components/loading-spinner"
+export default function LandingPage() {
+  const router = useRouter();
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
 
-export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isCheckingSession, setIsCheckingSession] = useState(true)
-  const router = useRouter()
-
-  React.useEffect(() => {
-    let mounted = true
-
+  useEffect(() => {
     const checkUser = async () => {
-      // Fast-path: check if any supabase auth token exists in localStorage
-      if (typeof window !== "undefined") {
-        try {
-          const hasToken = Object.keys(window.localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
-          if (!hasToken) {
-            setIsCheckingSession(false)
-            return
-          }
-        } catch (e) {
-          // ignore localStorage access errors (e.g. strict privacy mode)
-        }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        router.replace("/home");
+      } else {
+        setIsCheckingSession(false);
       }
-
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        if (!mounted) return
-
-        if (error) {
-          console.error("Supabase auth error:", error)
-          setIsCheckingSession(false)
-          return
-        }
-
-        if (session?.user) {
-          router.replace("/home")
-        } else {
-          setIsCheckingSession(false)
-        }
-      } catch (err) {
-        console.error("Session check failed:", err)
-        if (mounted) setIsCheckingSession(false)
-      }
-    }
-
-    checkUser()
-
-    // Fallback: If getSession hangs for more than 1 second, abort loading state
-    const timer = setTimeout(() => {
-      if (mounted) setIsCheckingSession(false)
-    }, 1000)
-
-    return () => {
-      mounted = false
-      clearTimeout(timer)
-    }
-  }, [router])
-
-
-
-  const handleOAuthLogin = async (provider: 'google') => {
-    try {
-      setIsLoading(true)
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/home`,
-          queryParams: {
-            prompt: 'select_account consent',
-          },
-        },
-      })
-      if (error) throw error
-    } catch (error: any) {
-      toast.add({ title: "Gagal login", description: error.message, type: "error" })
-      setIsLoading(false)
-    }
-  }
+    };
+    checkUser();
+  }, [router]);
 
   if (isCheckingSession) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-zinc-50">
-        <LoadingSpinner text="Memeriksa sesi..." />
+        <LoadingSpinner text="Memuat..." />
       </div>
-    )
+    );
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-4 relative overflow-hidden">
-      {/* Desktop Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat hidden sm:block"
-        style={{ backgroundImage: "url('/bg.webp')" }}
-      ></div>
-      {/* Mobile Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat sm:hidden"
-        style={{ backgroundImage: "url('/bg-mobile.webp')" }}
-      ></div>
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0"></div>
-
-      <div className="w-full max-w-sm flex flex-col items-center gap-6 relative z-10 mx-auto">
-        <Card className="w-full aspect-square shadow-2xl shadow-black/20 border-4 border-white/80 flex flex-col justify-center p-6 bg-white/96 backdrop-blur-none rounded-sm" size="sm">
-          <CardHeader className="text-center">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-60 h-60 flex items-center justify-center">
-                <img src="/logo-maga1.png" alt="Maga Swalayan Logo" className="w-full h-full object-contain" />
-              </div>
-            </div>
-          </CardHeader>
-
-          <CardContent className="flex justify-center pb-4">
-            <Button
-              variant="outline"
-              className="w-full rounded-sm border-zinc-200 hover:bg-zinc-50 transition-all duration-300 group"
-              type="button"
-              onClick={() => handleOAuthLogin('google')}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin text-zinc-900" />
-                  <span className="flex items-center text-zinc-900">
-                    Memproses
-                    <span className="animate-pulse delay-0">.</span>
-                    <span className="animate-pulse" style={{ animationDelay: '200ms' }}>.</span>
-                    <span className="animate-pulse" style={{ animationDelay: '400ms' }}>.</span>
-                  </span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                  </svg>
-                  <span className="text-zinc-600 text-[12px] font-bold hover:text-green-600 transition-all duration-300 px-2 py-1 rounded-sm">Masuk dengan Google</span>
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="w-full min-h-screen bg-[#FDFDFD] flex flex-col items-center overflow-x-hidden relative transition-colors">
+      
+      {/* TopBar (Sembunyikan untuk sementara) */}
+      <div className="hidden w-full shrink-0 z-50">
+        <TopBar />
       </div>
+
+      {/* Main Content Area */}
+      <main className="relative w-full max-w-[1440px] flex flex-col items-center pt-16 md:pt-24 lg:pt-[177px] pb-20 px-4 md:px-8">
+        
+        {/* Banner Section */}
+        <Banner />
+
+        {/* Action Buttons */}
+        <div className="mt-8 lg:mt-[37px] z-20">
+          <ActionButtons />
+        </div>
+
+        {/* Illustrations Container */}
+        <div className="w-full flex flex-col xl:block items-center mt-16 xl:mt-0 gap-12 pointer-events-none">
+          
+          {/* undraw_deep-work_muov 1 */}
+          <div className="hidden xl:block relative xl:absolute xl:top-[383px] xl:left-[64px] w-[200px] h-[171px] md:w-[244px] md:h-[209px] z-10">
+            <div 
+              className="w-full h-full bg-no-repeat bg-center bg-contain"
+              style={{ backgroundImage: "url('/undraw_deep-work_muov.svg')" }}
+            />
+          </div>
+
+          {/* undraw_mobile-office_w861 1 */}
+          <div className="relative xl:absolute xl:top-[181px] xl:right-0 w-[280px] h-[330px] md:w-[375px] md:h-[440px] z-10">
+            <div 
+              className="w-full h-full bg-no-repeat bg-center bg-contain"
+              style={{ backgroundImage: "url('/undraw_mobile-office_w861.svg')" }}
+            />
+          </div>
+          
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="w-full flex justify-center mt-4 md:mt-8 mb-4 z-20">
+          <div className="flex flex-col items-center animate-bounce text-[#FC0A08]/70">
+            <ChevronDown className="w-10 h-10 stroke-[2.5]" />
+          </div>
+        </div>
+      </main>
+
+      {/* Second Section: Promo / Points */}
+      <PromoSection />
+      
     </div>
-  )
+  );
 }

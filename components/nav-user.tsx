@@ -38,8 +38,12 @@ export function NavUser({
   const router = useRouter()
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push("/")
+    if (user.name === "Belum Login") {
+      router.push("/login")
+    } else {
+      await supabase.auth.signOut()
+      router.push("/")
+    }
   }
   return (
     <SidebarMenu>
@@ -51,7 +55,7 @@ export function NavUser({
             }
           >
             <Avatar className="size-8 rounded-lg">
-              <AvatarImage src={user.avatar} alt={user.name} referrerPolicy="no-referrer" />
+              <AvatarImage src={user.avatar || undefined} alt={user.name} referrerPolicy="no-referrer" />
               <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -72,7 +76,7 @@ export function NavUser({
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="size-8">
-                    <AvatarImage src={user.avatar} alt={user.name} referrerPolicy="no-referrer" />
+                    <AvatarImage src={user.avatar || undefined} alt={user.name} referrerPolicy="no-referrer" />
                     <AvatarFallback className="rounded-lg">{user?.name?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -95,7 +99,7 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:bg-red-500 focus:!text-white focus:**:!text-white dark:text-red-500 dark:focus:bg-red-900">
               <LogOutIcon className="mr-2 h-4 w-4" />
-              Log out
+              {user.name === "Belum Login" ? "Masuk / Login" : "Keluar"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -404,8 +404,21 @@ export default function MemberPage() {
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 bg-card border rounded-none">
-            <p className="text-muted-foreground text-sm">Gagal memuat profil.</p>
+          <div className="flex justify-center w-full mt-8 lg:mt-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col items-center justify-center bg-white dark:bg-zinc-950 p-4 sm:p-6 text-center rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm w-full max-w-2xl min-h-[240px] transition-all hover:shadow-md">
+              <div className="flex flex-col items-center gap-5 sm:gap-6 w-full max-w-sm mx-auto mt-4">
+                <img src="/logo-maga2.png" alt="Maga Swalayan Logo" className="h-14 sm:h-16 object-contain drop-shadow-sm dark:brightness-0 dark:invert" />
+                <div className="space-y-2">
+                  <h3 className="text-xl sm:text-2xl font-gray/80 font-bold text-gray-700 dark:text-white tracking-tight">Anda Belum Login</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-xs leading-relaxed">
+                    Silakan masuk ke akun Anda terlebih dahulu untuk mengakses menu Member dan menikmati fitur poin serta diskon eksklusif.
+                  </p>
+                </div>
+                <Button className="w-full mt-2 h-11 sm:h-12 rounded-full font-bold shadow-md hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0 text-sm sm:text-base" onClick={() => window.location.href = "/login?next=/member"}>
+                  Masuk / Login
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>

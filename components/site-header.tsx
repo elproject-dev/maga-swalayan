@@ -35,6 +35,8 @@ export function SiteHeader() {
           email: session.user.email || "",
           avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
         })
+      } else {
+        setUser({ name: "Belum Login", email: "Mode Tamu", avatar: "" })
       }
       setIsCheckingUser(false)
     }
@@ -47,6 +49,8 @@ export function SiteHeader() {
           email: session.user.email || "",
           avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
         })
+      } else {
+        setUser({ name: "Belum Login", email: "Mode Tamu", avatar: "" })
       }
       setIsCheckingUser(false)
     })
@@ -55,9 +59,13 @@ export function SiteHeader() {
   }, [])
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push("/")
-  }
+    if (user?.name === "Belum Login") {
+      router.push("/login");
+    } else {
+      await supabase.auth.signOut();
+      router.push("/");
+    }
+  };
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -70,7 +78,7 @@ export function SiteHeader() {
                 <div className="size-8 rounded-full bg-muted animate-pulse" />
               ) : (
                 <Avatar className="size-8 rounded-full">
-                  <AvatarImage src={user?.avatar} alt={user?.name || "User"} referrerPolicy="no-referrer" />
+                  <AvatarImage src={user?.avatar || undefined} alt={user?.name || "User"} referrerPolicy="no-referrer" />
                   <AvatarFallback className="rounded-full text-xs">
                     {user?.name?.charAt(0)?.toUpperCase() || "U"}
                   </AvatarFallback>
@@ -87,7 +95,7 @@ export function SiteHeader() {
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="size-8">
-                      <AvatarImage src={user?.avatar} alt={user?.name || "User"} referrerPolicy="no-referrer" />
+                      <AvatarImage src={user?.avatar || undefined} alt={user?.name || "User"} referrerPolicy="no-referrer" />
                       <AvatarFallback className="rounded-full text-xs">
                         {user?.name?.charAt(0)?.toUpperCase() || "U"}
                       </AvatarFallback>
@@ -104,7 +112,7 @@ export function SiteHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:bg-red-500 focus:!text-white focus:**:!text-white dark:text-red-500 dark:focus:bg-red-900">
                 <LogOutIcon className="mr-2 h-4 w-4" />
-                Keluar
+                {user?.name === "Belum Login" ? "Masuk / Login" : "Keluar"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

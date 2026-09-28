@@ -59,7 +59,7 @@ export function ThemeToggleFab() {
     return () => subscription.unsubscribe()
   }, [])
 
-  if (!mounted || pathname === "/") return null
+  if (!mounted || pathname === "/" || pathname === "/landing" || !isAdminOrStaff) return null
 
   return (
     <>

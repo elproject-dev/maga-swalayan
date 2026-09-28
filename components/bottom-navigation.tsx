@@ -27,6 +27,7 @@ import {
   ScanBarcode,
   Megaphone,
   Send,
+  MapPin,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -259,19 +260,19 @@ export function BottomNavigation() {
             </button>
           ) : (
             <Link
-              href="/member"
+              href="/lokasi"
               className={cn(
                 "flex flex-col items-center justify-center w-16 mx-auto py-1 rounded-xl transition-all duration-200 relative",
-                pathname === "/member" || (pathname.startsWith("/member") && pathname !== "/home")
+                pathname === "/lokasi" || (pathname.startsWith("/lokasi") && pathname !== "/home")
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
               <div className="relative">
-                <CircleUser
+                <MapPin
                   className={cn(
                     "w-5 h-5 mb-1",
-                    pathname === "/member" || (pathname.startsWith("/member") && pathname !== "/home")
+                    pathname === "/lokasi" || (pathname.startsWith("/lokasi") && pathname !== "/home")
                       ? "text-primary" : "text-muted-foreground"
                   )}
                 />
@@ -279,12 +280,12 @@ export function BottomNavigation() {
               <span
                 className={cn(
                   "text-[9px] font-medium text-center leading-tight",
-                  pathname === "/member" || (pathname.startsWith("/member") && pathname !== "/home")
+                  pathname === "/lokasi" || (pathname.startsWith("/lokasi") && pathname !== "/home")
                     ? "text-primary font-semibold"
                     : "text-muted-foreground"
                 )}
               >
-                Member
+                Lokasi
               </span>
             </Link>
           )}

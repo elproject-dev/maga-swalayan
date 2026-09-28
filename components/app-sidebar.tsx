@@ -20,8 +20,8 @@ import { LayoutDashboardIcon, ListIcon, ChartBarIcon, FolderIcon, UsersIcon, Cam
 
 const data = {
   user: {
-    name: "el project",
-    email: "elproject.dev@gmail.com",
+    name: "Belum Login",
+    email: "Mode Tamu",
     avatar: "",
   },
   navMain: [
@@ -223,6 +223,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
         })
         checkRole(session.user.email)
+      } else {
+        setUserData({ name: "Belum Login", email: "Mode Tamu", avatar: "" })
+        setIsAdminOrStaff(false)
       }
     }
     fetchUser()
@@ -237,6 +240,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         checkRole(session.user.email)
       } else {
         setIsAdminOrStaff(false)
+        setUserData({ name: "Belum Login", email: "Mode Tamu", avatar: "" })
       }
     })
 
