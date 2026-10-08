@@ -7,13 +7,14 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import { TopBar } from "@/components/top-bar"
 import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { toast } from "@/components/ui/toast"
 import { LoadingSpinner } from "@/components/loading-spinner"
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [isAdmin, setIsAdmin] = useState(false)
   const [isCheckingRole, setIsCheckingRole] = useState(true)
 
@@ -51,6 +52,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return () => subscription.unsubscribe()
   }, [router])
+
+  useEffect(() => {
+    if (!isCheckingRole && !isAdmin) {
+      const publicRoutes = ['/home', '/promo', '/event', '/produk', '/member', '/lokasi']
+      const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+      
+      if (!isPublicRoute) {
+        toast.add({ title: "Akses Ditolak", description: "Anda tidak memiliki izin mengakses halaman tersebut.", type: "error" })
+        router.replace('/home')
+      }
+    }
+  }, [isCheckingRole, isAdmin, pathname, router])
 
   if (isCheckingRole) {
     return (

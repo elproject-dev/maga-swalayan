@@ -74,15 +74,22 @@ export default function LandingPage() {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="w-full flex justify-center mt-4 md:mt-8 mb-4 z-20">
-          <div className="flex flex-col items-center animate-bounce text-[#FC0A08]/70">
+        <div 
+          className="w-full flex justify-center mt-4 md:mt-8 mb-4 z-20 cursor-pointer"
+          onClick={() => {
+            document.getElementById('promo-section')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+        >
+          <div className="flex flex-col items-center animate-bounce text-[#FC0A08]/70 hover:text-[#FC0A08] transition-colors">
             <ChevronDown className="w-10 h-10 stroke-[2.5]" />
           </div>
         </div>
       </main>
 
       {/* Second Section: Promo / Points */}
-      <PromoSection />
+      <div id="promo-section" className="w-full">
+        <PromoSection />
+      </div>
       
     </div>
   );

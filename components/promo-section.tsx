@@ -47,9 +47,11 @@ export function PromoSection() {
         </Link>
 
         {/* Button 2 (White) */}
-        <button className="flex justify-center items-center px-5 py-3 w-[138px] h-[39px] bg-[#FFFFFF] shadow-[0px_2px_4px_rgba(0,0,0,0.25)] rounded-full hover:bg-zinc-50 transition-colors">
-          <span className="font-normal text-[12px] leading-[15px] text-[#434343] whitespace-nowrap">Lihat Reward</span>
-        </button>
+        <Link href="/login">
+          <button className="flex justify-center items-center px-5 py-3 w-[138px] h-[39px] bg-[#FFFFFF] shadow-[0px_2px_4px_rgba(0,0,0,0.25)] rounded-full hover:bg-zinc-50 transition-colors">
+            <span className="font-normal text-[12px] leading-[15px] text-[#434343] whitespace-nowrap">Lihat Reward</span>
+          </button>
+        </Link>
       </div>
 
       {/* Illustrations */}
