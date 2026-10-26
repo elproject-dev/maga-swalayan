@@ -243,22 +243,33 @@ export default function MemberPage() {
         }
 
         // 3. Cocokkan dengan data pada tabel poin_transactions
+        const trxConditions: string[] = []
+        if (memberCardId && memberCardId !== "-") {
+          trxConditions.push(`membercard.eq.${memberCardId}`)
+        }
         if (userPhone && userPhone !== "-") {
+          trxConditions.push(`notelp.eq.${userPhone}`)
+        }
+
+        if (trxConditions.length > 0) {
           const { data: poinData } = await supabase
             .from('poin_transactions')
-            .select('poin, tipe, membercard')
-            .eq('notelp', userPhone)
+            .select('poin, tipe, membercard, notelp')
+            .or(trxConditions.join(','))
 
           if (poinData && poinData.length > 0) {
             userIsMember = true // Terdeteksi sebagai member karena ada data poin
-            // Ambil membercard dari transaksi pertama jika ada
-            const foundCard = poinData.find(t => t.membercard)?.membercard
-            if (foundCard) memberCardId = foundCard
+            // Ambil membercard dari transaksi pertama jika ada dan belum punya
+            if (memberCardId === "-") {
+              const foundCard = poinData.find(t => t.membercard)?.membercard
+              if (foundCard) memberCardId = foundCard
+            }
 
             // Hitung total poin
             userPoints = poinData.reduce((total: number, trx: any) => {
               const p = Number(trx.poin) || 0
-              return trx.tipe === 'plus' ? total + p : total - p
+              const isPlus = (trx.tipe || 'plus').toLowerCase() === 'plus'
+              return isPlus ? total + p : total - p
             }, 0)
           }
         }

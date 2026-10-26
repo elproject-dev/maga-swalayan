@@ -14,10 +14,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { Search, FileSpreadsheet, Loader2, Download, Upload, Trash2 } from "lucide-react"
+import { Search, FileSpreadsheet, Loader2, Download, Upload, Trash2, RefreshCw } from "lucide-react"
 
 import { TablePagination } from "@/components/table-pagination"
 import { supabase } from "@/lib/supabase"
+import { syncPoinWithPelanggan } from "@/lib/poin-sync"
 
 import { toast } from "@/components/ui/toast"
 import { LoadingSpinner } from "@/components/loading-spinner"
@@ -101,6 +102,25 @@ export default function PoinPage() {
     }
   }
 
+  const [isSyncing, setIsSyncing] = useState(false)
+
+  const handleManualSync = async () => {
+    setIsSyncing(true)
+    try {
+      const res = await syncPoinWithPelanggan()
+      toast.add({
+        title: "Sinkronisasi Berhasil",
+        description: `Database berhasil disinkronkan. ${res.customersUpdated} pelanggan diperbarui, ${res.newCustomersCreated} member baru ditambahkan.`,
+        type: "success"
+      })
+      await fetchTransactions()
+    } catch (err: any) {
+      toast.add({ title: "Gagal sinkronisasi", description: err.message, type: "error" })
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
   const handleDelete = async () => {
     const { error } = await supabase
       .from('poin_transactions')
@@ -110,7 +130,9 @@ export default function PoinPage() {
       setTransactionList(transactionList.filter(c => !selectedRows.includes(c.id)))
       setSelectedRows([])
       setIsActionMode(false)
-      toast.add({ title: "Berhasil dihapus", type: "success" })
+      // Jalankan sinkronisasi poin ke database pelanggan
+      await syncPoinWithPelanggan().catch(console.error)
+      toast.add({ title: "Berhasil dihapus & poin disinkronkan", type: "success" })
     } else {
       toast.add({ title: "Gagal menghapus", description: error.message, type: "error" })
     }
@@ -295,6 +317,13 @@ export default function PoinPage() {
             noTelp = row[keys[8]];
           }
 
+          const rawPoin = Number(row['POIN'] ?? row['poin'] ?? row['Poin'] ?? 0);
+          const isPoinNegative = rawPoin < 0;
+          const absPoin = Math.abs(rawPoin);
+
+          const rawTipe = String(row['TIPE'] ?? row['tipe'] ?? row['Tipe'] ?? (isPoinNegative ? 'minus' : 'plus')).trim().toLowerCase();
+          const normalizedTipe = (rawTipe === 'minus' || rawTipe === '-' || rawTipe === 'kurang' || rawTipe === 'redeem' || isPoinNegative) ? 'minus' : 'plus';
+
           records.push({
             idtransaksi: String(idtransaksi).trim(),
             tanggal: parsedDate,
@@ -302,9 +331,9 @@ export default function PoinPage() {
             membercard: String(row['MEMBERCARD'] || '').trim(),
             notelp: noTelp ? String(noTelp).trim() : '',
             totalbayar: Number(row['TOTALBAYAR']) || 0,
-            poin: Number(row['POIN']) || 0,
+            poin: absPoin,
             description: String(row['DESCRIPTION'] || '').trim(),
-            tipe: String(row['TIPE'] || 'plus').trim()
+            tipe: normalizedTipe
           })
         }
 
@@ -356,7 +385,22 @@ export default function PoinPage() {
       if (hasError) {
         toast.add({ title: "Gagal import", description: lastErrorMessage, type: "error" })
       } else {
-        toast.add({ title: "Sukses import", description: `${totalSuccess} transaksi berhasil ditambahkan`, type: "success" })
+        // Otomatis sinkronkan transaksi baru ke tabel pelanggan dan saldo poin
+        let syncDetail = ""
+        try {
+          const syncRes = await syncPoinWithPelanggan()
+          if (syncRes.newCustomersCreated > 0) {
+            syncDetail += ` (${syncRes.newCustomersCreated} member baru otomatis terdaftar)`
+          }
+        } catch (syncErr: any) {
+          console.error("Gagal sinkron pelanggan otomatis:", syncErr)
+        }
+
+        toast.add({
+          title: "Sukses Import & Sinkronisasi",
+          description: `${totalSuccess} transaksi berhasil ditambahkan & disinkronkan ke database${syncDetail}`,
+          type: "success"
+        })
         setImportRecords([])
         setImportPreview([])
         setIsImportModalOpen(false)
@@ -408,6 +452,16 @@ export default function PoinPage() {
                 <Button variant="outline" onClick={handleExport} className="flex-1 sm:flex-none">
                   <Download className="mr-2 h-4 w-4" />
                   Export
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleManualSync}
+                  disabled={isSyncing}
+                  className="flex-1 sm:flex-none"
+                  title="Sinkronkan seluruh transaksi dengan database pelanggan"
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+                  {isSyncing ? "Menyinkronkan..." : "Sinkron Poin"}
                 </Button>
                 <Button
                   variant="destructive"
@@ -479,12 +533,19 @@ export default function PoinPage() {
               </div>
 
               <div className="flex justify-between items-center pt-3 border-t">
-                <span className={`px-2 py-1 text-[10px] font-semibold ${t.tipe === 'plus' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
-                  {t.tipe?.toUpperCase()}
-                </span>
-                <span className={`font-bold text-base ${t.tipe === 'plus' ? 'text-green-600' : 'text-red-600'}`}>
-                  {t.tipe === 'plus' ? '+' : '-'}{t.poin} Poin
-                </span>
+                {(() => {
+                  const isPlus = (t.tipe || 'plus').toLowerCase() === 'plus';
+                  return (
+                    <>
+                      <span className={`px-2 py-1 text-[10px] font-semibold ${isPlus ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                        {t.tipe ? t.tipe.toUpperCase() : 'PLUS'}
+                      </span>
+                      <span className={`font-bold text-base ${isPlus ? 'text-green-600' : 'text-red-600'}`}>
+                        {isPlus ? '+' : '-'}{t.poin} Poin
+                      </span>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           ))
@@ -513,33 +574,36 @@ export default function PoinPage() {
             </TableHeader>
             <TableBody>
               {isLoading ? null : (
-                filteredTransactions.slice((currentPage - 1) * 10, currentPage * 10).map((t) => (
-                  <TableRow key={t.id} className="hover:bg-accent/50 transition-colors">
-                    {isActionMode && (
-                      <TableCell className="text-center">
-                        <Checkbox
-                          checked={selectedRows.includes(t.id)}
-                          onCheckedChange={(c) => handleSelectRow(t.id, !!c)}
-                        />
+                filteredTransactions.slice((currentPage - 1) * 10, currentPage * 10).map((t) => {
+                  const isPlus = (t.tipe || 'plus').toLowerCase() === 'plus';
+                  return (
+                    <TableRow key={t.id} className="hover:bg-accent/50 transition-colors">
+                      {isActionMode && (
+                        <TableCell className="text-center">
+                          <Checkbox
+                            checked={selectedRows.includes(t.id)}
+                            onCheckedChange={(c) => handleSelectRow(t.id, !!c)}
+                          />
+                        </TableCell>
+                      )}
+                      <TableCell className="font-medium">{t.idtransaksi}</TableCell>
+                      <TableCell>{formatToDDMMYYYY(t.tanggal)}</TableCell>
+                      <TableCell className="font-semibold text-primary">{t.membercard}</TableCell>
+                      <TableCell>{t.notelp || '-'}</TableCell>
+                      <TableCell className="text-right">Rp {t.totalbayar?.toLocaleString('id-ID')}</TableCell>
+                      <TableCell className="text-center font-bold">
+                        <span className={isPlus ? 'text-green-600' : 'text-red-600'}>
+                          {isPlus ? '+' : '-'}{t.poin}
+                        </span>
                       </TableCell>
-                    )}
-                    <TableCell className="font-medium">{t.idtransaksi}</TableCell>
-                    <TableCell>{formatToDDMMYYYY(t.tanggal)}</TableCell>
-                    <TableCell className="font-semibold text-primary">{t.membercard}</TableCell>
-                    <TableCell>{t.notelp || '-'}</TableCell>
-                    <TableCell className="text-right">Rp {t.totalbayar?.toLocaleString('id-ID')}</TableCell>
-                    <TableCell className="text-center font-bold">
-                      <span className={t.tipe === 'plus' ? 'text-green-600' : 'text-red-600'}>
-                        {t.tipe === 'plus' ? '+' : '-'}{t.poin}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className={`px-2 py-1 text-xs font-semibold ${t.tipe === 'plus' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
-                        {t.tipe?.toUpperCase()}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      <TableCell className="text-center">
+                        <span className={`px-2 py-1 text-xs font-semibold ${isPlus ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                          {t.tipe ? t.tipe.toUpperCase() : 'PLUS'}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
               {!isLoading && filteredTransactions.length === 0 && (
                 <TableRow>

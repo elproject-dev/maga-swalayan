@@ -19,6 +19,7 @@ import { LoadingSpinner } from "@/components/loading-spinner"
 
 import { TablePagination } from "@/components/table-pagination"
 import { supabase } from "@/lib/supabase"
+import { normalizeCard, normalizePhone } from "@/lib/poin-sync"
 
 
 export default function DatabasePage() {
@@ -42,28 +43,46 @@ export default function DatabasePage() {
       // Fetch poin_transactions to calculate actual points
       const { data: poinData } = await supabase
         .from('poin_transactions')
-        .select('notelp, poin, tipe')
+        .select('membercard, notelp, poin, tipe')
 
-      const pointsByPhone: Record<string, number> = {};
+      const pointsByCard: Record<string, number> = {}
+      const pointsByPhone: Record<string, number> = {}
+
       if (poinData) {
         poinData.forEach(trx => {
-          if (!trx.notelp) return;
-          if (!pointsByPhone[trx.notelp]) pointsByPhone[trx.notelp] = 0;
-          const p = Number(trx.poin) || 0;
-          if (trx.tipe === 'plus') {
-            pointsByPhone[trx.notelp] += p;
-          } else {
-            pointsByPhone[trx.notelp] -= p;
+          const p = Number(trx.poin) || 0
+          const isPlus = (trx.tipe || 'plus').toLowerCase() === 'plus'
+          const delta = isPlus ? p : -p
+
+          const card = normalizeCard(trx.membercard)
+          if (card) {
+            pointsByCard[card] = (pointsByCard[card] || 0) + delta
           }
-        });
+          const phone = normalizePhone(trx.notelp)
+          if (phone) {
+            pointsByPhone[phone] = (pointsByPhone[phone] || 0) + delta
+          }
+        })
       }
 
       const calculatedCustomers = pelangganData
         .filter(customer => customer.membercard && customer.membercard.trim() !== '' && customer.membercard !== '-')
-        .map(customer => ({
-          ...customer,
-          points: pointsByPhone[customer.phone] || 0
-        }));
+        .map(customer => {
+          const card = normalizeCard(customer.membercard)
+          const phone = normalizePhone(customer.phone)
+          let pts = customer.points || 0
+
+          if (card && pointsByCard[card] !== undefined) {
+            pts = pointsByCard[card]
+          } else if (phone && pointsByPhone[phone] !== undefined) {
+            pts = pointsByPhone[phone]
+          }
+
+          return {
+            ...customer,
+            points: pts
+          }
+        })
 
       setCustomers(calculatedCustomers)
     }
