@@ -18,7 +18,7 @@ export function PromoSection() {
 
       {/* Main Text Content (Frame 2) */}
       <div className={`relative flex flex-col lg:block items-center w-full max-w-[882px] lg:w-[816px] lg:h-[363px] mx-auto ${outfit.className} z-10`}>
-        
+
         {/* Tukarkan Poin Anda Sekarang */}
         <h2 className="lg:absolute lg:top-0 lg:left-[-33px] lg:w-[882px] lg:h-[81px] text-3xl sm:text-5xl lg:text-[64px] font-bold lg:leading-[81px] text-[#1E1E1E] text-center mb-6 lg:mb-0 whitespace-normal md:whitespace-nowrap transition-colors">
           Tukarkan Poin Anda Sekarang

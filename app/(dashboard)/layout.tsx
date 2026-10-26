@@ -55,7 +55,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!isCheckingRole && !isAdmin) {
-      const publicRoutes = ['/home', '/promo', '/event', '/produk', '/member', '/lokasi']
+      const publicRoutes = ['/home', '/promo', '/event', '/produk', '/member', '/card', '/lokasi']
       const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
       
       if (!isPublicRoute) {
