@@ -97,6 +97,7 @@ export default function DatabasePage() {
     const query = searchQuery.toLowerCase()
     return (
       (customer.name || "").toLowerCase().includes(query) ||
+      (customer.username || "").toLowerCase().includes(query) ||
       (customer.membercard || "").toLowerCase().includes(query) ||
       (customer.phone || "").toLowerCase().includes(query) ||
       (customer.email || "").toLowerCase().includes(query)

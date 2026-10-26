@@ -7,7 +7,45 @@ import { cn } from "cn"
 import { Button } from "@/components/ui/button"
 import { XIcon, CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
 
-const toast = ToastPrimitive.createToastManager()
+import { toast as sonnerToast } from "sonner"
+
+const baseToast = ToastPrimitive.createToastManager()
+
+const toast = Object.assign(
+  (message: any, data?: any) => sonnerToast(message, data),
+  baseToast,
+  {
+    add: (options: { title?: any; description?: any; type?: string; [key: string]: any }) => {
+      try {
+        baseToast.add?.(options)
+      } catch (_) {}
+
+      const title = options?.title || options?.description || "Pemberitahuan"
+      const description = options?.title ? options?.description : undefined
+      const type = options?.type || "info"
+
+      if (type === "success") {
+        return sonnerToast.success(title, { description })
+      } else if (type === "error") {
+        return sonnerToast.error(title, { description })
+      } else if (type === "warning") {
+        return sonnerToast.warning(title, { description })
+      } else if (type === "info") {
+        return sonnerToast.info(title, { description })
+      } else if (type === "loading") {
+        return sonnerToast.loading(title, { description })
+      } else {
+        return sonnerToast(title, { description })
+      }
+    },
+    success: (message: any, data?: any) => sonnerToast.success(message, data),
+    error: (message: any, data?: any) => sonnerToast.error(message, data),
+    info: (message: any, data?: any) => sonnerToast.info(message, data),
+    warning: (message: any, data?: any) => sonnerToast.warning(message, data),
+    loading: (message: any, data?: any) => sonnerToast.loading(message, data),
+    dismiss: (toastId?: any) => sonnerToast.dismiss(toastId),
+  }
+)
 
 function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
   return <ToastPrimitive.Provider {...props} />

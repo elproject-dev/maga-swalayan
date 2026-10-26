@@ -150,6 +150,7 @@ export async function syncPoinWithPelanggan(): Promise<SyncResult> {
 
       newCustomersToInsert.push({
         name: nameDisplay,
+        username: cardDisplay ? cardDisplay.toLowerCase().replace(/[^a-z0-9]/g, '') : null,
         membercard: cardDisplay || null,
         phone: phoneDisplay,
         points: netPoints,

@@ -89,6 +89,7 @@ export default function PelangganPage() {
         return {
           id: item.id,
           name: item.name,
+          username: item.username,
           email: item.email,
           phone: item.phone,
           membercard: item.membercard,
@@ -107,8 +108,9 @@ export default function PelangganPage() {
   const filteredCustomers = customers.filter((customer) => {
     const query = searchQuery.toLowerCase()
     return (
-      customer.name.toLowerCase().includes(query) ||
-      customer.phone.toLowerCase().includes(query)
+      (customer.name || "").toLowerCase().includes(query) ||
+      (customer.username || "").toLowerCase().includes(query) ||
+      (customer.phone || "").toLowerCase().includes(query)
     )
   })
 

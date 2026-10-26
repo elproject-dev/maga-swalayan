@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
@@ -8,18 +8,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
-import { Loader2, Mail, Phone, User, CreditCard, Award, MapPin, Calendar, Hash, ShoppingCart, Gift, Star, Percent, Sparkles } from "lucide-react"
+import { Loader2, Mail, Phone, User, CreditCard, Award, MapPin, Calendar, Hash, ShoppingCart, Gift, Star, Percent, Sparkles, Pencil, ChevronDown, QrCode, Barcode, ScanLine } from "lucide-react"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { LocationCombobox, LocationItem } from "@/components/location-combobox"
+import { syncPoinWithPelanggan } from "@/lib/poin-sync"
+import JsBarcode from "jsbarcode"
+import { QRCodeSVG } from "qrcode.react"
 import { cn } from "@/lib/utils"
 
 interface MemberData {
   name: string
+  username?: string
   email: string
   phone: string
   points: number
   isMember: boolean
   alamat: string
+  provinsi?: string
   kecamatan: string
   kabupaten: string
   tanggalLahir: string
@@ -35,14 +40,55 @@ export default function MemberPage() {
 
   const showInfoAkun = !isCardView && memberData?.isMember
   const [isLoading, setIsLoading] = useState(true)
+  const [isCardDetailsOpen, setIsCardDetailsOpen] = useState(false)
+  const [isBarcodeOpen, setIsBarcodeOpen] = useState(false)
+  const barcodeRef = useRef<SVGSVGElement | null>(null)
+
+  useEffect(() => {
+    if (isBarcodeOpen && barcodeRef.current && memberData?.membercard) {
+      try {
+        JsBarcode(barcodeRef.current, memberData.membercard, {
+          format: "CODE128",
+          lineColor: "#000000",
+          width: 2.2,
+          height: 65,
+          displayValue: true,
+          font: "monospace",
+          fontSize: 15,
+          textMargin: 6,
+          background: "#ffffff",
+        })
+      } catch (err) {
+        console.error("Failed to render barcode:", err)
+      }
+    }
+  }, [isBarcodeOpen, memberData?.membercard])
 
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const [regUsername, setRegUsername] = useState("")
   const [regPhone, setRegPhone] = useState("")
   const [regAlamat, setRegAlamat] = useState("")
 
   const [regProvinsiId, setRegProvinsiId] = useState("")
   const [regKabupatenId, setRegKabupatenId] = useState("")
   const [regKecamatanId, setRegKecamatanId] = useState("")
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editUsername, setEditUsername] = useState("")
+  const [editPhone, setEditPhone] = useState("")
+  const [editAlamat, setEditAlamat] = useState("")
+  const [editProvinsiId, setEditProvinsiId] = useState("")
+  const [editKabupatenId, setEditKabupatenId] = useState("")
+  const [editKecamatanId, setEditKecamatanId] = useState("")
+  const [editTgl, setEditTgl] = useState("")
+  const [editBln, setEditBln] = useState("")
+  const [editThn, setEditThn] = useState("")
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const [editRegencies, setEditRegencies] = useState<LocationItem[]>([])
+  const [editDistricts, setEditDistricts] = useState<LocationItem[]>([])
+  const [isLoadingEditRegencies, setIsLoadingEditRegencies] = useState(false)
+  const [isLoadingEditDistricts, setIsLoadingEditDistricts] = useState(false)
 
   const [provinces, setProvinces] = useState<LocationItem[]>([])
   const [regencies, setRegencies] = useState<LocationItem[]>([])
@@ -64,8 +110,50 @@ export default function MemberPage() {
         setIsLoadingProvinces(false)
       }
     }
-    if (isRegisterModalOpen) fetchProvinces()
-  }, [isRegisterModalOpen])
+    if (isRegisterModalOpen || isEditModalOpen) fetchProvinces()
+  }, [isRegisterModalOpen, isEditModalOpen])
+
+  useEffect(() => {
+    if (!editProvinsiId) {
+      setEditRegencies([])
+      setEditKabupatenId("")
+      return
+    }
+    async function fetchEditRegencies() {
+      setIsLoadingEditRegencies(true)
+      try {
+        const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${editProvinsiId}.json`)
+        const data = await res.json()
+        setEditRegencies(data)
+      } catch (error) {
+        console.error("Failed to fetch edit regencies", error)
+      } finally {
+        setIsLoadingEditRegencies(false)
+      }
+    }
+    fetchEditRegencies()
+  }, [editProvinsiId])
+
+  useEffect(() => {
+    if (!editKabupatenId) {
+      setEditDistricts([])
+      setEditKecamatanId("")
+      return
+    }
+    async function fetchEditDistricts() {
+      setIsLoadingEditDistricts(true)
+      try {
+        const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${editKabupatenId}.json`)
+        const data = await res.json()
+        setEditDistricts(data)
+      } catch (error) {
+        console.error("Failed to fetch edit districts", error)
+      } finally {
+        setIsLoadingEditDistricts(false)
+      }
+    }
+    fetchEditDistricts()
+  }, [editKabupatenId])
 
   useEffect(() => {
     if (!regProvinsiId) {
@@ -114,6 +202,110 @@ export default function MemberPage() {
   const [regThn, setRegThn] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const handleOpenEditModal = () => {
+    if (!memberData) return
+    setEditUsername(memberData.username || memberData.name || "")
+    setEditPhone(memberData.phone !== "-" ? memberData.phone : "")
+    setEditAlamat(memberData.alamat !== "-" ? memberData.alamat : "")
+    setEditProvinsiId("")
+    setEditKabupatenId("")
+    setEditKecamatanId("")
+
+    if (memberData.tanggalLahir && memberData.tanggalLahir !== "-") {
+      const parts = memberData.tanggalLahir.split("-")
+      if (parts.length === 3) {
+        setEditTgl(parts[0])
+        setEditBln(parts[1])
+        setEditThn(parts[2])
+      }
+    } else {
+      setEditTgl("")
+      setEditBln("")
+      setEditThn("")
+    }
+
+    setIsEditModalOpen(true)
+  }
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!memberData) return
+    setIsUpdating(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) throw new Error("Sesi login telah berakhir, silakan login kembali.")
+      const userEmail = session.user.email || memberData.email
+
+      const toTitleCase = (str: string) => str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase())
+      const selectedProv = editProvinsiId
+        ? toTitleCase(provinces.find(p => p.id === editProvinsiId)?.name || "")
+        : (memberData.provinsi && memberData.provinsi !== "-" ? memberData.provinsi : "")
+
+      const selectedKab = editKabupatenId
+        ? toTitleCase(editRegencies.find(r => r.id === editKabupatenId)?.name || "")
+        : (memberData.kabupaten && memberData.kabupaten !== "-" ? memberData.kabupaten : "")
+
+      const selectedKec = editKecamatanId
+        ? toTitleCase(editDistricts.find(d => d.id === editKecamatanId)?.name || "")
+        : (memberData.kecamatan && memberData.kecamatan !== "-" ? memberData.kecamatan : "")
+
+      const finalTanggalLahir = (editThn && editBln && editTgl)
+        ? `${editThn}-${editBln.padStart(2, '0')}-${editTgl.padStart(2, '0')}`
+        : null
+
+      const finalName = editUsername.trim() || memberData.name
+
+      const payload: any = {
+        name: finalName,
+        username: finalName,
+        phone: editPhone.trim() || "-",
+        alamat: editAlamat.trim() || "-",
+        provinsi: selectedProv || null,
+        kabupaten: selectedKab || null,
+        kecamatan: selectedKec || null,
+        tanggal_lahir: finalTanggalLahir
+      }
+
+      const { error: updateError } = await supabase
+        .from('pelanggan')
+        .update(payload)
+        .eq('email', userEmail)
+
+      if (updateError) throw updateError
+
+      const formattedTgl = (editThn && editBln && editTgl)
+        ? `${editTgl.padStart(2, '0')}-${editBln.padStart(2, '0')}-${editThn}`
+        : "-"
+
+      setMemberData(prev => prev ? {
+        ...prev,
+        name: finalName,
+        username: finalName,
+        phone: payload.phone,
+        alamat: payload.alamat,
+        provinsi: selectedProv || "-",
+        kabupaten: selectedKab || "-",
+        kecamatan: selectedKec || "-",
+        tanggalLahir: formattedTgl
+      } : null)
+
+      // Sync poin jika ada transaksi dengan nomor telp baru
+      await syncPoinWithPelanggan().catch(console.error)
+
+      toast.success("Profil Berhasil Diperbarui", {
+        description: "Informasi profil member Anda telah berhasil disimpan."
+      })
+
+      setIsEditModalOpen(false)
+    } catch (err: any) {
+      toast.error("Gagal Memperbarui Profil", {
+        description: err.message || "Terjadi kesalahan saat menyimpan data."
+      })
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   const handleRegisterMember = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -154,7 +346,8 @@ export default function MemberPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.user) throw new Error("Anda harus login")
       const userEmail = session.user.email || ""
-      const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || userEmail.split('@')[0]
+      const defaultName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || userEmail.split('@')[0]
+      const finalName = regUsername.trim() || defaultName
 
       const { data: existing } = await supabase.from('pelanggan').select('id').eq('email', userEmail).limit(1)
 
@@ -164,7 +357,8 @@ export default function MemberPage() {
       const selectedKec = toTitleCase(districts.find(d => d.id === regKecamatanId)?.name || "")
 
       const payload = {
-        name: userName,
+        name: finalName,
+        username: finalName,
         email: userEmail,
         phone: regPhone,
         alamat: regAlamat,
@@ -216,14 +410,16 @@ export default function MemberPage() {
 
         // 2. Jika tidak ada phone dari session, coba cari dari tabel pelanggan
         let userAlamat = "-"
+        let userProvinsi = "-"
         let userKecamatan = "-"
         let userKabupaten = "-"
         let userTanggalLahir = "-"
 
+        let userUsername = ""
         if (userEmail) {
           const { data: pelangganData } = await supabase
             .from('pelanggan')
-            .select('name, phone, alamat, kecamatan, kabupaten, tanggal_lahir, membercard')
+            .select('name, username, phone, alamat, provinsi, kecamatan, kabupaten, tanggal_lahir, membercard')
             .eq('email', userEmail)
             .limit(1)
 
@@ -231,7 +427,9 @@ export default function MemberPage() {
             const p = pelangganData[0]
             if (!userPhone && p.phone) userPhone = p.phone
             if (p.name) userName = p.name
+            if (p.username) userUsername = p.username
             if (p.alamat) userAlamat = p.alamat
+            if (p.provinsi) userProvinsi = p.provinsi
             if (p.kecamatan) userKecamatan = p.kecamatan
             if (p.kabupaten) userKabupaten = p.kabupaten
             if (p.tanggal_lahir) {
@@ -278,11 +476,13 @@ export default function MemberPage() {
 
         setMemberData({
           name: userName,
+          username: userUsername,
           email: userEmail,
           phone: userPhone,
           points: userPoints,
           isMember: userIsMember || memberCardId !== "-",
           alamat: userAlamat,
+          provinsi: userProvinsi,
           kecamatan: userKecamatan,
           kabupaten: userKabupaten,
           tanggalLahir: userTanggalLahir,
@@ -343,7 +543,13 @@ export default function MemberPage() {
                         </div>
                         <div className="text-right">
                           <span className="text-[8px] sm:text-[10px] font-medium text-white/40 tracking-widest uppercase mb-1 block">ID Member</span>
-                          <span className="text-sm sm:text-xl font-mono tracking-widest text-white/90">{memberData.membercard}</span>
+                          <span
+                            onClick={() => setIsBarcodeOpen(!isBarcodeOpen)}
+                            className="text-sm sm:text-xl font-mono tracking-widest text-white/90 hover:text-white cursor-pointer select-none"
+                            title="Klik untuk buka/tutup Barcode Scan"
+                          >
+                            {memberData.membercard}
+                          </span>
                         </div>
                       </div>
 
@@ -376,13 +582,148 @@ export default function MemberPage() {
                   </div>
                 </div>
               )}
+
+              {/* Menu Buka-Tutup Barcode Scan */}
+              {memberData.isMember && (
+                <div className="w-full bg-card border border-border/60 rounded-sm shadow-sm overflow-hidden transition-all duration-300">
+                  {/* Header Bar Bersih (Hanya Judul & Chevron Saat Tertutup) */}
+                  <div
+                    onClick={() => setIsBarcodeOpen(!isBarcodeOpen)}
+                    className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-muted/40 transition-colors select-none"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-sm bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <QrCode className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="font-semibold text-sm text-foreground">Barcode Scan</span>
+                    </div>
+
+                    <div className="p-1 text-muted-foreground hover:text-foreground transition-transform duration-300">
+                      <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isBarcodeOpen && "rotate-180")} />
+                    </div>
+                  </div>
+
+                  {/* Panel Terbuka: Hanya Menampilkan Barcode 1D & QR Code ID Member */}
+                  {isBarcodeOpen && (
+                    <div className="px-4 pb-4 pt-2 border-t border-border/40 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="bg-white rounded-sm border border-zinc-200 p-4 shadow-xs flex flex-col items-center justify-center gap-3 text-black">
+                        {/* 1D Barcode */}
+                        <div className="w-full flex justify-center overflow-x-auto py-1">
+                          <svg ref={barcodeRef} className="max-w-full" />
+                        </div>
+
+                        {/* 2D QR Code */}
+                        <div className="p-2 border border-zinc-200 rounded-sm bg-white">
+                          <QRCodeSVG
+                            value={memberData.membercard || "MG-SW000001"}
+                            size={160}
+                            level="H"
+                            includeMargin={true}
+                            fgColor="#000000"
+                            bgColor="#ffffff"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Menu Buka-Tutup Informasi & Ubah Data untuk tampilan /card */}
+              {isCardView && memberData.isMember && (
+                <div className="w-full bg-card border border-border/60 rounded-sm shadow-sm overflow-hidden transition-all duration-300">
+                  {/* Header Bar Bersih & Minimalis (Hanya Judul & Chevron Saat Tertutup) */}
+                  <div
+                    onClick={() => setIsCardDetailsOpen(!isCardDetailsOpen)}
+                    className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-muted/40 transition-colors select-none"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-sm bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <User className="h-3.5 w-3.5" />
+                      </div>
+                      <span className="font-semibold text-sm text-foreground">Informasi Akun</span>
+                    </div>
+
+                    <div className="p-1 text-muted-foreground hover:text-foreground transition-transform duration-300">
+                      <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isCardDetailsOpen && "rotate-180")} />
+                    </div>
+                  </div>
+
+                  {/* Panel Detail Rincian Akun & Ubah Data (Hanya Muncul Saat Dibuka) */}
+                  {isCardDetailsOpen && (
+                    <div className="px-4 pb-4 pt-1 border-t border-border/40 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="grid grid-cols-2 gap-2.5 mt-3">
+                        <div className="bg-background dark:bg-muted/20 border border-border/50 rounded-sm p-3 col-span-2 sm:col-span-1">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Nama Pengguna</p>
+                          <p className="font-medium text-foreground text-sm truncate">{memberData.username || memberData.name}</p>
+                        </div>
+
+                        <div className="bg-background dark:bg-muted/20 border border-border/50 rounded-sm p-3 col-span-2 sm:col-span-1">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">No. Telp</p>
+                          <p className="font-medium text-foreground text-sm truncate">{memberData.phone}</p>
+                        </div>
+
+                        <div className="bg-background dark:bg-muted/20 border border-border/50 rounded-sm p-3 col-span-2 sm:col-span-1">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Kelahiran</p>
+                          <p className="font-medium text-foreground text-sm truncate">{memberData.tanggalLahir}</p>
+                        </div>
+
+                        <div className="bg-background dark:bg-muted/20 border border-border/50 rounded-sm p-3 col-span-2 sm:col-span-1">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Email Login</p>
+                          <p className="font-medium text-foreground text-sm truncate">{memberData.email}</p>
+                        </div>
+
+                        <div className="bg-background dark:bg-muted/20 border border-border/50 rounded-sm p-3 col-span-2">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Alamat</p>
+                          {memberData.alamat !== "-" ? (
+                            <div className="flex flex-col gap-0.5">
+                              <p className="font-medium text-foreground text-sm leading-relaxed">{memberData.alamat}</p>
+                              <p className="font-medium text-foreground text-xs text-muted-foreground leading-relaxed">Kec. {memberData.kecamatan}, Kab. {memberData.kabupaten}</p>
+                            </div>
+                          ) : (
+                            <p className="font-medium text-foreground text-sm leading-relaxed">-</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-3 pt-3 border-t border-border/40 flex justify-end">
+                        <Button
+                          size="sm"
+                          onClick={handleOpenEditModal}
+                          className="h-8 px-3.5 gap-1.5 text-xs font-semibold cursor-pointer rounded-sm"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          Ubah Data Profil
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Bagian Kanan: Info Akun */}
             {showInfoAkun && (
               <div className="lg:col-span-5 flex flex-col">
                 <div className="bg-card border-l-4 border-l-primary shadow-sm flex flex-col h-full transition-all hover:shadow-md">
+                  <div className="px-5 pt-4 pb-2 flex justify-between items-center border-b border-border/40">
+                    <span className="font-bold text-sm text-foreground">Informasi Akun</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleOpenEditModal}
+                      className="h-8 gap-1.5 text-xs font-semibold cursor-pointer"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Ubah Data
+                    </Button>
+                  </div>
                   <div className="p-5 grid grid-cols-2 gap-3 flex-1 content-center">
+                    <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-2">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Nama Pengguna</p>
+                      <p className="font-medium text-foreground text-sm truncate">{memberData.username || memberData.name}</p>
+                    </div>
+
                     <div className="bg-background dark:bg-muted/20 border rounded-none p-3 shadow-sm transition-all hover:shadow-md col-span-1">
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">No. Telp</p>
                       <p className="font-medium text-foreground text-sm truncate">{memberData.phone}</p>
@@ -446,6 +787,17 @@ export default function MemberPage() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleRegisterMember} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="regUsername">Nama Pengguna</Label>
+              <Input
+                id="regUsername"
+                type="text"
+                required
+                placeholder="Masukkan nama pengguna"
+                value={regUsername}
+                onChange={e => setRegUsername(e.target.value)}
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="regPhone">No. WhatsApp / Telp Aktif</Label>
               <Input id="regPhone" type="tel" required placeholder="Masukkan No.Telp" value={regPhone} onChange={e => setRegPhone(e.target.value)} />
@@ -535,6 +887,141 @@ export default function MemberPage() {
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Daftar Sekarang
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Ubah Data Member */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-none border-primary/20">
+          <button type="button" tabIndex={0} className="sr-only" aria-hidden="true" />
+          <DialogHeader>
+            <DialogTitle className="text-[15px] text-primary font-bold">Ubah Informasi Akun</DialogTitle>
+            <DialogDescription className="text-[11px]">
+              Perbarui nama pengguna, nomor telepon, alamat, atau tanggal lahir Anda.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdateProfile} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="editUsername">Nama Pengguna</Label>
+              <Input
+                id="editUsername"
+                type="text"
+                required
+                placeholder="Masukkan nama pengguna"
+                value={editUsername}
+                onChange={e => setEditUsername(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editPhone">No. WhatsApp / Telp Aktif</Label>
+              <Input
+                id="editPhone"
+                type="tel"
+                required
+                placeholder="Masukkan No.Telp"
+                value={editPhone}
+                onChange={e => setEditPhone(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editAlamat">Alamat Lengkap</Label>
+              <Input
+                id="editAlamat"
+                required
+                placeholder="Masukkan Alamat"
+                value={editAlamat}
+                onChange={e => setEditAlamat(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label>Provinsi</Label>
+                {memberData?.provinsi && memberData.provinsi !== "-" && !editProvinsiId && (
+                  <span className="text-[11px] text-muted-foreground truncate max-w-[180px]">Saat ini: {memberData.provinsi}</span>
+                )}
+              </div>
+              <LocationCombobox
+                value={editProvinsiId}
+                onChange={(val, name) => { setEditProvinsiId(val); setEditKabupatenId(""); setEditKecamatanId(""); }}
+                items={provinces}
+                isLoading={isLoadingProvinces}
+                placeholder={memberData?.provinsi && memberData.provinsi !== "-" ? `Ubah provinsi (${memberData.provinsi})...` : "Pilih Provinsi..."}
+                searchPlaceholder="Cari provinsi..."
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Kabupaten</Label>
+                <LocationCombobox
+                  value={editKabupatenId}
+                  onChange={(val, name) => { setEditKabupatenId(val); setEditKecamatanId(""); }}
+                  items={editRegencies}
+                  isLoading={isLoadingEditRegencies}
+                  placeholder={memberData?.kabupaten && memberData.kabupaten !== "-" && !editProvinsiId ? memberData.kabupaten : "Pilih..."}
+                  searchPlaceholder="Cari kabupaten..."
+                  disabled={!editProvinsiId}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Kecamatan</Label>
+                <LocationCombobox
+                  value={editKecamatanId}
+                  onChange={(val, name) => setEditKecamatanId(val)}
+                  items={editDistricts}
+                  isLoading={isLoadingEditDistricts}
+                  placeholder={memberData?.kecamatan && memberData.kecamatan !== "-" && !editKabupatenId ? memberData.kecamatan : "Pilih..."}
+                  searchPlaceholder="Cari kecamatan..."
+                  disabled={!editKabupatenId}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Kelahiran</Label>
+              <div className="grid grid-cols-3 gap-2">
+                <Select value={editTgl} onValueChange={(val) => setEditTgl(val || "")}>
+                  <SelectTrigger className="w-full [&>span]:flex-1 [&>span]:justify-center [&>span]:text-center">
+                    <SelectValue placeholder="Tanggal" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]" alignItemWithTrigger={false}>
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map(d => {
+                      const padded = String(d).padStart(2, '0');
+                      return <SelectItem key={d} value={padded}>{padded}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
+                <Select value={editBln} onValueChange={(val) => setEditBln(val || "")}>
+                  <SelectTrigger className="w-full [&>span]:flex-1 [&>span]:justify-center [&>span]:text-center">
+                    <SelectValue placeholder="Bulan">
+                      {editBln ? ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"][parseInt(editBln) - 1] : undefined}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]" alignItemWithTrigger={false}>
+                    {["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"].map((name, i) => {
+                      const padded = String(i + 1).padStart(2, '0');
+                      return <SelectItem key={padded} value={padded}>{name}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
+                <Select value={editThn} onValueChange={(val) => setEditThn(val || "")}>
+                  <SelectTrigger className="w-full [&>span]:flex-1 [&>span]:justify-center [&>span]:text-center">
+                    <SelectValue placeholder="Tahun" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]" alignItemWithTrigger={false}>
+                    {Array.from({ length: 80 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                      <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)} disabled={isUpdating}>Batal</Button>
+              <Button type="submit" disabled={isUpdating}>
+                {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Simpan Perubahan
               </Button>
             </DialogFooter>
           </form>
