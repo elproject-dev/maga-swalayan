@@ -1,6 +1,6 @@
 "use client"
 import { toast } from "@/components/ui/toast"
-import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search, Plus, MapPin, X, AlignLeft, Store, Bell, Star, Megaphone } from "lucide-react"
+import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search, Plus, MapPin, X, AlignLeft, Store, Bell, Star, Megaphone, Trash2, ArrowUp, ArrowDown, ArrowUpToLine } from "lucide-react"
 import { uploadMedia } from "@/lib/storage"
 import { cn } from "@/lib/utils"
 import {
@@ -92,12 +92,18 @@ export default function SettingsPage() {
   const [isMounted, setIsMounted] = useState(false)
 
   const [promos, setPromos] = useState<any[]>([])
+  const [promoCategories, setPromoCategories] = useState<{ id: number; name: string }[]>([])
+  const [selectedPromoCategoryFilter, setSelectedPromoCategoryFilter] = useState("all")
+  const [isPromoCategoryModalOpen, setIsPromoCategoryModalOpen] = useState(false)
+  const [newPromoCatName, setNewPromoCatName] = useState("")
+  const [isAddingPromoCat, setIsAddingPromoCat] = useState(false)
+  const [deletingPromoCatId, setDeletingPromoCatId] = useState<number | null>(null)
   const [searchPromoQuery, setSearchPromoQuery] = useState("")
   const [selectedRows, setSelectedRows] = useState<number[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [isSaving, setIsSaving] = useState(false)
-  const [newPromo, setNewPromo] = useState({ title: "", promo: "", src: "" })
+  const [newPromo, setNewPromo] = useState({ title: "", promo: "", src: "", category: "" })
   const [fileName, setFileName] = useState("")
   const [promoFile, setPromoFile] = useState<File | null>(null)
 
@@ -252,7 +258,14 @@ export default function SettingsPage() {
 
   const filteredPromos = promos.filter((p) => {
     const q = searchPromoQuery.toLowerCase()
-    return p.title.toLowerCase().includes(q) || p.promo.toLowerCase().includes(q)
+    const matchesSearch = p.title.toLowerCase().includes(q) || (p.promo && p.promo.toLowerCase().includes(q))
+    const matchesCat =
+      selectedPromoCategoryFilter === "all"
+        ? true
+        : selectedPromoCategoryFilter === "none"
+        ? !p.category
+        : (p.category && p.category.toLowerCase() === selectedPromoCategoryFilter.toLowerCase())
+    return matchesSearch && matchesCat
   })
 
   const filteredPilihans = pilihans.filter((p) => {
@@ -276,6 +289,9 @@ export default function SettingsPage() {
     setIsLoading(true)
     const { data: promosData } = await supabase.from('promo').select('*').order('id', { ascending: true })
     if (promosData) setPromos(promosData)
+
+    const { data: promoCats } = await supabase.from('promo_category').select('*').order('sort_order', { ascending: true }).order('id', { ascending: true })
+    if (promoCats) setPromoCategories(promoCats)
 
     const { data: pilihansData } = await supabase.from('event').select('*').order('id', { ascending: true })
     if (pilihansData) setPilihans(pilihansData)
@@ -340,7 +356,7 @@ export default function SettingsPage() {
 
   const handleAddClick = () => {
     setEditingId(null)
-    setNewPromo({ title: "", promo: "", src: "" })
+    setNewPromo({ title: "", promo: "", src: "", category: "" })
     setFileName("")
     setPromoFile(null)
     setIsDialogOpen(true)
@@ -348,7 +364,12 @@ export default function SettingsPage() {
 
   const handleEditClick = (promo: any) => {
     setEditingId(promo.id)
-    setNewPromo({ title: promo.title, promo: promo.promo, src: promo.src })
+    setNewPromo({
+      title: promo.title,
+      promo: promo.promo,
+      src: promo.src,
+      category: promo.category || "",
+    })
     setFileName("Gambar saat ini")
     setIsDialogOpen(true)
   }
@@ -361,7 +382,27 @@ export default function SettingsPage() {
         const url = await uploadMedia(promoFile, 'promo')
         if (url) srcUrl = url
       }
-      const payload = { title: newPromo.title, promo: newPromo.promo, src: srcUrl }
+      const categoryValue = newPromo.category?.trim() || null
+      const payload = {
+        title: newPromo.title,
+        promo: newPromo.promo,
+        src: srcUrl,
+        category: categoryValue,
+      }
+
+      // Jika kategori diisi dan belum ada di promo_category, otomatis tambahkan ke daftar kategori
+      if (categoryValue && !promoCategories.some((c) => c.name.toLowerCase() === categoryValue.toLowerCase())) {
+        try {
+          const { data: newCat } = await supabase
+            .from('promo_category')
+            .insert([{ name: categoryValue }])
+            .select()
+          if (newCat && newCat[0]) {
+            setPromoCategories((prev) => [...prev, newCat[0]])
+          }
+        } catch (_) {}
+      }
+
       if (editingId) {
         const { error } = await supabase
           .from('promo')
@@ -389,6 +430,90 @@ export default function SettingsPage() {
       setIsSaving(false)
       setIsDialogOpen(false)
     }
+  }
+
+  const handleAddPromoCategory = async () => {
+    const trimmed = newPromoCatName.trim()
+    if (!trimmed) {
+      toast.add({ title: "Nama kategori tidak boleh kosong", type: "error" })
+      return
+    }
+    setIsAddingPromoCat(true)
+    try {
+      const nextOrder = promoCategories.length
+      const { data, error } = await supabase
+        .from('promo_category')
+        .insert([{ name: trimmed, sort_order: nextOrder }])
+        .select()
+      if (error) {
+        toast.add({ title: "Gagal menambah kategori", description: error.message, type: "error" })
+      } else if (data && data[0]) {
+        setPromoCategories((prev) => [...prev, data[0]])
+        setNewPromoCatName("")
+        setNewPromo((prev) => ({ ...prev, category: data[0].name }))
+        toast.add({ title: `Kategori "${data[0].name}" berhasil ditambahkan!`, type: "success" })
+      }
+    } finally {
+      setIsAddingPromoCat(false)
+    }
+  }
+
+  const handleDeletePromoCategory = async (id: number, name: string) => {
+    setDeletingPromoCatId(id)
+    try {
+      const { error } = await supabase.from('promo_category').delete().eq('id', id)
+      if (error) {
+        toast.add({ title: "Gagal menghapus kategori", description: error.message, type: "error" })
+      } else {
+        const remaining = promoCategories.filter((c) => c.id !== id)
+        setPromoCategories(remaining)
+        if (selectedPromoCategoryFilter === name) {
+          setSelectedPromoCategoryFilter("all")
+        }
+        toast.add({ title: `Kategori "${name}" dihapus`, type: "success" })
+      }
+    } finally {
+      setDeletingPromoCatId(null)
+    }
+  }
+
+  const updateCategoryOrder = async (newOrderedList: typeof promoCategories) => {
+    setPromoCategories(newOrderedList)
+    try {
+      const updates = newOrderedList.map((item, index) =>
+        supabase.from('promo_category').update({ sort_order: index }).eq('id', item.id)
+      )
+      await Promise.all(updates)
+      toast.add({ title: "Urutan posisi kategori berhasil disimpan", type: "success" })
+    } catch (err: any) {
+      toast.add({ title: "Gagal menyimpan urutan", description: err.message, type: "error" })
+    }
+  }
+
+  const handleMoveCategoryToTop = (index: number) => {
+    if (index === 0) return
+    const item = promoCategories[index]
+    const remaining = promoCategories.filter((_, i) => i !== index)
+    const updated = [item, ...remaining]
+    updateCategoryOrder(updated)
+  }
+
+  const handleMoveCategoryUp = (index: number) => {
+    if (index === 0) return
+    const updated = [...promoCategories]
+    const temp = updated[index - 1]
+    updated[index - 1] = updated[index]
+    updated[index] = temp
+    updateCategoryOrder(updated)
+  }
+
+  const handleMoveCategoryDown = (index: number) => {
+    if (index === promoCategories.length - 1) return
+    const updated = [...promoCategories]
+    const temp = updated[index + 1]
+    updated[index + 1] = updated[index]
+    updated[index] = temp
+    updateCategoryOrder(updated)
   }
 
   const handleDeleteProduk = async () => {
@@ -683,6 +808,26 @@ export default function SettingsPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <h2 className="text-md md:text-xl font-semibold tracking-tight">Manajemen Promo</h2>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    {/* Category Filter */}
+                    <div className="flex items-center">
+                      <select
+                        value={selectedPromoCategoryFilter}
+                        onChange={(e) => {
+                          setSelectedPromoCategoryFilter(e.target.value)
+                          setCurrentPage(1)
+                        }}
+                        className="h-8 text-xs border border-input bg-background px-2.5 py-1 rounded-none text-foreground focus:outline-none"
+                      >
+                        <option value="all">Semua Kategori</option>
+                        <option value="none">Tanpa Kategori</option>
+                        {promoCategories.map((cat) => (
+                          <option key={cat.id} value={cat.name}>
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
                     <div className="relative w-full sm:w-auto">
                       <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
@@ -699,10 +844,123 @@ export default function SettingsPage() {
                       {selectedRows.length > 0 && (
                         <Button variant="secondary" onClick={handleDelete}>Hapus ({selectedRows.length})</Button>
                       )}
+                      <Button variant="outline" onClick={() => setIsPromoCategoryModalOpen(true)} className="h-8 text-xs">
+                        Kelola Kategori
+                      </Button>
                       <Button onClick={handleAddClick}>Tambah Promo</Button>
                     </div>
                   </div>
                 </div>
+
+                {/* Dialog Kelola Kategori Promo */}
+                <Dialog open={isPromoCategoryModalOpen} onOpenChange={setIsPromoCategoryModalOpen}>
+                  <DialogContent className="w-[95vw] sm:max-w-md p-5 rounded-none">
+                    <DialogHeader>
+                      <DialogTitle className="text-sm font-semibold tracking-tight">Kelola Kategori Promo</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex gap-2 pt-2">
+                      <Input
+                        placeholder="Nama kategori baru..."
+                        value={newPromoCatName}
+                        onChange={(e) => setNewPromoCatName(e.target.value)}
+                        className="h-8 text-xs"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={handleAddPromoCategory}
+                        disabled={isAddingPromoCat || !newPromoCatName.trim()}
+                        className="h-8 text-xs shrink-0"
+                      >
+                        {isAddingPromoCat ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Tambah"}
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-2">
+                      Gunakan tombol panah untuk mengatur urutan posisi. Kategori paling atas akan muncul pertama kali di menu promo.
+                    </p>
+                    <div className="mt-3 flex flex-col gap-1.5 max-h-[260px] overflow-y-auto pr-1">
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                        Daftar & Urutan Kategori ({promoCategories.length})
+                      </span>
+                      {promoCategories.length === 0 ? (
+                        <p className="text-xs text-muted-foreground py-4 text-center">Belum ada kategori.</p>
+                      ) : (
+                        promoCategories.map((c, index) => (
+                          <div
+                            key={c.id}
+                            className="flex items-center justify-between py-1.5 px-2.5 bg-muted/40 hover:bg-muted/70 transition-colors text-xs border border-border/40 gap-2"
+                          >
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <span className="w-4 text-[11px] font-bold text-muted-foreground text-center shrink-0">
+                                {index + 1}.
+                              </span>
+                              <span className="font-medium truncate">{c.name}</span>
+                              {index === 0 && (
+                                <span className="text-[9px] px-1.5 py-0.2 bg-primary/10 text-primary border border-primary/20 rounded font-semibold shrink-0">
+                                  Paling Atas
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-0.5 shrink-0">
+                              {/* Jadikan Paling Atas */}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                onClick={() => handleMoveCategoryToTop(index)}
+                                disabled={index === 0}
+                                title="Jadikan Paling Atas"
+                              >
+                                <ArrowUpToLine className="h-3 w-3" />
+                              </Button>
+
+                              {/* Naik */}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-accent"
+                                onClick={() => handleMoveCategoryUp(index)}
+                                disabled={index === 0}
+                                title="Pindah ke Atas"
+                              >
+                                <ArrowUp className="h-3 w-3" />
+                              </Button>
+
+                              {/* Turun */}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-accent"
+                                onClick={() => handleMoveCategoryDown(index)}
+                                disabled={index === promoCategories.length - 1}
+                                title="Pindah ke Bawah"
+                              >
+                                <ArrowDown className="h-3 w-3" />
+                              </Button>
+
+                              {/* Hapus */}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-0.5"
+                                onClick={() => handleDeletePromoCategory(c.id, c.name)}
+                                disabled={deletingPromoCatId === c.id}
+                                title="Hapus Kategori"
+                              >
+                                {deletingPromoCatId === c.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3 w-3" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <DialogContent className="w-[95vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl p-4 md:p-6 min-h-[60vh] max-h-[90vh] overflow-y-auto rounded-none">
 
@@ -720,6 +978,40 @@ export default function SettingsPage() {
                             onChange={(e) => setNewPromo({ ...newPromo, title: e.target.value })}
                             placeholder="Misal: Minyak Goreng"
                             className="h-8 text-xs"
+                          />
+                        </div>
+                        <div className="grid w-full gap-1.5">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="category" className="text-xs">Kategori</Label>
+                            <button
+                              type="button"
+                              onClick={() => setIsPromoCategoryModalOpen(true)}
+                              className="text-[10px] text-primary hover:underline"
+                            >
+                              + Kelola Kategori
+                            </button>
+                          </div>
+                          <select
+                            id="category"
+                            value={newPromo.category || ""}
+                            onChange={(e) => setNewPromo({ ...newPromo, category: e.target.value })}
+                            className="h-8 text-xs border border-input bg-background px-2.5 py-1 rounded-none text-foreground focus:outline-none"
+                          >
+                            <option value="">-- Tanpa Kategori --</option>
+                            {promoCategories.map((cat) => (
+                              <option key={cat.id} value={cat.name}>
+                                {cat.name}
+                              </option>
+                            ))}
+                            {newPromo.category && !promoCategories.some((c) => c.name.toLowerCase() === newPromo.category.toLowerCase()) && (
+                              <option value={newPromo.category}>{newPromo.category}</option>
+                            )}
+                          </select>
+                          <Input
+                            placeholder="Atau ketik nama kategori baru..."
+                            value={newPromo.category || ""}
+                            onChange={(e) => setNewPromo({ ...newPromo, category: e.target.value })}
+                            className="h-7 text-xs"
                           />
                         </div>
                         <div className="grid w-full gap-1">
@@ -823,7 +1115,17 @@ export default function SettingsPage() {
                         <div className="flex flex-1 flex-col justify-between min-w-0">
                           <div onClick={() => handleEditClick(promo)} className="cursor-pointer">
                             <div className="font-semibold text-foreground truncate text-sm">{promo.title}</div>
-                            <div className="text-xs text-muted-foreground truncate">{promo.promo}</div>
+                            <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
+                              {promo.category ? (
+                                <>
+                                  <span className="px-1.5 py-0.2 rounded border bg-muted/40 text-foreground font-medium text-[9px]">
+                                    {promo.category}
+                                  </span>
+                                  <span>•</span>
+                                </>
+                              ) : null}
+                              <span>{promo.promo}</span>
+                            </div>
                           </div>
                           <div className="flex items-center justify-between mt-2 border-t pt-2">
                             <span className="text-xs text-muted-foreground">Status</span>
@@ -861,6 +1163,7 @@ export default function SettingsPage() {
                         </TableHead>
                         <TableHead className="w-[80px] text-center">Foto</TableHead>
                         <TableHead>Nama Promo</TableHead>
+                        <TableHead className="w-[130px]">Kategori</TableHead>
                         <TableHead>Keterangan</TableHead>
                         <TableHead className="text-center w-[100px]">Status</TableHead>
                       </TableRow>
@@ -883,6 +1186,15 @@ export default function SettingsPage() {
                             />
                           </TableCell>
                           <TableCell className="font-medium cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClick(promo)}>{promo.title}</TableCell>
+                          <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClick(promo)}>
+                            {promo.category ? (
+                              <span className="text-[11px] px-2 py-0.5 rounded-full border bg-muted/40 font-medium">
+                                {promo.category}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
                           <TableCell className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleEditClick(promo)}>{promo.promo}</TableCell>
                           <TableCell className="text-center">
                             <Switch
@@ -904,7 +1216,7 @@ export default function SettingsPage() {
                       )}
                       {!isLoading && filteredPromos.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                          <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                             Tidak ada data promo.
                           </TableCell>
                         </TableRow>

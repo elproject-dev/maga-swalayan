@@ -11,11 +11,13 @@ import { toast as sonnerToast } from "sonner"
 
 const baseToast = ToastPrimitive.createToastManager()
 
+const DEFAULT_TOAST_DURATION = 1800
+
 const toast = Object.assign(
-  (message: any, data?: any) => sonnerToast(message, data),
+  (message: any, data?: any) => sonnerToast(message, { duration: DEFAULT_TOAST_DURATION, ...data }),
   baseToast,
   {
-    add: (options: { title?: any; description?: any; type?: string; [key: string]: any }) => {
+    add: (options: { title?: any; description?: any; type?: string; duration?: number; [key: string]: any }) => {
       try {
         baseToast.add?.(options)
       } catch (_) {}
@@ -23,25 +25,33 @@ const toast = Object.assign(
       const title = options?.title || options?.description || "Pemberitahuan"
       const description = options?.title ? options?.description : undefined
       const type = options?.type || "info"
+      const duration = options?.duration ?? (type === "error" ? 2200 : DEFAULT_TOAST_DURATION)
+
+      const toastConfig = {
+        description,
+        duration,
+        dismissible: true,
+        ...options,
+      }
 
       if (type === "success") {
-        return sonnerToast.success(title, { description })
+        return sonnerToast.success(title, toastConfig)
       } else if (type === "error") {
-        return sonnerToast.error(title, { description })
+        return sonnerToast.error(title, toastConfig)
       } else if (type === "warning") {
-        return sonnerToast.warning(title, { description })
+        return sonnerToast.warning(title, toastConfig)
       } else if (type === "info") {
-        return sonnerToast.info(title, { description })
+        return sonnerToast.info(title, toastConfig)
       } else if (type === "loading") {
-        return sonnerToast.loading(title, { description })
+        return sonnerToast.loading(title, toastConfig)
       } else {
-        return sonnerToast(title, { description })
+        return sonnerToast(title, toastConfig)
       }
     },
-    success: (message: any, data?: any) => sonnerToast.success(message, data),
-    error: (message: any, data?: any) => sonnerToast.error(message, data),
-    info: (message: any, data?: any) => sonnerToast.info(message, data),
-    warning: (message: any, data?: any) => sonnerToast.warning(message, data),
+    success: (message: any, data?: any) => sonnerToast.success(message, { duration: DEFAULT_TOAST_DURATION, ...data }),
+    error: (message: any, data?: any) => sonnerToast.error(message, { duration: 2200, ...data }),
+    info: (message: any, data?: any) => sonnerToast.info(message, { duration: DEFAULT_TOAST_DURATION, ...data }),
+    warning: (message: any, data?: any) => sonnerToast.warning(message, { duration: DEFAULT_TOAST_DURATION, ...data }),
     loading: (message: any, data?: any) => sonnerToast.loading(message, data),
     dismiss: (toastId?: any) => sonnerToast.dismiss(toastId),
   }

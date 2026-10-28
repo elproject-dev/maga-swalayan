@@ -4,7 +4,6 @@ import * as React from "react"
 import Autoplay from "embla-carousel-autoplay"
 import { Card } from "@/components/ui/card"
 import { Carousel, CarouselContent, CarouselItem, CarouselDots } from "@/components/ui/carousel"
-
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { supabase } from "@/lib/supabase"
 import { LoadingSpinner } from "@/components/loading-spinner"
@@ -73,40 +72,106 @@ function CarouselDemo({ banners }: { banners: any[] }) {
   )
 }
 
-function PromoGallery({ promos }: { promos: any[] }) {
-  const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
+function PromoGallery({ promos, categories }: { promos: any[]; categories: any[] }) {
+  const [selectedImage, setSelectedImage] = React.useState<string | null>(null)
+
+  // 1. Kelompokkan promo yang memiliki kategori sesuai urutan categories
+  const categorizedGroups: { category: string; items: any[] }[] = []
+  const usedCategoryNames = new Set<string>()
+
+  categories.forEach((cat) => {
+    const matchingItems = promos.filter(
+      (item) => item.category?.trim().toLowerCase() === cat.name.trim().toLowerCase()
+    )
+    if (matchingItems.length > 0) {
+      categorizedGroups.push({ category: cat.name.trim(), items: matchingItems })
+      usedCategoryNames.add(cat.name.trim().toLowerCase())
+    }
+  })
+
+  // Kategori lain yang ada di data promo tapi belum ada di tabel kategori
+  promos.forEach((item) => {
+    const catName = item.category?.trim()
+    if (catName && !usedCategoryNames.has(catName.toLowerCase())) {
+      const matchingItems = promos.filter(
+        (p) => p.category?.trim().toLowerCase() === catName.toLowerCase()
+      )
+      categorizedGroups.push({ category: catName, items: matchingItems })
+      usedCategoryNames.add(catName.toLowerCase())
+    }
+  })
+
+  // Promo yang belum memiliki kategori (kosong/null)
+  const uncategorizedItems = promos.filter((item) => !item.category?.trim())
+
+  const allGroups = [...categorizedGroups]
+  if (uncategorizedItems.length > 0) {
+    allGroups.push({
+      category: categorizedGroups.length > 0 ? "Promo Lainnya" : "Promo Hari Ini",
+      items: uncategorizedItems,
+    })
+  }
 
   return (
     <>
       <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
         <DialogContent className="w-[90vw] max-w-lg p-0 bg-transparent shadow-none [&>button]:text-white [&>button]:bg-black/50 [&>button]:rounded-full [&>button]:p-2 [&>button]:right-2 [&>button]:top-2 [&>button]:hover:bg-black/70">
-          {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto max-h-[85vh] rounded-sm object-contain shadow-2xl" />}
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="Preview"
+              className="w-full h-auto max-h-[85vh] rounded-sm object-contain shadow-2xl"
+            />
+          )}
         </DialogContent>
       </Dialog>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-4">
-        {promos.map((item) => (
-          <Card key={item.id} onClick={() => setSelectedImage(item.src)} className="overflow-hidden border-none shadow-[1px] rounded-sm p-0 group cursor-pointer relative aspect-[4/5] transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 hover:shadow-sm">
-            <img
-              src={item.src}
-              alt={item.title}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-            <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
 
-            <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 flex flex-col pointer-events-none">
-              <div className="w-full border-t border-white/30 pt-3 flex flex-col gap-1">
-                <h3 className="text-white/90 text-[10px] md:text-[10px] font-bold line-clamp-1 drop-shadow-sm">
-                  {item.title}
-                </h3>
-                <p className="text-yellow-400 text-[10px] md:text-[10px] font-bold drop-shadow-md">
-                  {item.promo}
-                </p>
-              </div>
+      <div className="flex flex-col gap-8">
+        {allGroups.map((group) => (
+          <div key={group.category} className="flex flex-col gap-4">
+            {/* Header Kategori */}
+            <div className="flex items-center justify-between border-b pb-2">
+              <h2 className="text-md md:text-xl font-bold tracking-tight">
+                {group.category}
+              </h2>
+              <a href="/promo" className="text-[10px] font-medium text-primary hover:underline">
+                Lihat Semua
+              </a>
             </div>
-          </Card>
+
+            {/* Grid Promo Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-4">
+              {group.items.map((item) => (
+                <Card
+                  key={item.id}
+                  onClick={() => setSelectedImage(item.src)}
+                  className="overflow-hidden border-none shadow-[1px] rounded-sm p-0 group cursor-pointer relative aspect-[4/5] transition-all duration-500 hover:-translate-y-1 hover:shadow-primary/20 hover:shadow-sm"
+                >
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
+
+                  <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 flex flex-col pointer-events-none">
+                    <div className="w-full border-t border-white/30 pt-3 flex flex-col gap-1">
+                      <h3 className="text-white/90 text-[10px] md:text-[10px] font-bold line-clamp-1 drop-shadow-sm">
+                        {item.title}
+                      </h3>
+                      <p className="text-yellow-400 text-[10px] md:text-[10px] font-bold drop-shadow-md">
+                        {item.promo}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
         ))}
-        {promos.length === 0 && (
-          <div className="col-span-full py-12 text-center text-muted-foreground">
+
+        {allGroups.length === 0 && (
+          <div className="py-12 text-center text-muted-foreground">
             Belum ada data promo saat ini.
           </div>
         )}
@@ -117,11 +182,13 @@ function PromoGallery({ promos }: { promos: any[] }) {
 
 export default function Page() {
   const [banners, setBanners] = React.useState<any[]>([])
+  const [categories, setCategories] = React.useState<any[]>([])
   const [promos, setPromos] = React.useState<any[]>(defaultPromoBanners)
   const [isLoading, setIsLoading] = React.useState(true)
 
   React.useEffect(() => {
     const fetchData = async () => {
+      // 1. Ambil banner
       const { data: bannerData } = await supabase
         .from('banner')
         .select('*')
@@ -129,6 +196,15 @@ export default function Page() {
         .order('id', { ascending: true })
       if (bannerData) setBanners(bannerData)
 
+      // 2. Ambil kategori terurut berdasarkan sort_order lalu id
+      const { data: catData } = await supabase
+        .from('promo_category')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('id', { ascending: true })
+      if (catData) setCategories(catData)
+
+      // 3. Ambil promo aktif
       const { data: promosData } = await supabase
         .from('promo')
         .select('*')
@@ -155,14 +231,9 @@ export default function Page() {
           <RunningText />
         </div>
         <div className="px-4 lg:px-6 pb-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-md md:text-xl font-bold tracking-tight">Promo Hari Ini</h2>
-            <a href="/promo" className="text-[10px] font-medium text-primary hover:underline">
-              Lihat Semua
-            </a>
-          </div>
-          <PromoGallery promos={promos} />
-        </div>      </div>
+          <PromoGallery promos={promos} categories={categories} />
+        </div>
+      </div>
     </div>
   )
 }
