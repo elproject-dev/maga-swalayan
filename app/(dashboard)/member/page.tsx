@@ -11,7 +11,7 @@ import { toast } from "@/components/ui/toast"
 import { Loader2, Mail, Phone, User, CreditCard, Award, MapPin, Calendar, Hash, ShoppingCart, Gift, Star, Percent, Sparkles, Pencil, ChevronDown, QrCode, Barcode, ScanLine } from "lucide-react"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { LocationCombobox, LocationItem } from "@/components/location-combobox"
-import { syncPoinWithPelanggan } from "@/lib/poin-sync"
+import { syncPoinWithPelanggan, normalizePhone } from "@/lib/poin-sync"
 import JsBarcode from "jsbarcode"
 import { QRCodeSVG } from "qrcode.react"
 import { cn } from "@/lib/utils"
@@ -236,6 +236,39 @@ export default function MemberPage() {
       if (!session?.user) throw new Error("Sesi login telah berakhir, silakan login kembali.")
       const userEmail = session.user.email || memberData.email
 
+      const trimmedPhone = editPhone.trim()
+      const cleanPhone = normalizePhone(trimmedPhone)
+
+      if (trimmedPhone && trimmedPhone !== "-") {
+        if (!cleanPhone || cleanPhone.length < 10 || cleanPhone.length > 15) {
+          toast.error("Nomor Telepon Tidak Valid", {
+            description: "Nomor WhatsApp / telepon harus terdiri dari 10 sampai 15 digit angka."
+          })
+          setIsUpdating(false)
+          return
+        }
+
+        // Proteksi nomor telepon: Cek apakah sudah terdaftar pada akun lain di tabel pelanggan
+        const { data: existingPhoneRows, error: checkError } = await supabase
+          .from('pelanggan')
+          .select('id, email, phone')
+          .neq('email', userEmail)
+
+        if (checkError) throw checkError
+
+        const isDuplicate = existingPhoneRows?.some(
+          row => row.phone && row.phone !== '-' && normalizePhone(row.phone) === cleanPhone
+        )
+
+        if (isDuplicate) {
+          toast.error("Nomor Telepon Sudah Digunakan", {
+            description: "Nomor WhatsApp / telepon ini sudah terdaftar pada akun member lain. Silakan gunakan nomor yang berbeda."
+          })
+          setIsUpdating(false)
+          return
+        }
+      }
+
       const toTitleCase = (str: string) => str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase())
       const selectedProv = editProvinsiId
         ? toTitleCase(provinces.find(p => p.id === editProvinsiId)?.name || "")
@@ -258,7 +291,7 @@ export default function MemberPage() {
       const payload: any = {
         name: finalName,
         username: finalName,
-        phone: editPhone.trim() || "-",
+        phone: cleanPhone || trimmedPhone || "-",
         alamat: editAlamat.trim() || "-",
         provinsi: selectedProv || null,
         kabupaten: selectedKab || null,
@@ -310,11 +343,46 @@ export default function MemberPage() {
     e.preventDefault()
     setIsSubmitting(true)
     try {
+      const trimmedPhone = regPhone.trim()
+      const cleanPhone = normalizePhone(trimmedPhone)
+
+      if (!cleanPhone || cleanPhone.length < 10 || cleanPhone.length > 15) {
+        toast.error("Nomor Telepon Tidak Valid", {
+          description: "Nomor WhatsApp / telepon harus terdiri dari 10 sampai 15 digit angka."
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) throw new Error("Anda harus login")
+      const userEmail = session.user.email || ""
+
+      // Proteksi nomor telepon: Cek apakah sudah terdaftar pada akun lain di tabel pelanggan
+      const { data: existingPhoneRows, error: checkError } = await supabase
+        .from('pelanggan')
+        .select('id, email, phone')
+        .neq('email', userEmail)
+
+      if (checkError) throw checkError
+
+      const isDuplicate = existingPhoneRows?.some(
+        row => row.phone && row.phone !== '-' && normalizePhone(row.phone) === cleanPhone
+      )
+
+      if (isDuplicate) {
+        toast.error("Nomor Telepon Sudah Digunakan", {
+          description: "Nomor WhatsApp / telepon ini sudah terdaftar pada akun member lain. Silakan gunakan nomor yang berbeda."
+        })
+        setIsSubmitting(false)
+        return
+      }
+
       // 1. Cek apakah nomor telepon sudah ada di poin_transactions untuk mengambil membercard lama
       const { data: poinData } = await supabase
         .from('poin_transactions')
         .select('membercard')
-        .eq('notelp', regPhone)
+        .or(`notelp.eq.${cleanPhone},notelp.eq.${trimmedPhone}`)
         .limit(1)
 
       let newId = ""
@@ -343,9 +411,6 @@ export default function MemberPage() {
       }
 
       // 2. Insert/Update into pelanggan
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.user) throw new Error("Anda harus login")
-      const userEmail = session.user.email || ""
       const defaultName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || userEmail.split('@')[0]
       const finalName = regUsername.trim() || defaultName
 
@@ -360,7 +425,7 @@ export default function MemberPage() {
         name: finalName,
         username: finalName,
         email: userEmail,
-        phone: regPhone,
+        phone: cleanPhone,
         alamat: regAlamat,
         provinsi: selectedProv,
         kecamatan: selectedKec,
@@ -379,14 +444,20 @@ export default function MemberPage() {
         if (error) throw error
       }
 
-      toast.add({ title: "Berhasil", description: `Member berhasil didaftarkan dengan ID: ${newId}`, type: "success" })
+      await syncPoinWithPelanggan().catch(console.error)
+
+      toast.success("Berhasil Mendaftar Member", {
+        description: `Member berhasil didaftarkan dengan ID: ${newId}`
+      })
 
       setIsRegisterModalOpen(false)
       // Reload halaman agar data poin lama langsung terambil dari database
       window.location.reload()
 
     } catch (error: any) {
-      toast.add({ title: "Gagal Mendaftar", description: error.message, type: "error" })
+      toast.error("Gagal Mendaftar", {
+        description: error.message || "Terjadi kesalahan saat pendaftaran."
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -800,7 +871,14 @@ export default function MemberPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="regPhone">No. WhatsApp / Telp Aktif</Label>
-              <Input id="regPhone" type="tel" required placeholder="Masukkan No.Telp" value={regPhone} onChange={e => setRegPhone(e.target.value)} />
+              <Input
+                id="regPhone"
+                type="tel"
+                required
+                placeholder="Contoh: 08123456789"
+                value={regPhone}
+                onChange={e => setRegPhone(e.target.value.replace(/[^0-9+]/g, ''))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="regAlamat">Alamat Lengkap</Label>
@@ -921,9 +999,9 @@ export default function MemberPage() {
                 id="editPhone"
                 type="tel"
                 required
-                placeholder="Masukkan No.Telp"
+                placeholder="Contoh: 08123456789"
                 value={editPhone}
-                onChange={e => setEditPhone(e.target.value)}
+                onChange={e => setEditPhone(e.target.value.replace(/[^0-9+]/g, ''))}
               />
             </div>
             <div className="space-y-2">
