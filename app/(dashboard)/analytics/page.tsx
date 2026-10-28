@@ -7,6 +7,7 @@ import { UsersPieChart } from '@/components/analytics/users-pie-chart';
 import { CityTable } from '@/components/analytics/city-table';
 import { SourceBarChart } from '@/components/analytics/source-bar-chart';
 import { RealtimeBarChart } from '@/components/analytics/realtime-bar-chart';
+import { TransactionMonthlyAnalysis } from '@/components/analytics/transaction-monthly-analysis';
 
 export const revalidate = 60; // Cache data for 1 minute for near realtime
 
@@ -336,6 +337,11 @@ export default async function AnalyticsPage() {
           <RealtimeBarChart data={data.realtimeMinutesData || []} />
         </div>
       )}
+
+      {/* Analisa Transaksi & Poin Bulanan */}
+      <div className="mt-6">
+        <TransactionMonthlyAnalysis />
+      </div>
     </div>
   );
 }
