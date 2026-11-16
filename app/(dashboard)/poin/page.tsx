@@ -18,7 +18,7 @@ import { Search, FileSpreadsheet, Loader2, Download, Upload, Trash2, RefreshCw }
 
 import { TablePagination } from "@/components/table-pagination"
 import { supabase } from "@/lib/supabase"
-import { syncPoinWithPelanggan } from "@/lib/poin-sync"
+import { syncPoinWithPelanggan, normalizeCard, normalizePhone } from "@/lib/poin-sync"
 
 import { toast } from "@/components/ui/toast"
 import { LoadingSpinner } from "@/components/loading-spinner"
@@ -32,9 +32,9 @@ import {
 } from "@/components/ui/dialog"
 
 const dummyTransactionsData = [
-  { id: "e17a54ad-4375-4fc1-a9f9-eb163ffc5d80", idtransaksi: "FJ45-726-04604", tanggal: "2026-07-23", idcabang: "MG04", membercard: "0525000037", notelp: "081234567890", totalbayar: 76800, poin: 2, description: "", tipe: "plus" },
-  { id: "9a2fb821-65b3-463d-b4f0-482a5c483a99", idtransaksi: "FJ45-726-04605", tanggal: "2026-07-24", idcabang: "MG04", membercard: "0525000038", notelp: "081987654321", totalbayar: 150000, poin: 5, description: "", tipe: "plus" },
-  { id: "732e92c2-8bbd-463b-9a99-b1d7d54020a1", idtransaksi: "FJ45-726-04606", tanggal: "2026-07-24", idcabang: "MG04", membercard: "0525000037", notelp: "081234567890", totalbayar: 0, poin: 1, description: "Redeem", tipe: "minus" },
+  { id: "e17a54ad-4375-4fc1-a9f9-eb163ffc5d80", idtransaksi: "FJ45-726-04604", tanggal: "2026-07-23", nama_pelanggan: "Budi Santoso", idcabang: "MG04", membercard: "0525000037", notelp: "081234567890", totalbayar: 76800, poin: 2, description: "", tipe: "plus" },
+  { id: "9a2fb821-65b3-463d-b4f0-482a5c483a99", idtransaksi: "FJ45-726-04605", tanggal: "2026-07-24", nama_pelanggan: "Siti Rahma", idcabang: "MG04", membercard: "0525000038", notelp: "081987654321", totalbayar: 150000, poin: 5, description: "", tipe: "plus" },
+  { id: "732e92c2-8bbd-463b-9a99-b1d7d54020a1", idtransaksi: "FJ45-726-04606", tanggal: "2026-07-24", nama_pelanggan: "Budi Santoso", idcabang: "MG04", membercard: "0525000037", notelp: "081234567890", totalbayar: 0, poin: 1, description: "Redeem", tipe: "minus" },
 ]
 
 export default function PoinPage() {
@@ -55,16 +55,44 @@ export default function PoinPage() {
 
   const fetchTransactions = async () => {
     setIsLoading(true)
-    const { data, error } = await supabase
-      .from('poin_transactions')
-      .select('*')
-      .order('tanggal', { ascending: false })
+    try {
+      const [trxRes, custRes] = await Promise.all([
+        supabase
+          .from('poin_transactions')
+          .select('*')
+          .order('tanggal', { ascending: false }),
+        supabase
+          .from('pelanggan')
+          .select('name, membercard, phone')
+      ])
 
-    if (data) {
-      setTransactionList(data)
-      if (data.length > 0) {
+      const data = trxRes.data || []
+      const pelangganList = custRes.data || []
+
+      const nameByCard = new Map<string, string>()
+      const nameByPhone = new Map<string, string>()
+
+      for (const p of pelangganList) {
+        const card = normalizeCard(p.membercard)
+        const phone = normalizePhone(p.phone)
+        if (card && p.name) nameByCard.set(card, p.name)
+        if (phone && p.name) nameByPhone.set(phone, p.name)
+      }
+
+      const enriched = data.map((t: any) => {
+        const card = normalizeCard(t.membercard)
+        const phone = normalizePhone(t.notelp)
+        const matchedName = t.nama_pelanggan || nameByCard.get(card) || nameByPhone.get(phone) || ''
+        return {
+          ...t,
+          nama_pelanggan: matchedName
+        }
+      })
+
+      setTransactionList(enriched)
+      if (enriched.length > 0) {
         // Ambil waktu data ter-create paling baru di database
-        const latestTime = data.reduce((latest, current) => {
+        const latestTime = enriched.reduce((latest: number, current: any) => {
           const currentT = new Date(current.created_at || 0).getTime();
           return currentT > latest ? currentT : latest;
         }, 0);
@@ -72,8 +100,11 @@ export default function PoinPage() {
       } else {
         setLastUpdate(null)
       }
+    } catch (err) {
+      console.error("Error loading transactions:", err)
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -83,7 +114,12 @@ export default function PoinPage() {
 
   const filteredTransactions = transactionList.filter((t) => {
     const q = searchQuery.toLowerCase()
-    return t.membercard?.toLowerCase().includes(q) || t.idtransaksi?.toLowerCase().includes(q) || t.notelp?.includes(q)
+    return (
+      t.membercard?.toLowerCase().includes(q) ||
+      t.idtransaksi?.toLowerCase().includes(q) ||
+      t.notelp?.includes(q) ||
+      t.nama_pelanggan?.toLowerCase().includes(q)
+    )
   })
 
   const handleSelectAll = (checked: boolean) => {
@@ -163,6 +199,7 @@ export default function PoinPage() {
     worksheet.columns = [
       { header: 'IDTRANSAKSI', key: 'idtransaksi', width: 20, style: { alignment: { horizontal: 'left' } } },
       { header: 'TANGGAL', key: 'tanggal', width: 15, style: { alignment: { horizontal: 'center' } } },
+      { header: 'NAMA PELANGGAN', key: 'nama_pelanggan', width: 25, style: { alignment: { horizontal: 'left' } } },
       { header: 'IDCABANG', key: 'idcabang', width: 15, style: { alignment: { horizontal: 'center' } } },
       { header: 'MEMBERCARD', key: 'membercard', width: 20, style: { alignment: { horizontal: 'center' } } },
       { header: 'NO TELP', key: 'notelp', width: 20, style: { alignment: { horizontal: 'center' } } },
@@ -177,6 +214,7 @@ export default function PoinPage() {
       worksheet.addRow({
         idtransaksi: t.idtransaksi,
         tanggal: formatToDDMMYYYY(t.tanggal),
+        nama_pelanggan: t.nama_pelanggan || '',
         idcabang: t.idcabang,
         membercard: t.membercard,
         notelp: t.notelp,
@@ -219,6 +257,7 @@ export default function PoinPage() {
     worksheet.columns = [
       { header: 'IDTRANSAKSI', key: 'idtransaksi', width: 20, style: { alignment: { horizontal: 'left' } } },
       { header: 'TANGGAL', key: 'tanggal', width: 15, style: { alignment: { horizontal: 'center' } } },
+      { header: 'NAMA PELANGGAN', key: 'nama_pelanggan', width: 25, style: { alignment: { horizontal: 'left' } } },
       { header: 'IDCABANG', key: 'idcabang', width: 15, style: { alignment: { horizontal: 'center' } } },
       { header: 'MEMBERCARD', key: 'membercard', width: 20, style: { alignment: { horizontal: 'center' } } },
       { header: 'NO TELP', key: 'notelp', width: 20, style: { alignment: { horizontal: 'center' } } },
@@ -231,6 +270,7 @@ export default function PoinPage() {
     worksheet.addRow({
       idtransaksi: 'FJ45-726-04604',
       tanggal: '2026-07-23',
+      nama_pelanggan: 'Budi Santoso',
       idcabang: 'MG04',
       membercard: '0525000037',
       notelp: '081234567890',
@@ -291,7 +331,7 @@ export default function PoinPage() {
           if (!idtransaksi) continue;
 
           let parsedDate = new Date().toISOString().split('T')[0];
-          const dateVal = row['TANGGAL'];
+          const dateVal = row['TANGGAL'] ?? row['tanggal'] ?? row['Tanggal'];
           if (dateVal) {
             if (dateVal instanceof Date) {
               parsedDate = new Date(dateVal.getTime() - dateVal.getTimezoneOffset() * 60000).toISOString().split('T')[0];
@@ -312,9 +352,46 @@ export default function PoinPage() {
           }
 
           const keys = Object.keys(row);
-          let noTelp = row['NO TELP'] || row['NOTELP'] || row['No Telp'];
-          if (!noTelp && keys.length >= 9) {
-            noTelp = row[keys[8]];
+          let namaPelanggan =
+            row['NAMA PELANGGAN'] ??
+            row['NAMA'] ??
+            row['NAMA_PELANGGAN'] ??
+            row['nama_pelanggan'] ??
+            row['Nama Pelanggan'] ??
+            row['Nama'] ??
+            row['CUSTOMER'] ??
+            row['Customer'] ??
+            '';
+
+          if (!namaPelanggan) {
+            for (const k of keys) {
+              const lk = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+              if (lk === 'namapelanggan' || lk === 'customername' || lk === 'nama' || lk === 'pelanggan') {
+                namaPelanggan = row[k];
+                break;
+              }
+            }
+          }
+
+          let noTelp =
+            row['NO TELP'] ??
+            row['NOTELP'] ??
+            row['No Telp'] ??
+            row['notelp'] ??
+            row['TELEPON'] ??
+            row['HP'] ??
+            row['No. Telp'] ??
+            row['no_telp'] ??
+            '';
+
+          if (!noTelp) {
+            for (const k of keys) {
+              const lk = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+              if (lk.includes('telp') || lk.includes('phone') || lk.includes('hp')) {
+                noTelp = row[k];
+                break;
+              }
+            }
           }
 
           const rawPoin = Number(row['POIN'] ?? row['poin'] ?? row['Poin'] ?? 0);
@@ -327,12 +404,13 @@ export default function PoinPage() {
           records.push({
             idtransaksi: String(idtransaksi).trim(),
             tanggal: parsedDate,
-            idcabang: String(row['IDCABANG'] || '').trim(),
-            membercard: String(row['MEMBERCARD'] || '').trim(),
+            nama_pelanggan: namaPelanggan ? String(namaPelanggan).trim() : '',
+            idcabang: String(row['IDCABANG'] ?? row['idcabang'] ?? '').trim(),
+            membercard: String(row['MEMBERCARD'] ?? row['membercard'] ?? '').trim(),
             notelp: noTelp ? String(noTelp).trim() : '',
-            totalbayar: Number(row['TOTALBAYAR']) || 0,
+            totalbayar: Number(row['TOTALBAYAR'] ?? row['totalbayar']) || 0,
             poin: absPoin,
-            description: String(row['DESCRIPTION'] || '').trim(),
+            description: String(row['DESCRIPTION'] ?? row['description'] ?? '').trim(),
             tipe: normalizedTipe
           })
         }
@@ -373,7 +451,11 @@ export default function PoinPage() {
 
         if (error) {
           hasError = true;
-          lastErrorMessage = error.message;
+          if (error.message?.includes('nama_pelanggan')) {
+            lastErrorMessage = "Kolom 'nama_pelanggan' belum ditambahkan di Supabase. Silakan jalankan script SQL migrasi di Supabase SQL Editor terlebih dahulu.";
+          } else {
+            lastErrorMessage = error.message;
+          }
           break; // Stop jika ada error
         }
 
@@ -432,7 +514,7 @@ export default function PoinPage() {
         <div className="relative w-full sm:max-w-sm">
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Cari ID Transaksi / Membercard..."
+            placeholder="Cari ID Transaksi / Member / Nama..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="pr-9"
@@ -518,6 +600,11 @@ export default function PoinPage() {
               </div>
 
               <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Nama:</span>
+                <span className="font-medium text-foreground">{t.nama_pelanggan || '-'}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">Member:</span>
                 <span className="font-semibold text-primary">{t.membercard}</span>
               </div>
@@ -565,6 +652,7 @@ export default function PoinPage() {
                 )}
                 <TableHead>ID Transaksi</TableHead>
                 <TableHead>Tanggal</TableHead>
+                <TableHead>Nama Pelanggan</TableHead>
                 <TableHead>Membercard</TableHead>
                 <TableHead>No. Telp</TableHead>
                 <TableHead className="text-right">Total Bayar</TableHead>
@@ -588,6 +676,7 @@ export default function PoinPage() {
                       )}
                       <TableCell className="font-medium">{t.idtransaksi}</TableCell>
                       <TableCell>{formatToDDMMYYYY(t.tanggal)}</TableCell>
+                      <TableCell className="font-medium text-foreground">{t.nama_pelanggan || '-'}</TableCell>
                       <TableCell className="font-semibold text-primary">{t.membercard}</TableCell>
                       <TableCell>{t.notelp || '-'}</TableCell>
                       <TableCell className="text-right">Rp {t.totalbayar?.toLocaleString('id-ID')}</TableCell>
@@ -607,7 +696,7 @@ export default function PoinPage() {
               )}
               {!isLoading && filteredTransactions.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={isActionMode ? 8 : 7} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={isActionMode ? 9 : 8} className="h-24 text-center text-muted-foreground">
                     Tidak ada transaksi.
                   </TableCell>
                 </TableRow>
@@ -651,8 +740,25 @@ export default function PoinPage() {
             </div>
 
             {importRecords.length > 0 && !isLoading && (
-              <div className="p-4 border rounded-none bg-muted mt-2">
-                <div className="text-sm font-medium">{importRecords.length.toLocaleString("id-ID")} data berhasil terdeteksi</div>
+              <div className="p-4 border rounded-none bg-muted mt-2 space-y-3">
+                <div className="text-sm font-semibold">{importRecords.length.toLocaleString("id-ID")} data transaksi terdeteksi:</div>
+                <div className="text-xs text-muted-foreground">Preview data contoh (termasuk Nama Pelanggan):</div>
+                <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                  {importPreview.map((item, idx) => (
+                    <div key={idx} className="text-xs bg-background p-2 border flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-muted-foreground">{item.idtransaksi}</span>
+                        <span className="font-semibold text-foreground">{item.nama_pelanggan || '(Tanpa Nama)'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-primary font-medium">{item.membercard || item.notelp || '-'}</span>
+                        <span className={`font-bold ${item.tipe === 'plus' ? 'text-green-600' : 'text-red-600'}`}>
+                          {item.tipe === 'plus' ? '+' : '-'}{item.poin} Poin
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

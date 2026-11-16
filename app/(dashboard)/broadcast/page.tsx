@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { SendIcon, Upload, Loader2, Zap, Plus, X, Users, User, Cake, Search, Check } from "lucide-react"
+import { SendIcon, Upload, Loader2, Zap, Plus, X, Users, User, Cake, Search, Check, MessageSquare } from "lucide-react"
 import { uploadMedia } from "@/lib/storage"
 import { supabase } from "@/lib/supabase"
+import { WhatsAppPromoView } from "@/components/broadcast/whatsapp-promo-view"
 
 type Template = {
   id: number
@@ -19,6 +20,7 @@ type Template = {
 }
 
 export default function BroadcastPage() {
+  const [activeTab, setActiveTab] = useState<"push" | "whatsapp">("push")
   const [title, setTitle] = useState("")
   const [body, setBody] = useState("")
   const [imageUrl, setImageUrl] = useState("")
@@ -266,11 +268,47 @@ export default function BroadcastPage() {
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:py-8 px-4 lg:px-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-md sm:text-xl font-bold tracking-tight">Kirim Pesan Broadcast</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-4">
+        <div>
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight">Kirim Pesan Broadcast</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Pilih saluran pengiriman: Web Push Notifikasi (PWA) atau Promo WhatsApp
+          </p>
+        </div>
+
+        <div className="flex items-center bg-muted p-1 border border-border">
+          <button
+            type="button"
+            onClick={() => setActiveTab("push")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold transition-all ${
+              activeTab === "push"
+                ? "bg-background text-foreground shadow-xs font-bold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5 text-yellow-500" />
+            <span>Web Push Notifikasi</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("whatsapp")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold transition-all ${
+              activeTab === "whatsapp"
+                ? "bg-background text-foreground shadow-xs font-bold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>Promo WhatsApp</span>
+          </button>
+        </div>
       </div>
 
-      {/* Target Notifikasi */}
+      {activeTab === "whatsapp" ? (
+        <WhatsAppPromoView />
+      ) : (
+        <>
+          {/* Target Notifikasi */}
       <div className="rounded-none border bg-card text-card-foreground shadow-sm">
         <div className="p-3 border-b flex items-center justify-between gap-2">
           <span className="text-xs font-semibold">Pilih Target Notifikasi</span>
@@ -736,6 +774,8 @@ export default function BroadcastPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </>
+      )}
     </div>
   )
 }

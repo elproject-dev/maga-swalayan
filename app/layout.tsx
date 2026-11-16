@@ -57,7 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PushNotificationManager />
         </ThemeProvider>
       </body>
-      <GoogleAnalytics gaId="G-YQ06T8BHFM" />
+      <GoogleAnalytics gaId="G-5GVER3V6HE" />
     </html>
   );
 }

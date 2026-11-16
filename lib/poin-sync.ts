@@ -30,7 +30,7 @@ export async function syncPoinWithPelanggan(): Promise<SyncResult> {
   // 1. Ambil semua transaksi
   const { data: transactions, error: trxError } = await supabase
     .from('poin_transactions')
-    .select('idtransaksi, membercard, notelp, poin, tipe')
+    .select('idtransaksi, membercard, notelp, poin, tipe, nama_pelanggan')
 
   if (trxError) {
     console.error('Error fetching poin_transactions for sync:', trxError)
@@ -81,9 +81,10 @@ export async function syncPoinWithPelanggan(): Promise<SyncResult> {
       return isPlus ? sum + pts : sum - pts
     }, 0)
 
-    // Cek apakah ada update membercard atau phone yang bisa dilengkapi dari transaksi
+    // Cek apakah ada update membercard, phone, atau nama yang bisa dilengkapi dari transaksi
     let updatedCard = cust.membercard
     let updatedPhone = cust.phone
+    let updatedName = cust.name
 
     if ((!updatedCard || updatedCard === '-') && matchingTrx.length > 0) {
       const foundCard = matchingTrx.find(t => normalizeCard(t.membercard))?.membercard
@@ -95,11 +96,19 @@ export async function syncPoinWithPelanggan(): Promise<SyncResult> {
       if (foundPhone) updatedPhone = foundPhone.trim()
     }
 
+    // Jika nama pelanggan di database masih placeholder / generic dan transaksi memiliki nama riil, perbarui nama
+    const isGenericName = !cust.name || cust.name.startsWith('Member ') || cust.name.startsWith('Pelanggan ') || cust.name === 'Pelanggan Baru'
+    if (isGenericName && matchingTrx.length > 0) {
+      const foundName = matchingTrx.find(t => t.nama_pelanggan && t.nama_pelanggan.trim())?.nama_pelanggan
+      if (foundName) updatedName = foundName.trim()
+    }
+
     // Jika poin berbeda atau ada data yang diperbarui, lakukan update
-    if (cust.points !== netPoints || cust.membercard !== updatedCard || cust.phone !== updatedPhone) {
+    if (cust.points !== netPoints || cust.membercard !== updatedCard || cust.phone !== updatedPhone || cust.name !== updatedName) {
       const { error: updateError } = await supabase
         .from('pelanggan')
         .update({
+          name: updatedName,
           points: netPoints,
           membercard: updatedCard,
           phone: updatedPhone
@@ -146,7 +155,10 @@ export async function syncPoinWithPelanggan(): Promise<SyncResult> {
 
       const cardDisplay = group.membercard || ''
       const phoneDisplay = group.notelp || '-'
-      const nameDisplay = cardDisplay ? `Member ${cardDisplay}` : (phoneDisplay !== '-' ? `Pelanggan ${phoneDisplay}` : 'Pelanggan Baru')
+      const foundTrxName = group.trxs.find(t => t.nama_pelanggan && t.nama_pelanggan.trim())?.nama_pelanggan
+      const nameDisplay = foundTrxName
+        ? foundTrxName.trim()
+        : (cardDisplay ? `Member ${cardDisplay}` : (phoneDisplay !== '-' ? `Pelanggan ${phoneDisplay}` : 'Pelanggan Baru'))
 
       newCustomersToInsert.push({
         name: nameDisplay,

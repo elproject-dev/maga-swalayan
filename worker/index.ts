@@ -6,12 +6,12 @@ importScripts('https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-comp
 
 // We don't have process.env here, but these are safe public keys
 const firebaseConfig = {
-  apiKey: "AIzaSyAQXytrS1GWv3g53VoeE6cqOUzcLepzOZI",
-  authDomain: "maga-swalayan-bf6c5.firebaseapp.com",
-  projectId: "maga-swalayan-bf6c5",
-  storageBucket: "maga-swalayan-bf6c5.firebasestorage.app",
-  messagingSenderId: "874122742029",
-  appId: "1:874122742029:web:3cb2e8b366355bf5274844"
+  apiKey: "AIzaSyAZyKorgwy5WqBBD2dHvex76q19DjzbjPI",
+  authDomain: "maga-swalayan-fb2df.firebaseapp.com",
+  projectId: "maga-swalayan-fb2df",
+  storageBucket: "maga-swalayan-fb2df.firebasestorage.app",
+  messagingSenderId: "816000143761",
+  appId: "1:816000143761:web:52c925a7b2dfd0b3f8ca30"
 };
 
 // Initialize Firebase in the service worker
