@@ -2645,19 +2645,16 @@ export default function SettingsPage() {
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="pt-4 space-y-4">
-                        <div className="max-w-[270px] p-3 rounded-lg border border-border/80 bg-card/80 shadow-xs space-y-2.5">
-                          <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-1.5 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
-                              <Server className="w-3.5 h-3.5 text-primary" />
-                              Masa Aktif Server
-                            </span>
-                            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+                        <div className="max-w-[270px] py-1 px-1 rounded-none space-y-1 bg-sidebar/50 border border-border/40">
+                          <div className="flex items-center justify-between px-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider py-1">
+                            <span>Masa Aktif Server</span>
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
                           </div>
 
                           {/* Domain Row */}
-                          <div className="flex items-center justify-between text-xs pt-1">
-                            <span className="flex items-center gap-1.5 text-muted-foreground text-[11px] truncate max-w-[120px]">
-                              <Globe className="w-3 h-3 text-sky-500 shrink-0" />
+                          <div className="flex items-center justify-between h-8 px-2 rounded-md text-xs">
+                            <span className="flex items-center gap-2 text-foreground/80 text-xs truncate max-w-[140px]">
+                              <Globe className="w-4 h-4 text-sky-500 shrink-0" />
                               {infraForm.domain_name || "Domain"}
                             </span>
                             <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
@@ -2668,9 +2665,9 @@ export default function SettingsPage() {
                           </div>
 
                           {/* VPS Row */}
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="flex items-center gap-1.5 text-muted-foreground text-[11px] truncate max-w-[120px]">
-                              <Server className="w-3 h-3 text-purple-500 shrink-0" />
+                          <div className="flex items-center justify-between h-8 px-2 rounded-md text-xs">
+                            <span className="flex items-center gap-2 text-foreground/80 text-xs truncate max-w-[140px]">
+                              <Server className="w-4 h-4 text-purple-500 shrink-0" />
                               {infraForm.vps_name || "VPS"}
                             </span>
                             <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-600">

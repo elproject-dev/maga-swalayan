@@ -3,8 +3,15 @@
 import * as React from "react"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { Globe, Server, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Globe, Server } from "lucide-react"
 import Link from "next/link"
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
 
 interface InfraSettings {
   domain_name: string
@@ -67,7 +74,7 @@ export function SidebarInfraBadge() {
 
     // Listen to changes in infra_settings
     const channel = supabase
-      .channel("infra_settings_changes")
+      .channel("infra_settings_changes_badge")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "infra_settings" },
@@ -93,9 +100,9 @@ export function SidebarInfraBadge() {
   const vpsDays = calculateDaysLeft(infra.vps_expiry)
 
   const getStatusBadge = (days: number | null) => {
-    if (days === null) return { color: "text-muted-foreground bg-muted", label: "Belum diset", isWarning: false }
+    if (days === null) return { color: "text-muted-foreground bg-muted/60", label: "Belum diset", isWarning: false }
     if (days < 0) return { color: "text-rose-600 bg-rose-500/10 border-rose-500/30", label: "Expired", isWarning: true }
-    if (days <= 7) return { color: "text-rose-600 bg-rose-500/10 border-rose-500/30", label: `${days} hr (Kritis)`, isWarning: true }
+    if (days <= 7) return { color: "text-rose-600 bg-rose-500/10 border-rose-500/30", label: `${days} hr`, isWarning: true }
     if (days <= 30) return { color: "text-amber-600 bg-amber-500/10 border-amber-500/30", label: `${days} hr`, isWarning: true }
     return { color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30", label: `${days} hr`, isWarning: false }
   }
@@ -105,54 +112,55 @@ export function SidebarInfraBadge() {
   const hasUrgentWarning = domainStatus.isWarning || vpsStatus.isWarning
 
   return (
-    <div className="mx-2 mb-2 p-2.5 rounded-lg border border-border/70 bg-card/70 backdrop-blur-xs text-xs space-y-2 shadow-xs transition-all">
-      <div className="flex items-center justify-between">
-        <Link
-          href="/settings"
-          className="flex items-center gap-1.5 font-semibold text-[11px] text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wider"
-          title="Klik untuk ubah di Pengaturan Manajemen"
-        >
-          {hasUrgentWarning ? (
-            <AlertCircle className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
-          ) : (
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-          )}
-          Masa Aktif Server
-        </Link>
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden pt-2">
+      <SidebarGroupLabel className="flex items-center justify-between">
+        <span>Masa Aktif Server</span>
         <span
-          className={`inline-block w-2 h-2 rounded-full ${
+          className={`inline-block w-1.5 h-1.5 rounded-full ${
             hasUrgentWarning ? "bg-amber-500 animate-ping" : "bg-emerald-500"
           }`}
+          title={hasUrgentWarning ? "Ada layanan mendekati expired" : "Kondisi aman"}
         />
-      </div>
+      </SidebarGroupLabel>
+      <SidebarMenu>
+        {/* Domain Item */}
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            render={<Link href="/settings" />}
+            className="flex items-center justify-between w-full"
+            title={`Domain: ${infra.domain_name} (Expired: ${formatDisplayDate(infra.domain_expiry)})`}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <Globe className="w-4 h-4 text-sky-500 shrink-0" />
+              <span className="truncate">{infra.domain_name || "Domain"}</span>
+            </div>
+            <span
+              className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold border ${domainStatus.color}`}
+            >
+              {domainStatus.label}
+            </span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
 
-      {/* Domain Row */}
-      <div className="flex items-center justify-between gap-1 text-[11px]">
-        <div className="flex items-center gap-1.5 text-muted-foreground truncate" title={infra.domain_name || "Domain"}>
-          <Globe className="w-3 h-3 text-sky-500 shrink-0" />
-          <span className="truncate max-w-[90px]">{infra.domain_name || "Domain"}</span>
-        </div>
-        <span
-          className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border ${domainStatus.color}`}
-          title={`Expired: ${formatDisplayDate(infra.domain_expiry)}`}
-        >
-          {domainStatus.label}
-        </span>
-      </div>
-
-      {/* VPS Row */}
-      <div className="flex items-center justify-between gap-1 text-[11px]">
-        <div className="flex items-center gap-1.5 text-muted-foreground truncate" title={infra.vps_name || "VPS"}>
-          <Server className="w-3 h-3 text-purple-500 shrink-0" />
-          <span className="truncate max-w-[90px]">{infra.vps_name || "VPS"}</span>
-        </div>
-        <span
-          className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border ${vpsStatus.color}`}
-          title={`Expired: ${formatDisplayDate(infra.vps_expiry)}`}
-        >
-          {vpsStatus.label}
-        </span>
-      </div>
-    </div>
+        {/* VPS Item */}
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            render={<Link href="/settings" />}
+            className="flex items-center justify-between w-full"
+            title={`VPS: ${infra.vps_name} (Expired: ${formatDisplayDate(infra.vps_expiry)})`}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <Server className="w-4 h-4 text-purple-500 shrink-0" />
+              <span className="truncate">{infra.vps_name || "VPS"}</span>
+            </div>
+            <span
+              className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold border ${vpsStatus.color}`}
+            >
+              {vpsStatus.label}
+            </span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarGroup>
   )
 }
