@@ -1,13 +1,9 @@
 import React from "react";
-import { Outfit } from "next/font/google";
-
-const outfit = Outfit({ subsets: ["latin"], weight: ["400"] });
-
 import Link from "next/link";
 
 export function ActionButtons() {
   return (
-    <div className={`flex flex-row flex-wrap gap-4 lg:gap-[22px] justify-center drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] ${outfit.className}`}>
+    <div className="flex flex-row flex-wrap gap-4 lg:gap-[22px] justify-center drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] font-sans">
       {/* Button 1 (Red) */}
       <Link href="/login">
         <button className="flex flex-row justify-center items-center px-[20px] py-[12px] w-[137px] h-[39px] bg-[#FC0A08] shadow-[0px_2px_4px_rgba(0,0,0,0.25)] rounded-[100px] hover:opacity-90 transition-opacity">

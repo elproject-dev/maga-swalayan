@@ -1,8 +1,5 @@
 import React from "react";
-import { Outfit } from "next/font/google";
 import Link from "next/link";
-
-const outfit = Outfit({ subsets: ["latin"], weight: ["400", "700", "800"] });
 
 export function PromoSection() {
   return (
@@ -17,7 +14,7 @@ export function PromoSection() {
 
 
       {/* Main Text Content (Frame 2) */}
-      <div className={`relative flex flex-col lg:block items-center w-full max-w-[882px] lg:w-[816px] lg:h-[363px] mx-auto ${outfit.className} z-10`}>
+      <div className="relative flex flex-col lg:block items-center w-full max-w-[882px] lg:w-[816px] lg:h-[363px] mx-auto font-sans z-10">
 
         {/* Tukarkan Poin Anda Sekarang */}
         <h2 className="lg:absolute lg:top-0 lg:left-[-33px] lg:w-[882px] lg:h-[81px] text-3xl sm:text-5xl lg:text-[64px] font-bold lg:leading-[81px] text-[#1E1E1E] text-center mb-6 lg:mb-0 whitespace-normal md:whitespace-nowrap transition-colors">
@@ -38,7 +35,7 @@ export function PromoSection() {
       </div>
 
       {/* Action Buttons (Group 2) */}
-      <div className={`flex flex-row flex-wrap justify-center gap-4 lg:gap-[29px] mt-12 lg:mt-0 lg:absolute lg:top-[577px] lg:left-[568px] lg:w-[297px] lg:h-[39px] z-20 drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] ${outfit.className}`}>
+      <div className="flex flex-row flex-wrap justify-center gap-4 lg:gap-[29px] mt-12 lg:mt-0 lg:absolute lg:top-[577px] lg:left-[568px] lg:w-[297px] lg:h-[39px] z-20 drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] font-sans">
         {/* Button 1 (Red) */}
         <Link href="/member">
           <button className="flex justify-center items-center px-5 py-3 w-[130px] h-[39px] bg-[#FC0A08] shadow-[0px_2px_4px_rgba(0,0,0,0.25)] rounded-full hover:opacity-90 transition-opacity">

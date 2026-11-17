@@ -1,11 +1,8 @@
 import React from "react";
-import { Outfit } from "next/font/google";
-
-const outfit = Outfit({ subsets: ["latin"], weight: ["700", "800"] });
 
 export function Banner() {
   return (
-    <div className={`flex flex-col items-center w-full max-w-[816px] mx-auto ${outfit.className}`}>
+    <div className="flex flex-col items-center w-full max-w-[816px] mx-auto font-sans">
       {/* Selamat Datang di */}
       <div className="text-4xl sm:text-4xl lg:text-[64px] font-bold lg:leading-[81px] text-[#1E1E1E] text-center mb-8 lg:mb-[25px] whitespace-nowrap">
         Selamat Datang
