@@ -1,6 +1,6 @@
 "use client"
 import { toast } from "@/components/ui/toast"
-import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search, Plus, MapPin, X, AlignLeft, Store, Bell, Star, Megaphone, Trash2, ArrowUp, ArrowDown, ArrowUpToLine } from "lucide-react"
+import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search, Plus, MapPin, X, AlignLeft, Store, Bell, Star, Megaphone, Trash2, ArrowUp, ArrowDown, ArrowUpToLine, Server, Globe, ShieldCheck } from "lucide-react"
 import { uploadMedia } from "@/lib/storage"
 import { cn } from "@/lib/utils"
 import {
@@ -35,7 +35,7 @@ import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { supabase } from "@/lib/supabase"
 
 const formatRupiah = (value: string) => {
@@ -77,6 +77,7 @@ const menuItems = [
   { id: 'banner', label: 'Banner', icon: ImageIcon },
   { id: 'lokasi', label: 'Kelola Lokasi', icon: MapPin },
   { id: 'running_text', label: 'Running Text', icon: AlignLeft },
+  { id: 'infra', label: 'Masa Aktif Server & Domain', icon: Server },
 ]
 
 // Image upload now uses Supabase Storage bucket 'media'
@@ -247,6 +248,38 @@ export default function SettingsPage() {
     }
   }
 
+  // State untuk Masa Aktif Server & Domain
+  const [infraForm, setInfraForm] = useState({
+    domain_name: 'swalayanmaga.com',
+    domain_expiry: '',
+    vps_name: 'Tencent Cloud VPS',
+    vps_expiry: '',
+    show_in_sidebar: true,
+  })
+  const [isSavingInfra, setIsSavingInfra] = useState(false)
+
+  const handleSaveInfra = async () => {
+    setIsSavingInfra(true)
+    try {
+      const payload = {
+        id: 1,
+        domain_name: infraForm.domain_name.trim() || 'swalayanmaga.com',
+        domain_expiry: infraForm.domain_expiry || null,
+        vps_name: infraForm.vps_name.trim() || 'Tencent Cloud VPS',
+        vps_expiry: infraForm.vps_expiry || null,
+        show_in_sidebar: infraForm.show_in_sidebar,
+        updated_at: new Date().toISOString(),
+      }
+      const { error } = await supabase.from('infra_settings').upsert(payload)
+      if (error) throw error
+      toast.add({ title: 'Pengaturan masa aktif berhasil disimpan', type: 'success' })
+    } catch (err: any) {
+      toast.add({ title: 'Gagal menyimpan', description: err.message, type: 'error' })
+    } finally {
+      setIsSavingInfra(false)
+    }
+  }
+
   // fetch data effect
   useEffect(() => {
     const fetchLokasi = async () => {
@@ -307,6 +340,17 @@ export default function SettingsPage() {
 
     const { data: rtCfg } = await supabase.from('running_text_config').select('*').eq('id', 1).single()
     if (rtCfg) setRtConfig({ is_enabled: rtCfg.is_enabled, speed: rtCfg.speed })
+
+    const { data: infraData } = await supabase.from('infra_settings').select('*').eq('id', 1).maybeSingle()
+    if (infraData) {
+      setInfraForm({
+        domain_name: infraData.domain_name || 'swalayanmaga.com',
+        domain_expiry: infraData.domain_expiry || '',
+        vps_name: infraData.vps_name || 'Tencent Cloud VPS',
+        vps_expiry: infraData.vps_expiry || '',
+        show_in_sidebar: infraData.show_in_sidebar ?? true,
+      })
+    }
     setIsLoading(false)
   }
 
@@ -2480,6 +2524,182 @@ export default function SettingsPage() {
                     </div>
                   </DialogContent>
                 </Dialog>
+              </div>
+            )}
+
+            {activeMenu === 'infra' && (
+              <div className="flex flex-col gap-6 max-w-4xl animate-in fade-in duration-150">
+                <div>
+                  <h2 className="text-md md:text-xl font-semibold tracking-tight">Masa Aktif Server & Domain</h2>
+                  <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
+                    Atur tanggal kadaluarsa domain dan server VPS agar admin selalu ingat jadwal perpanjangannya.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                  {/* Form Pengaturan */}
+                  <Card className="rounded-none border-border">
+                    <CardHeader className="border-b pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <Server className="w-4 h-4 text-primary" />
+                        Form Pengingat Masa Aktif
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Masukkan tanggal expired sesuai faktur / billing provider Anda.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-4 space-y-4">
+                      {/* Domain Section */}
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold flex items-center gap-1.5">
+                          <Globe className="w-3.5 h-3.5 text-sky-500" />
+                          Nama Domain
+                        </Label>
+                        <Input
+                          value={infraForm.domain_name}
+                          onChange={(e) => setInfraForm({ ...infraForm, domain_name: e.target.value })}
+                          placeholder="swalayanmaga.com"
+                          className="rounded-none text-xs"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">
+                          Tanggal Kadaluarsa Domain
+                        </Label>
+                        <Input
+                          type="date"
+                          value={infraForm.domain_expiry}
+                          onChange={(e) => setInfraForm({ ...infraForm, domain_expiry: e.target.value })}
+                          className="rounded-none text-xs"
+                        />
+                      </div>
+
+                      <div className="border-t my-3" />
+
+                      {/* VPS Section */}
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold flex items-center gap-1.5">
+                          <Server className="w-3.5 h-3.5 text-purple-500" />
+                          Nama Server / VPS
+                        </Label>
+                        <Input
+                          value={infraForm.vps_name}
+                          onChange={(e) => setInfraForm({ ...infraForm, vps_name: e.target.value })}
+                          placeholder="Tencent Cloud VPS"
+                          className="rounded-none text-xs"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">
+                          Tanggal Kadaluarsa VPS
+                        </Label>
+                        <Input
+                          type="date"
+                          value={infraForm.vps_expiry}
+                          onChange={(e) => setInfraForm({ ...infraForm, vps_expiry: e.target.value })}
+                          className="rounded-none text-xs"
+                        />
+                      </div>
+
+                      <div className="border-t my-3" />
+
+                      {/* Switch Tampilkan di Sidebar */}
+                      <div className="flex items-center justify-between pt-1">
+                        <div className="space-y-0.5">
+                          <Label className="text-xs font-semibold">Tampilkan di Sidebar</Label>
+                          <p className="text-[11px] text-muted-foreground">
+                            Tampilkan widget kartu masa aktif di sidebar kiri (khusus admin).
+                          </p>
+                        </div>
+                        <Switch
+                          checked={infraForm.show_in_sidebar}
+                          onCheckedChange={(val) => setInfraForm({ ...infraForm, show_in_sidebar: val })}
+                        />
+                      </div>
+
+                      <div className="pt-2">
+                        <Button
+                          onClick={handleSaveInfra}
+                          disabled={isSavingInfra}
+                          className="w-full rounded-none bg-yellow-500 hover:bg-yellow-600 text-white font-semibold"
+                        >
+                          {isSavingInfra ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                          Simpan Pengaturan
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Preview Banner Sidebar */}
+                  <div className="flex flex-col gap-4">
+                    <Card className="rounded-none border-border">
+                      <CardHeader className="border-b pb-3">
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                          Pratinjau Widget Sidebar
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                          Tampilan yang akan muncul di sidebar kiri tepat di atas profil admin:
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-4 space-y-4">
+                        <div className="max-w-[270px] p-3 rounded-lg border border-border/80 bg-card/80 shadow-xs space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <span className="flex items-center gap-1.5 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+                              <Server className="w-3.5 h-3.5 text-primary" />
+                              Masa Aktif Server
+                            </span>
+                            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+                          </div>
+
+                          {/* Domain Row */}
+                          <div className="flex items-center justify-between text-xs pt-1">
+                            <span className="flex items-center gap-1.5 text-muted-foreground text-[11px] truncate max-w-[120px]">
+                              <Globe className="w-3 h-3 text-sky-500 shrink-0" />
+                              {infraForm.domain_name || "Domain"}
+                            </span>
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+                              {infraForm.domain_expiry
+                                ? `${Math.max(0, Math.ceil((new Date(infraForm.domain_expiry).getTime() - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24)))} hr`
+                                : "Belum diatur"}
+                            </span>
+                          </div>
+
+                          {/* VPS Row */}
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="flex items-center gap-1.5 text-muted-foreground text-[11px] truncate max-w-[120px]">
+                              <Server className="w-3 h-3 text-purple-500 shrink-0" />
+                              {infraForm.vps_name || "VPS"}
+                            </span>
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+                              {infraForm.vps_expiry
+                                ? `${Math.max(0, Math.ceil((new Date(infraForm.vps_expiry).getTime() - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24)))} hr`
+                                : "Belum diatur"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-3 rounded bg-muted/40 border border-border/50 text-[11px] space-y-1.5 text-muted-foreground">
+                          <p className="font-semibold text-foreground">💡 Status Indikator Warna:</p>
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                            <span><strong>Hijau:</strong> &gt; 30 hari lagi (Kondisi aman).</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-amber-500" />
+                            <span><strong>Kuning:</strong> ≤ 30 hari lagi (Pengingat persiapan perpanjang).</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-rose-500" />
+                            <span><strong>Merah:</strong> ≤ 7 hari lagi (Kritis, segera perpanjang).</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
               </div>
             )}
 

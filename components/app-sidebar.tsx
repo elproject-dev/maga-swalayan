@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase"
 import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
+import { SidebarInfraBadge } from "@/components/sidebar-infra-badge"
 import {
   Sidebar,
   SidebarContent,
@@ -268,6 +269,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {isAdminOrStaff && <NavDocuments items={data.documents} />}
       </SidebarContent>
       <SidebarFooter>
+        {isAdminOrStaff && <SidebarInfraBadge />}
         <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
