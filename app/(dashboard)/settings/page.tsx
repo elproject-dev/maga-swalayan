@@ -2657,10 +2657,10 @@ export default function SettingsPage() {
                               <Globe className="w-4 h-4 text-sky-500 shrink-0" />
                               {infraForm.domain_name || "Domain"}
                             </span>
-                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+                            <span className="text-xs text-muted-foreground tabular-nums">
                               {infraForm.domain_expiry
-                                ? `${Math.max(0, Math.ceil((new Date(infraForm.domain_expiry).getTime() - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24)))} hr`
-                                : "Belum diatur"}
+                                ? `${Math.max(0, Math.ceil((new Date(infraForm.domain_expiry).getTime() - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24)))} hari`
+                                : "-"}
                             </span>
                           </div>
 
@@ -2670,10 +2670,10 @@ export default function SettingsPage() {
                               <Server className="w-4 h-4 text-purple-500 shrink-0" />
                               {infraForm.vps_name || "VPS"}
                             </span>
-                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+                            <span className="text-xs text-muted-foreground tabular-nums">
                               {infraForm.vps_expiry
-                                ? `${Math.max(0, Math.ceil((new Date(infraForm.vps_expiry).getTime() - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24)))} hr`
-                                : "Belum diatur"}
+                                ? `${Math.max(0, Math.ceil((new Date(infraForm.vps_expiry).getTime() - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24)))} hari`
+                                : "-"}
                             </span>
                           </div>
                         </div>

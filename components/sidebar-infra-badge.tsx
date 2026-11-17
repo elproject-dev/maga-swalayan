@@ -99,16 +99,16 @@ export function SidebarInfraBadge() {
   const domainDays = calculateDaysLeft(infra.domain_expiry)
   const vpsDays = calculateDaysLeft(infra.vps_expiry)
 
-  const getStatusBadge = (days: number | null) => {
-    if (days === null) return { color: "text-muted-foreground bg-muted/60", label: "Belum diset", isWarning: false }
-    if (days < 0) return { color: "text-rose-600 bg-rose-500/10 border-rose-500/30", label: "Expired", isWarning: true }
-    if (days <= 7) return { color: "text-rose-600 bg-rose-500/10 border-rose-500/30", label: `${days} hr`, isWarning: true }
-    if (days <= 30) return { color: "text-amber-600 bg-amber-500/10 border-amber-500/30", label: `${days} hr`, isWarning: true }
-    return { color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30", label: `${days} hr`, isWarning: false }
+  const getStatusInfo = (days: number | null) => {
+    if (days === null) return { color: "text-muted-foreground", label: "-", isWarning: false }
+    if (days < 0) return { color: "text-rose-500 font-medium", label: "Expired", isWarning: true }
+    if (days <= 7) return { color: "text-rose-500 font-medium", label: `${days} hari`, isWarning: true }
+    if (days <= 30) return { color: "text-amber-500 font-medium", label: `${days} hari`, isWarning: true }
+    return { color: "text-muted-foreground", label: `${days} hari`, isWarning: false }
   }
 
-  const domainStatus = getStatusBadge(domainDays)
-  const vpsStatus = getStatusBadge(vpsDays)
+  const domainStatus = getStatusInfo(domainDays)
+  const vpsStatus = getStatusInfo(vpsDays)
   const hasUrgentWarning = domainStatus.isWarning || vpsStatus.isWarning
 
   return (
@@ -134,9 +134,7 @@ export function SidebarInfraBadge() {
               <Globe className="w-4 h-4 text-sky-500 shrink-0" />
               <span className="truncate">{infra.domain_name || "Domain"}</span>
             </div>
-            <span
-              className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold border ${domainStatus.color}`}
-            >
+            <span className={`shrink-0 text-xs tabular-nums ${domainStatus.color}`}>
               {domainStatus.label}
             </span>
           </SidebarMenuButton>
@@ -153,9 +151,7 @@ export function SidebarInfraBadge() {
               <Server className="w-4 h-4 text-purple-500 shrink-0" />
               <span className="truncate">{infra.vps_name || "VPS"}</span>
             </div>
-            <span
-              className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold border ${vpsStatus.color}`}
-            >
+            <span className={`shrink-0 text-xs tabular-nums ${vpsStatus.color}`}>
               {vpsStatus.label}
             </span>
           </SidebarMenuButton>
